@@ -21,6 +21,10 @@ const { sequelize } = require("../../models");
 exports.create = async (req, res) => {
 
     try {
+
+        req.body.options.forEach((option, index) => {
+            req.body.options[index] = JSON.parse(option);
+        });
         // Validate request
         const joiSchema = Joi.object({
             statement: Joi.string().required(),
