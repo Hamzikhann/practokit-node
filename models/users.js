@@ -15,9 +15,9 @@ module.exports = (sequelize, DataTypes) => {
   users.associate = function (models) {
     // associations can be defined here
     users.belongsTo(models.roles, { foreignKey: { name: "roleId", allowNull: false }})
-    users.hasMany(models.quizzes)
-    users.hasMany(models.questions)
-    users.hasMany(models.tags)
+    users.hasMany(models.quizzes, { foreignKey: { name: 'createdBy', allowNull: false  } })
+    users.hasMany(models.questions, { foreignKey: { name: 'createdBy', allowNull: false  } })
+    users.hasMany(models.tags, { foreignKey: { name: 'createdBy', allowNull: false  } })
   };
   return users;
 };

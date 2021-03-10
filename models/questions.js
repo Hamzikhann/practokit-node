@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
     questions.belongsTo(models.questionType, { foreignKey: { name: "questionTypeId", allowNull: false }})
     questions.belongsTo(models.courses, { foreignKey: { name: "coursesId", allowNull: false }})
     questions.belongsTo(models.users, { foreignKey: { name: 'createdBy', allowNull: false  } })
-    questions.hasMany(models.questionsAttributes)
+    questions.hasMany(models.questionsAttributes, { name: "questionsId", foreignKey: { allowNull: false }})
     questions.hasMany(models.questionsOptions, { foreignKey: { name: "questionsId", allowNull: false }})
     questions.hasMany(models.questionTags)
   };

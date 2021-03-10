@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
   }, { timestamps: true });
   questionType.associate = function (models) {
     // associations can be defined here
-    questionType.hasMany(models.questions)
+    questionType.hasMany(models.questions, { foreignKey: { name: "questionTypeId", allowNull: false }})
   };
   return questionType;
 };
