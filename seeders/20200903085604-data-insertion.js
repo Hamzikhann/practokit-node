@@ -12,7 +12,7 @@ module.exports = {
         updatedAt: new Date()
       },
       {
-        title: 'Content Editor',
+        title: 'Editor',
         createdAt: new Date(),
         updatedAt: new Date()
       },

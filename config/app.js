@@ -1,28 +1,32 @@
 const expressConfig = require('./express');
 const bodyParser = require('body-parser');
+const express = require('express');
 const cors = require('cors');
+const path = require("path");
 const dotenv = require('dotenv');
-// const swaggerUI = require('swagger-ui-express');
-// import { swaggerDocument } from "../swagger";
+
 class AppConfig {
     constructor(app) {
         dotenv.config();
         this.app = app;
     }
-    includeConfig(io) {
+    includeConfig() {
         global.crypto = require("../utils/crypto")
-        global.helper = require("../utils/helper")
-        this.app.use(bodyParser.json())
+
         this.app.use(cors())
+        this.app.use(bodyParser.json())
+        this.app.use(express.static("./uploads"));
+        this.app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
         this.app.use((req, res, next) => {
             console.log("__________________________________");
             console.log(`${new Date()} ${req.originalUrl}`);
             console.log("Request Params: ", req.params);
             console.log("Request Body: ", req.body);
 
-            req.io = io;
+            res.header('Access-Control-Allow-Origin', req.headers.origin);
+            res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
             return next();
-        });
+        })
         new expressConfig(this.app);
     }
 }

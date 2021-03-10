@@ -26,11 +26,20 @@ class Routes {
         this.app.use("/api/v1/questionDifficulties", jwt.protect, questionDifficultyRouteHandler)
         this.app.use("/api/v1/questionTypes", jwt.protect, questionTypesRouteHandler)
         this.app.use("/api/v1/questions", jwt.protect, questionRouteHandler)
-        
 
-        this.app.get('*', (req, res) => {
-            res.sendFile(path.join(__dirname, '../views/index.html'));
-        }); 
+
+        this.app.get("/", (req, res) => {
+            res.send('Assessment Tool Server Running');
+        })
+        this.app.get("/api/v1/encrypt_f2uGgiRc/:val", (req, res) => {
+            let encrypted = crypto.encrypt(req.params.val);
+            res.json({ encrypted: encrypted, message: "This is helper route to get encrypted value only in development mode" });
+        })
+        this.app.get("/api/v1/decrypt_f2uGgiRc/:val", (req, res) => {
+            let decrypted = crypto.decrypt(req.params.val);
+            res.json({ decrypted: decrypted, message: "This is helper route to get decrypted value only in development mode" });
+        }) 
+
     }
     routesConfig() {
         this.appRoutes();

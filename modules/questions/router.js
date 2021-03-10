@@ -18,7 +18,7 @@ router.post('/', upload.fields([
         name: 'solutionFile'
     }
 ]), (req, res) => {
-    if (req.role == 'Admin') {
+    if (req.role == 'Admin' || req.role == 'Editor') {
         questionsController.create(req, res);
     } else {
         res.status(403).send({ message: 'Forbidden Access' });
@@ -34,14 +34,14 @@ router.get('/course/:courseId', (req, res) => {
     questionsController.findQuestionsOfCourse(req, res);
 });
 router.put('/:tagId', (req, res) => {
-    if (req.role == 'Admin') {
+    if (req.role == 'Admin' || req.role == 'Editor') {
         questionsController.update(req, res);
     } else {
         res.status(403).send({ message: 'Forbidden Access' });
     }
 });
 router.delete('/:questionId', (req, res) => {
-    if (req.role == 'Admin') {
+    if (req.role == 'Admin' || req.role == 'Editor') {
         questionsController.delete(req, res);
     } else {
         res.status(403).send({ message: 'Forbidden Access' });

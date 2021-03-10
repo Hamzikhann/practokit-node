@@ -1,6 +1,5 @@
 const db = require("../../models");
 const encryptHelper = require("../../utils/encryptHelper");
-const notifications = require("../../utils/notifications");
 const emails = require("../../utils/emails");
 const Sequelize = require('sequelize');
 

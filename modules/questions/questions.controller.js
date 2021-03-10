@@ -1,6 +1,5 @@
 const db = require("../../models");
 const encryptHelper = require("../../utils/encryptHelper");
-const notifications = require("../../utils/notifications");
 const emails = require("../../utils/emails");
 const Sequelize = require('sequelize');
 
@@ -166,8 +165,6 @@ exports.create = async (req, res) => {
                 });
         }
     } catch (err) {
-        if (transaction) await transaction.rollback();
-
         emails.errorEmail(req, err);
 
         res.status(500).send({
