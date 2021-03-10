@@ -1,0 +1,121 @@
+/* Write your custom CSS here */
+.page-sidebar-inner {
+  height: 72% !important;
+}
+.page-header .navbar ul.navbar-nav > li > a > i {
+  margin: 0 4px;
+}
+.page-header .navbar-collapse .navbar-nav {
+  margin-right: unset;
+}
+.file-manager-menu {
+  margin-top: 0;
+  margin-bottom: 2rem;
+}
+.navbar-search #nav-search {
+  width: 100%;
+  background: #fdfeff;
+  opacity: 0.8;
+  border-radius: 20px;
+  border: 0;
+  padding: 6px 12px;
+  font-size: 13px;
+  color: #7d7d83;
+  font-weight: 700;
+  display: block;
+  border: 2px solid transparent;
+  margin: 2px 0;
+  -webkit-transition: all 0.2s ease-in-out;
+  -moz-transition: all 0.2s ease-in-out;
+  -o-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+}
+.navbar-search #nav-search:focus {
+  outline: 0;
+}
+#todo-search {
+  border-radius: 8px;
+}
+.custom-control {
+  padding-left: unset;
+}
+.inbox-options .inbox-search input {
+  padding: 8px 20px;
+  margin: 4px 0;
+}
+.table-courses th,
+.table-courses td {
+  text-align: center;
+}
+.table-courses th:first-child,
+.table-courses td:first-child {
+  width: 50%;
+  text-align: left;
+}
+.profile-header .profile-img:before {
+  width: 112px;
+  height: 112px;
+}
+.profile-header .profile-img img {
+  width: 102px;
+}
+.profile-header .profile-img {
+  margin-top: unset;
+}
+.profile-header .profile-name {
+  margin-top: 20px;
+  color: unset;
+}
+.dropdown-menu {
+  top: unset;
+  left: unset;
+  border: 1px solid #827ba2;
+}
+.todo-list ul li {
+  padding: 16px 28px 8px 28px;
+  border-bottom: 1px solid #e8e8e8;
+}
+.todo-list ul li a {
+  padding: unset;
+  border-bottom: unset;
+  font-weight: bold;
+}
+
+.show .dropdown-menu.dropdown-task {
+  right: -16px;
+  background: #f7f7f7 !important;
+  left: unset !important;
+}
+.show .dropdown-menu.dropdown-task a {
+  background: unset !important;
+}
+.form-control {
+  border-radius: 8px;
+}
+select.form-control[multiple],
+textarea.form-control {
+  padding: 12px;
+  height: 124px;
+}
+.todo-list ul li a.done,
+.todo-list ul li a.done:hover {
+  background: unset;
+}
+.custom-switch {
+  padding-left: 2.25rem;
+}
+.connect-container {
+  min-height: unset;
+}
+.dropdown-toggle::after {
+  display: none;
+}
+.file-manager-menu ul li .a {
+  margin: 15px;
+  display: block;
+  color: #6c757d;
+  font-weight: 700;
+  font-size: 13px;
+  opacity: .6;
+  transition: all .2s ease-in-out;
+}

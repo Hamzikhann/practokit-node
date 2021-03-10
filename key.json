@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "wasayil",
+  "private_key_id": "46d8d3be0d066e1ff45fa18d459c59b3278de3cc",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCRTY8swKkxKbM0\nrLokrdls/vbwaaU4SZnTCYi3rFlhGCgiLQvT6y0XN5/Z5ObX6JKdEz/Spwmc/+VD\nn8iEDS2mHuavLt8qzWj4/2RMXh1XlDB41cFar309Uge30pJv2SweDwZciKPgKWVT\nN9R5A4C5vZY9erPkLgWmOVjpXGa+x2R2X+P8txxkJ9wNf6WaPsS0QdVbSAXOm8B+\nWUrECNhv2ngfvBFle6vnhfTFTOk4lGDHmlv76Iumb6nKS2QoCgsN06swYTHzAi91\nO35tE5lxtoeuPpuJ+yYRsIMzm0mq1H54HW9htuWPs7CpL7iOXxzKg3MF6sGGnF7v\n1iO+sWkLAgMBAAECggEABdNJpS459raBm1HLrgLGSKdkKfIwkBeyavYb5BWs7I21\n7xYpsAJUfQMF/32SKliww6B7KOUyJ1vCkdZ83kZvpYYahGc+jTjcGxPqH9NzAQkU\ndGkQH8C70TZR7DotFIzeuLRzgIGMHbdV0H+8LRSCUMVbmdjx1urZ31pFc32ja/5Y\njW8B52fNf+ubPwGkdtTmofiP2IBL0YtAodddhZmNsrFfd9XQFmZcq/+A+kN22+/J\nQnRRiduBuT7XUhfWTbMfAKpyb8QoxzdMhLg/Q3guV3FYYcCnYEtQlYXSvG7w4cX8\nnvhzcZX341zCdlDJmyMtzrdhK2wylhZXfaSMDhPVWQKBgQDBgFSp115YOD77ttB6\n/RYC1aZqsFNMK7Jnty6S6fFpFEB9rmNeDbmPtAUZSpYT2MoCAPjV8fSa7VWGYynU\n++ZGgW3kFLxH5MeE9yy3Y6YhZ94WJG2Ejp2PcQuABif8K0qc3ycsWTlnUSqwGW5n\nYHsVqzza2uu/Dcdv50GIEwG5ZwKBgQDAO/I9lK0nD4OKYBpRksu07yxkr43Qw+bk\n0AtaRrjaQt5DYNIIry1HkS8zMRkswRW+Hif4mmB05iBJT4w4fcTXw3Uj+/a0fCXX\nV6CBq6HMTPQIvrVn/0V4JZRTfdTpKL0PZSy4FEWeKMbmbmtmTA0NcaG86J6HRGXs\nOyqN+Bs4vQKBgCNf35pxGflMxw7jW/ev/u8judm1RHUfY+0cCvKmvBB2uFeBov7V\nyX+g7HG0Nf2I211EajlKk2ojS0hXJpWeO3nWPY290LHf/C2ttkoMeJmQ0IQBwtfB\n7sIDa5PLDFJIY8qL7TBpW1os933cGFfjxnyuomBsNz7lOPmXMF69AsqvAoGAISg1\n2DlUxHAAmFWLNJbFXCgE2DkPlPq1ULIxwxh/ueXewHBqyeStQrLgGUxWs0l6nphE\n/LRj/sXSu9JktTm8QhsMkXBcVTU0sbgDj1ozRjHfxcJfN9jn+plAxEXn+29zbLxe\nwkF84JLX+9b/310uwyreYt8cuOgrTFvIM0SgLWECgYAf5Q4+rncDkHMomfz3ManD\nt5bUiGo5GFtHkGARCJq/qZE4t3mfbBL0f8YUPtA3OpufuNMi7rEIyUg7pfA0m4IV\noE5IdLb+VDI2EWJuG8aCB+3SkP0sYujhAu1mG/VA3osAy29PzAu4Lx9Bm2pBHD+G\nbEuZDFRYSnrYGOBAmRyjZw==\n-----END PRIVATE KEY-----\n",
+  "client_email": "wasayil-emails@wasayil.iam.gserviceaccount.com",
+  "client_id": "106689029761655241640",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/wasayil-emails%40wasayil.iam.gserviceaccount.com"
+}

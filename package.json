@@ -1,0 +1,92 @@
+{
+  "name": "el-node",
+  "version": "1.0.0",
+  "description": "ELearning Portal",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://kaleemasad123@bitbucket.org/ahmad-murtaza/el-node.git"
+  },
+  "author": "Kaleem Asad",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/ahmad-murtaza/el-node#readme",
+  "keywords": [
+    "nodejs",
+    "express",
+    "rest",
+    "api",
+    "sequelize",
+    "mysql"
+  ],
+  "dependencies": {
+    "@hapi/joi": "^17.1.1",
+    "@sendgrid/mail": "^7.2.6",
+    "body-parser": "^1.19.0",
+    "corn": "0.0.1",
+    "cors": "^2.8.5",
+    "cron": "^1.8.2",
+    "crypto": "^1.0.1",
+    "device-detector-js": "^2.2.7",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "fs": "0.0.1-security",
+    "googleapis": "^59.0.0",
+    "https": "^1.0.0",
+    "joi": "^14.3.1",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.19",
+    "moment": "^2.27.0",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.2",
+    "mysql2": "^2.1.0",
+    "nodemailer": "^6.4.11",
+    "nodemailer-sendgrid-transport": "^0.2.0",
+    "sequelize": "^6.3.5",
+    "smtp": "^0.1.4",
+    "socket.io": "^2.3.0",
+    "swagger-ui-express": "^4.1.4",
+    "xoauth2": "^1.2.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.0.0",
+    "@babel/core": "^7.0.0",
+    "@babel/plugin-proposal-class-properties": "^7.0.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "babel-core": "7.0.0-bridge.0",
+    "babel-eslint": "^8.2.1",
+    "babel-jest": "^23.4.2",
+    "eslint": "^4.15.0",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-config-standard": "^11.0.0",
+    "eslint-friendly-formatter": "^3.0.0",
+    "eslint-loader": "^1.7.1",
+    "eslint-plugin-import": "^2.13.0",
+    "eslint-plugin-jest": "^21.15.1",
+    "eslint-plugin-node": "^7.0.1",
+    "eslint-plugin-prettier": "^2.6.2",
+    "eslint-plugin-promise": "^3.8.0",
+    "eslint-plugin-standard": "^3.1.0",
+    "jest": "^23.6.0",
+    "mock-req-res": "^1.0.2",
+    "nodemon": "^1.19.4",
+    "prettier": "^1.15.2",
+    "rimraf": "^2.6.2",
+    "sequelize-cli": "^6.2.0",
+    "supertest": "^3.3.0"
+  },
+  "jest": {
+    "verbose": true,
+    "testURL": "http://localhost/",
+    "testEnvironment": "node",
+    "setupTestFrameworkScriptFile": "<rootDir>/test-db-setup.js",
+    "testPathIgnorePatterns": [
+      "dist/"
+    ],
+    "restoreMocks": true
+  }
+}
