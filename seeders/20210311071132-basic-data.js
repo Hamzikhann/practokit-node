@@ -64,21 +64,21 @@ module.exports = {
     await queryInterface.bulkInsert('tags', [{
       title: 'D1 Algorithms',
       courseId: 1,
-      userId: 2,
+      createdBy: 2,
       createdAt: new Date(),
       updatedAt: new Date()
     },
     {
       title: 'D1 Linear Programming',
       courseId: 1,
-      userId: 2,
+      createdBy: 2,
       createdAt: new Date(),
       updatedAt: new Date()
     },
     {
       title: 'D1 Sorting',
       courseId: 1,
-      userId: 2,
+      createdBy: 2,
       createdAt: new Date(),
       updatedAt: new Date()
     }], {});
