@@ -7,76 +7,76 @@ module.exports = {
      *
      * Example:
      * await queryInterface.bulkInsert('People', [{
-     *   name: 'John Doe',
+     *   title: 'John Doe',
      *   isBetaMember: false
      * }], {});
     */
      await queryInterface.bulkInsert('classes', [{
-      name: 'A Levels',
+      title: 'A Levels',
       createdAt: new Date(),
       updatedAt: new Date()
     },
     {
-      name: 'O Levels',
+      title: 'O Levels',
       createdAt: new Date(),
       updatedAt: new Date()
     }], {});
     await queryInterface.bulkInsert('courses', [{
-      name: 'Mathematics D1',
+      title: 'Mathematics D1',
       classId: 1,
       createdAt: new Date(),
       updatedAt: new Date()
     },
     {
-      name: 'Mathematics D2',
+      title: 'Mathematics D2',
       classId: 1,
       createdAt: new Date(),
       updatedAt: new Date()
     }], {});
     await queryInterface.bulkInsert('questionDifficulties', [{
-      name: 'Very Easy',
+      title: 'Very Easy',
       createdAt: new Date(),
       updatedAt: new Date()
     },
     {
-      name: 'Easy',
+      title: 'Easy',
       createdAt: new Date(),
       updatedAt: new Date()
     },
     {
-      name: 'Medium',
+      title: 'Medium',
       createdAt: new Date(),
       updatedAt: new Date()
     },{
-      name: 'Hard',
+      title: 'Hard',
       createdAt: new Date(),
       updatedAt: new Date()
     },{
-      name: 'Very Hard',
+      title: 'Very Hard',
       createdAt: new Date(),
       updatedAt: new Date()
     }], {});
     await queryInterface.bulkInsert('questionTypes', [{
-      name: 'MCQ',
+      title: 'MCQ',
       createdAt: new Date(),
       updatedAt: new Date()
     }], {});
     await queryInterface.bulkInsert('tags', [{
-      tag: 'D1 Algorithms',
+      title: 'D1 Algorithms',
       courseId: 1,
       userId: 2,
       createdAt: new Date(),
       updatedAt: new Date()
     },
     {
-      tag: 'D1 Linear Programming',
+      title: 'D1 Linear Programming',
       courseId: 1,
       userId: 2,
       createdAt: new Date(),
       updatedAt: new Date()
     },
     {
-      tag: 'D1 Sorting',
+      title: 'D1 Sorting',
       courseId: 1,
       userId: 2,
       createdAt: new Date(),
