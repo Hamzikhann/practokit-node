@@ -33,13 +33,6 @@ router.get('/', (req, res) => {
 router.get('/course/:courseId', (req, res) => {
     questionsController.findQuestionsOfCourse(req, res);
 });
-router.put('/:tagId', (req, res) => {
-    if (req.role == 'Admin' || req.role == 'Editor') {
-        questionsController.update(req, res);
-    } else {
-        res.status(403).send({ message: 'Forbidden Access' });
-    }
-});
 router.delete('/:questionId', (req, res) => {
     if (req.role == 'Admin' || req.role == 'Editor') {
         questionsController.delete(req, res);

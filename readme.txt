@@ -4,6 +4,9 @@ npm install
 Start Server
 nodemon
 
+Create Seed
+npx sequelize-cli seed:generate --name seederName
+
 Running Seeds
 npx sequelize-cli db:seed:all
 

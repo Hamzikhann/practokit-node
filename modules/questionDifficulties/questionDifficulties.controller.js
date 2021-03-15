@@ -1,15 +1,9 @@
 const db = require("../../models");
 const encryptHelper = require("../../utils/encryptHelper");
 const emails = require("../../utils/emails");
-const Sequelize = require('sequelize');
 
-const Courses = db.courses;
-const Tags = db.tags;
 const QuestionDifficulties = db.questionDifficulties;
-
-const Op = db.Sequelize.Op;
 const Joi = require('@hapi/joi');
-const { sequelize } = require("../../models");
 
 // Create and Save a new Question Difficulty
 exports.create = async (req, res) => {

@@ -4,11 +4,8 @@ const encryptHelper = require("../../utils/encryptHelper");
 const emails = require("../../utils/emails");
 const Users = db.users;
 const Roles = db.roles;
-const Joi = require('@hapi/joi');
 
 const Op = db.Sequelize.Op;
-const { sequelize } = require("./../../models");
-
 
 exports.login = async (req, res) => {
     try {
