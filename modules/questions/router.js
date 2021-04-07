@@ -7,24 +7,14 @@ const router = express.Router()
 const fileUpload = require("../../utils/fileUpload");
 const { upload } = fileUpload("questions");
 
-router.post('/', upload.fields([
-    {
-        name: 'statementImage'
-    },
-    {
-        name: 'hintFile'
-    },
-    {
-        name: 'solutionFile'
-    }
-]), (req, res) => {
+router.post('/', (req, res) => {
     if (req.role == 'Admin' || req.role == 'Editor') {
         questionsController.create(req, res);
     } else {
         res.status(403).send({ message: 'Forbidden Access' });
     }
 });
-router.get('/question/:questionId', (req, res) => {
+router.get('/find/:questionId', (req, res) => {
     questionsController.findQuestion(req, res);
 });
 router.get('/', (req, res) => {

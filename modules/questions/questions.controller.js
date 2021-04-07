@@ -21,11 +21,11 @@ const { sequelize } = require("../../models");
 exports.create = async (req, res) => {
 
     try {
-
-        req.body.options.forEach((option, index) => {
-            req.body.options[index] = JSON.parse(option);
-        });
-        // Validate request
+        // req.body.options = JSON.parse(req.body.options);
+        // req.body.options.forEach((option, index) => {
+        //     req.body.options[index] = JSON.parse(option);
+        // });
+            // Validate request
         const joiSchema = Joi.object({
             statement: Joi.string().required(),
             duration: Joi.number().integer().required(),
@@ -33,19 +33,23 @@ exports.create = async (req, res) => {
             difficultyId: Joi.string().required(),
             typeId: Joi.string().required(),
             courseId: Joi.string().required(),
-            // statementImage: Joi.string().required().allow(''),
+            statementImage: Joi.string().required().allow(''),
+            statementFileName: Joi.string().required().allow(''),
             statementImageSource: Joi.string().required(),
             hint: Joi.string().required().allow(''),
-            // hintFile: Joi.string().required().allow(''),
+            hintFile: Joi.string().required().allow(''),
+            hintFileName: Joi.string().required().allow(''),
             hintFileSource: Joi.string().required(),
-            // solutionFile: Joi.string().required().allow(''),
+            solutionFile: Joi.string().required().allow(''),
+            solutionFileName: Joi.string().required().allow(''),
             solutionFileSource: Joi.string().required(),
             tagIds: Joi.array().items(Joi.string().required()).min(1),
             options: Joi.array().items(
                 Joi.object().keys({
                     title: Joi.string().required(),
-                    // image: Joi.string().optional().allow(''),
-                    imageSource: Joi.string().optional().allow(''),
+                    image: Joi.string().optional().allow(''),
+                    imageSource: Joi.string().required(),
+                    fileName: Joi.string().required().allow(''),
                     correct: Joi.boolean().required(),
                 })
             ).min(2).max(8).required()
@@ -72,21 +76,16 @@ exports.create = async (req, res) => {
 
             const questionAttributes = {
                 statementImageSource: req.body.statementImageSource,
+                statementImage: req.body.statementImage,
+                statementFileName: req.body.statementFileName,
                 hint: req.body.hint,
+                hintFile: req.body.hintFile,
                 hintFileSource: req.body.hintFileSource,
-                solutionFileSource: req.body.solutionFileSource
+                hintFileName: req.body.hintFileName,
+                solutionFileSource: req.body.solutionFileSource,
+                solutionFile: req.body.solutionFile,
+                solutionFileName: req.body.solutionFileName
             };
-
-            const file = req.files;
-            if (file['statementImage']) {
-                questionAttributes.statementImage = file['statementImage'][0].path;
-            }
-            if (file['hintFile']) {
-                questionAttributes.hintFile = file['hintFile'][0].path;
-            }
-            if (file['solutionFile']) {
-                questionAttributes.solutionFile = file['solutionFile'][0].path;
-            }
 
             let transaction = await sequelize.transaction();
             Questions.create(question, { transaction })
@@ -96,11 +95,13 @@ exports.create = async (req, res) => {
 
                     var options = [];
                     req.body.options.forEach(option => {
+                        console.log(option.fileName);
                         options.push({
+                            questionsId: questionResult.id,
                             title: option.title,
+                            fileName: option.fileName,
                             imageSource: option.imageSource,
                             correct: option.correct,
-                            questionsId: questionResult.id
                         })
                     });
 
@@ -236,8 +237,14 @@ exports.findQuestion = (req, res) => {
                 {
                     model: Courses,
                     where: { isActive: 'Y' },
+                    include: {
+                        model: Classes,
+                        where: { isActive: 'Y' },
+                        attributes: ['id', 'title'] 
+                    },
                     attributes: ['id', 'title'] 
-                }
+                },
+                
             ],
             attributes: ['id', 'statement', 'duration', 'points']
         })

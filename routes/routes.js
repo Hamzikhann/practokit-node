@@ -4,6 +4,7 @@ const jwt = require('../utils/jwt');
 const path = require("path");
 
 const authenticationRouteHandler = require('../modules/authentication/router');
+const userRouteHandler = require('../modules/users/router');
 const classRouteHandler = require('../modules/classes/router');
 const courseRouteHandler = require('../modules/courses/router');
 const tagRouteHandler = require('../modules/tags/router');
@@ -20,6 +21,7 @@ class Routes {
     appRoutes() {
 
         this.app.use("/api/v1/auth", authenticationRouteHandler)
+        this.app.use("/api/v1/users", jwt.protect, userRouteHandler)
         this.app.use("/api/v1/classes", jwt.protect, classRouteHandler)
         this.app.use("/api/v1/courses", jwt.protect, courseRouteHandler)
         this.app.use("/api/v1/tags", jwt.protect, tagRouteHandler)

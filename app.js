@@ -1,6 +1,9 @@
 
 const http = require('http');
 const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const path = require("path");
 
 const appConfig = require('./config/app');
 const routes = require('./routes/routes');
@@ -8,6 +11,8 @@ const db = require("./models");
 
 class Server {
     constructor() {
+        
+
         this.app = express()
         db.sequelize.sync({ logging: false })
             .then(() => {
@@ -32,7 +37,7 @@ class Server {
 
         this.appConfig();
         this.includeRoute();
-
+        
         var server = http.createServer(this.app);
         server.listen(port);
     }

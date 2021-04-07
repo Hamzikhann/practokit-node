@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: 'Y'
     },
+    fileName: DataTypes.TEXT,
   }, { timestamps: true });
   questionsOptions.associate = function (models) {
     // associations can be defined here
