@@ -33,7 +33,7 @@ Email.errorEmail = async (req, error) => {
         text = text.replace("[ERROR]", error);
 
         var mailOptions = {
-            from: 'ENTUITION <info@entuition.pk>',
+            from: 'Assessment Tool <info@entuition.pk>',
             to: "fareedmurtaza91@gmail.com",
             subject: "ERROR in Assesment Tool(" + req.headers.origin + ")",
             html: text

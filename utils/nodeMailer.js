@@ -19,11 +19,11 @@ async function nodeMailer(mailOptions) {
         throw error;
     }
 
-    // const info = await transporter.sendMail(mailOptions);
-    // console.log(info)
-    // console.log('Email sent to ', mailOptions.to)
-    // return info;
-    return 1;
+    const info = await transporter.sendMail(mailOptions);
+    console.log(info)
+    console.log('Email sent to ', mailOptions.to)
+    return info;
+    // return 1;
 }
 
 module.exports = nodeMailer;

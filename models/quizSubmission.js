@@ -11,8 +11,8 @@ module.exports = (sequelize, DataTypes) => {
   }, { timestamps: true });
   quizSubmission.associate = function (models) {
     // associations can be defined here
-    quizSubmission.belongsTo(models.quizzes, { foreignKey: { name: "quizzId", allowNull: false }})
-    quizSubmission.hasMany(models.quizSubmissionResponse)
+    quizSubmission.belongsTo(models.quizzes, { foreignKey: { name: "quizId", allowNull: false }})
+    quizSubmission.hasOne(models.quizSubmissionResponse)
   };
   return quizSubmission;
 };

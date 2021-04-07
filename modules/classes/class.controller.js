@@ -1,13 +1,10 @@
 const db = require("../../models");
 const encryptHelper = require("../../utils/encryptHelper");
 const emails = require("../../utils/emails");
-const Sequelize = require('sequelize');
 
 const Classes = db.classes;
 
-const Op = db.Sequelize.Op;
 const Joi = require('@hapi/joi');
-const { sequelize } = require("../../models");
 
 exports.create = async (req, res) => {
 

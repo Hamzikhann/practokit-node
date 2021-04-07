@@ -1,7 +1,6 @@
 
 'use strict';
 const jwt = require('../utils/jwt');
-const path = require("path");
 
 const authenticationRouteHandler = require('../modules/authentication/router');
 const userRouteHandler = require('../modules/users/router');
@@ -11,6 +10,8 @@ const tagRouteHandler = require('../modules/tags/router');
 const questionDifficultyRouteHandler = require('../modules/questionDifficulties/router');
 const questionTypesRouteHandler = require('../modules/questionTypes/router');
 const questionRouteHandler = require('../modules/questions/router');
+const quizzesRouteHandler = require('../modules/quizzes/router');
+const submissionsRouteHandler = require('../modules/submissions/router');
 
 
 class Routes {
@@ -28,6 +29,8 @@ class Routes {
         this.app.use("/api/v1/questionDifficulties", jwt.protect, questionDifficultyRouteHandler)
         this.app.use("/api/v1/questionTypes", jwt.protect, questionTypesRouteHandler)
         this.app.use("/api/v1/questions", jwt.protect, questionRouteHandler)
+        this.app.use("/api/v1/quizzes", jwt.protect, quizzesRouteHandler)
+        this.app.use("/api/v1/submissions", jwt.protect, submissionsRouteHandler)
 
 
         this.app.get("/", (req, res) => {

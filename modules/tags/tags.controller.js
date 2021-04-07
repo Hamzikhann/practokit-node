@@ -6,10 +6,7 @@ const Sequelize = require('sequelize');
 const Classes = db.classes;
 const Courses = db.courses;
 const Tags = db.tags;
-
-const Op = db.Sequelize.Op;
 const Joi = require('@hapi/joi');
-const { sequelize } = require("../../models");
 
 // Create and Save a new Tag
 exports.create = async (req, res) => {

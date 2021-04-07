@@ -1,9 +1,9 @@
 const db = require("../../models");
 const encryptHelper = require("../../utils/encryptHelper");
 const emails = require("../../utils/emails");
-const Sequelize = require('sequelize');
 
 const Courses = db.courses;
+const Classes = db.classes;
 const Tags = db.tags;
 const Questions = db.questions;
 const QuestionsAttributes = db.questionsAttributes;
@@ -11,9 +11,7 @@ const QuestionsOptions = db.questionsOptions;
 const QuestionTags = db.questionTags;
 const QuestionTypes = db.questionType;
 const QuestionDifficulties = db.questionDifficulties;
-const Classes = db.classes;
 
-const Op = db.Sequelize.Op;
 const Joi = require('@hapi/joi');
 const { sequelize } = require("../../models");
 
@@ -431,102 +429,7 @@ exports.findQuestionsOfCourse = (req, res) => {
     }
 };
 
-// Update a Tag by the id in the request
-// exports.update = (req, res) => {
-
-//     try {
-//         const joiSchema = Joi.object({
-//             statement: Joi.string().required(),
-//             duration: Joi.number().integer().required(),
-//             points: Joi.number().integer().required(),
-//             difficultyId: Joi.string().required(),
-//             typeId: Joi.string().required(),
-//             courseId: Joi.string().required(),
-//             // statementImage: Joi.string().required().allow(''),
-//             statementImageSource: Joi.string().required(),
-//             hint: Joi.string().required().allow(''),
-//             // hintFile: Joi.string().required().allow(''),
-//             hintFileSource: Joi.string().required(),
-//             // solutionFile: Joi.string().required().allow(''),
-//             solutionFileSource: Joi.string().required(),
-//             tagIds: Joi.array().items(Joi.string().required()).min(1),
-//             options: Joi.array().items(
-//                 Joi.object().keys({
-//                     title: Joi.string().required(),
-//                     // image: Joi.string().optional().allow(''),
-//                     imageSource: Joi.string().optional().allow(''),
-//                     correct: Joi.boolean().required(),
-//                 })
-//             ).min(2).max(8).required()
-//         });
-//         const { error, value } = joiSchema.validate(req.body);
-
-//         if (error) {
-//             const message = error.details[0].message.replace(/"/g, '');
-//             res.status(400).send({
-//                 message: message
-//             });
-//         } else {
-
-//             const question = {
-//                 statement: req.body.statement,
-//                 duration: req.body.duration,
-//                 points: req.body.points,
-//                 questionDifficultyId: crypto.decrypt(req.body.difficultyId),
-//                 questionTypeId: crypto.decrypt(req.body.typeId),
-//                 coursesId: crypto.decrypt(req.body.courseId),
-//                 createdBy: crypto.decrypt(req.userId),
-//             };
-
-//             const questionAttributes = {
-//                 statementImageSource: req.body.statementImageSource,
-//                 hint: req.body.hint,
-//                 hintFileSource: req.body.hintFileSource,
-//                 solutionFileSource: req.body.solutionFileSource
-//             };
-
-//             const file = req.files;
-//             if (file['statementImage']) {
-//                 questionAttributes.statementImage = file['statementImage'][0].path;
-//             }
-//             if (file['hintFile']) {
-//                 questionAttributes.hintFile = file['hintFile'][0].path;
-//             }
-//             if (file['solutionFile']) {
-//                 questionAttributes.solutionFile = file['solutionFile'][0].path;
-//             }
-
-
-//             Tags.update(tag, { where: { id: TagId, isActive: 'Y', createdBy: userId } })
-//                 .then(num => {
-//                     if (num == 1) {
-//                         res.send({
-//                             message: "Tag was updated successfully."
-//                         });
-//                     } else {
-//                         res.send({
-//                             message: `Cannot update Tag. Maybe Tag was not found or req.body is empty!`
-//                         });
-//                     }
-//                 })
-//                 .catch(err => {
-//                     emails.errorEmail(req, err);
-//                     res.status(500).send({
-//                         message: "Error updating Tag"
-//                     });
-//                 });
-//         }
-//     } catch (err) {
-//         emails.errorEmail(req, err);
-
-//         res.status(500).send({
-//             message:
-//                 err.message || "Some error occurred."
-//         });
-//     }
-// };
-
-// Delete a Tag with the specified id in the request
+// Delete with the specified id in the request
 exports.delete = (req, res) => {
     try {
         Questions.update({ isActive: 'N' }, {

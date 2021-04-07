@@ -1,13 +1,9 @@
 const db = require("../../models");
 const encryptHelper = require("../../utils/encryptHelper");
 const emails = require("../../utils/emails");
-const Sequelize = require('sequelize');
 
 const QuestionTypes = db.questionType;
-
-const Op = db.Sequelize.Op;
 const Joi = require('@hapi/joi');
-const { sequelize } = require("../../models");
 
 // Create and Save a new Question Type
 exports.create = async (req, res) => {
