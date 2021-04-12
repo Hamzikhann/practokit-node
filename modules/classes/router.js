@@ -15,6 +15,9 @@ router.post('/', (req, res) => {
 router.get('/', (req, res) => {
     classesController.findAllClasses(req, res);
 });
+router.get('/courses', (req, res) => {
+    classesController.findClasseswithCourses(req, res);
+});
 router.get('/:classId', (req, res) => {
     classesController.findClassById(req, res);
 });

@@ -3,12 +3,15 @@
 module.exports = (sequelize, DataTypes) => {
   const questionsAttributes = sequelize.define('questionsAttributes', {
     statementImage: DataTypes.TEXT,
+    statementFileName: DataTypes.TEXT,
     statementImageSource: DataTypes.STRING,
     hint: DataTypes.TEXT,
     hintFile: DataTypes.TEXT,
     hintFileSource: DataTypes.STRING,
+    hintFileName: DataTypes.STRING,
     solutionFile: DataTypes.TEXT,
     solutionFileSource: DataTypes.STRING,
+    solutionFileName: DataTypes.STRING,
     isActive: {
       type: DataTypes.STRING,
       allowNull: false,

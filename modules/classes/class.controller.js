@@ -3,6 +3,7 @@ const encryptHelper = require("../../utils/encryptHelper");
 const emails = require("../../utils/emails");
 
 const Classes = db.classes;
+const Courses = db.courses;
 
 const Joi = require('@hapi/joi');
 
@@ -83,7 +84,39 @@ exports.findAllClasses = (req, res) => {
     }
 };
 
-// Retrieve all Classes.
+// Retrieve all Classes with courses.
+exports.findClasseswithCourses = (req, res) => {
+
+    try {
+        Classes.findAll({
+            where: { isActive: 'Y' },
+            include: {
+                model: Courses
+            },
+            attributes: { exclude: ['createdAt', 'updatedAt'] }
+        })
+            .then(data => {
+                encryptHelper(data);
+                res.send(data);
+            })
+            .catch(err => {
+                emails.errorEmail(req, err);
+                res.status(500).send({
+                    message:
+                        err.message || "Some error occurred while retrieving Classes."
+                });
+            });
+    } catch (err) {
+        emails.errorEmail(req, err);
+
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred."
+        });
+    }
+};
+
+// Retrieve Class by Id.
 exports.findClassById = (req, res) => {
 
     try {

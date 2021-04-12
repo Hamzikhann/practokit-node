@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
     questions.belongsTo(models.users, { foreignKey: { name: 'createdBy', allowNull: false  } })
     questions.hasOne(models.questionsAttributes, { name: "questionsId", foreignKey: { allowNull: false }})
     questions.hasMany(models.questionsOptions, { foreignKey: { name: "questionsId", allowNull: false }})
-    questions.hasMany(models.questionTags, { foreignKey: { name: "tagsId", allowNull: false }})
+    questions.hasMany(models.questionTags)
   };
   return questions;
 };

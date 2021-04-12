@@ -14,6 +14,13 @@ router.post('/', (req, res) => {
         res.status(403).send({ message: 'Forbidden Access' });
     }
 });
+router.put('/:questionId', (req, res) => {
+    if (req.role == 'Admin' || req.role == 'Editor') {
+        questionsController.updateQuestion(req, res);
+    } else {
+        res.status(403).send({ message: 'Forbidden Access' });
+    }
+});
 router.get('/find/:questionId', (req, res) => {
     questionsController.findQuestion(req, res);
 });
