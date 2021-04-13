@@ -196,7 +196,7 @@ exports.updateQuestion = async (req, res) => {
             options: Joi.array().items(
                 Joi.object().keys({
                     title: Joi.string().required(),
-                    image: Joi.string().optional().allow(''),
+                    image: Joi.optional().allow(''),
                     imageSource: Joi.string().required(),
                     fileName: Joi.string().required().allow(''),
                     correct: Joi.boolean().required(),
