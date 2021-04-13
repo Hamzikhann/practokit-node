@@ -88,7 +88,6 @@ exports.create = async (req, res) => {
 
                     var options = [];
                     req.body.options.forEach(option => {
-                        console.log(option.fileName);
                         options.push({
                             questionsId: questionResult.id,
                             title: option.title,

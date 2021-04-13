@@ -69,6 +69,10 @@ module.exports = {
       title: 'MCQ',
       createdAt: new Date(),
       updatedAt: new Date()
+    },{
+      title: 'True/False',
+      createdAt: new Date(),
+      updatedAt: new Date()
     }], {});
     await queryInterface.bulkInsert('tags', [{
       title: 'D1 Algorithms',
