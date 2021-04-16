@@ -375,6 +375,7 @@ exports.findQuestion = (req, res) => {
                         {
                             model: Tags,
                             where: { isActive: 'Y' },
+                            required: false,
                             include: [
                                 {
                                     model: Courses,
