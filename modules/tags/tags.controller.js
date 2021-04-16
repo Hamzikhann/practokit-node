@@ -160,7 +160,6 @@ exports.update = (req, res) => {
     try {
         const joiSchema = Joi.object({
             title: Joi.string().required(),
-            courseId: Joi.string().required()
         });
         const { error, value } = joiSchema.validate(req.body);
 
@@ -175,7 +174,6 @@ exports.update = (req, res) => {
 
             const tag = { 
                 title: req.body.title.trim(), 
-                courseId: crypto.decrypt(req.body.courseId) 
             }
 
             Tags.update(tag, { where: { id: TagId, isActive: 'Y', createdBy: userId } })
