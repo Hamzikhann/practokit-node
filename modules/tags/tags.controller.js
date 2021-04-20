@@ -28,26 +28,40 @@ exports.create = async (req, res) => {
             });
         } else {
             const tag = {
-                title: req.body.title,
+                title: req.body.title.trim(),
                 courseId: crypto.decrypt(req.body.courseId),
                 createdBy: crypto.decrypt(req.userId)
             }
 
-            Tags.create(tag)
-                .then(async result => {
-
-                    res.status(200).send({
-                        message: "Tag created successfully."
-                    })
-
-                })
-                .catch(async err => {
-                    emails.errorEmail(req, err);
-                    res.status(500).send({
-                        message:
-                            err.message || "Some error occurred while creating the Tag."
-                    });
+            const alreadyExist = await Tags.findOne({
+                where: {
+                    title: tag.title,
+                    courseId: tag.courseId
+                },
+                attributes: ['id']
+            })
+            if (alreadyExist) {
+                res.status(405).send({
+                    title: 'Already exist.',
+                    message: "Tag is already exist with same course."
                 });
+            } else {
+                Tags.create(tag)
+                    .then(async result => {
+
+                        res.status(200).send({
+                            message: "Tag created successfully."
+                        })
+
+                    })
+                    .catch(async err => {
+                        emails.errorEmail(req, err);
+                        res.status(500).send({
+                            message:
+                                err.message || "Some error occurred while creating the Tag."
+                        });
+                    });
+            }
         }
     } catch (err) {
         emails.errorEmail(req, err);
@@ -172,8 +186,8 @@ exports.update = (req, res) => {
             const TagId = crypto.decrypt(req.params.tagId);
             const userId = crypto.decrypt(req.userId);
 
-            const tag = { 
-                title: req.body.title.trim(), 
+            const tag = {
+                title: req.body.title.trim(),
             }
 
             Tags.update(tag, { where: { id: TagId, isActive: 'Y', createdBy: userId } })
