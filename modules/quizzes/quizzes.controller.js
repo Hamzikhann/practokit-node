@@ -28,7 +28,7 @@ exports.create = async (req, res) => {
             ),
             courseId: Joi.string().required(),
             tagsIdList: Joi.array().items(Joi.string().required())
-        });
+        }).prefs({ convert: false });
         const { error, value } = joiSchema.validate(req.body);
 
         if (error) {
