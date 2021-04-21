@@ -157,7 +157,7 @@ exports.create = async (req, res) => {
                 })
             ])
 
-            await Quizzes.create({
+            Quizzes.create({
                 questionTagsIdList: JSON.stringify(req.body.tagsIdList),
                 courseId: courseId,
                 createdBy: crypto.decrypt(req.userId),
@@ -165,12 +165,9 @@ exports.create = async (req, res) => {
                 questionDifficultyList: JSON.stringify(req.body.questions)
             })
 
-            Array.prototype.push.apply(qp0, qp1)
-            Array.prototype.push.apply(qp0, qp2)
-            Array.prototype.push.apply(qp0, qp3)
-            Array.prototype.push.apply(qp0, qp4)
+            var QuestionsPool = [...qp0, ...qp1, ...qp2, ...qp3, ...qp4];
 
-            res.status(200).send(qp0)
+            res.status(200).send(QuestionsPool)
         }
     } catch (err) {
         emails.errorEmail(req, err);
