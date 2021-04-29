@@ -3,6 +3,7 @@ const encryptHelper = require("../../utils/encryptHelper");
 const emails = require("../../utils/emails");
 
 const Courses = db.courses;
+const Classes = db.classes;
 
 const Joi = require('@hapi/joi');
 
@@ -117,6 +118,42 @@ exports.findAllByClass = (req, res) => {
                 res.status(500).send({
                     message:
                         err.message || "Some error occurred while retrieving Courses."
+                });
+            });
+    } catch (err) {
+        emails.errorEmail(req, err);
+
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred."
+        });
+    }
+};
+
+// Find course by id
+exports.findByCourseId = (req, res) => {
+
+    try {
+        Courses.findOne({
+            where: { id: crypto.decrypt(req.params.courseId), isActive: 'Y' },
+            include: [
+                {
+                    model: Classes,
+                    where: { isActive: 'Y' },
+                    attributes: ['id', 'title']
+                }
+            ],
+            attributes: ['id', 'title']
+        })
+            .then(data => {
+                encryptHelper(data);
+                res.send(data);
+            })
+            .catch(err => {
+                emails.errorEmail(req, err);
+                res.status(500).send({
+                    message:
+                        err.message || "Some error occurred while retrieving Course."
                 });
             });
     } catch (err) {

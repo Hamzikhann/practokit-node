@@ -46,7 +46,7 @@ exports.create = async (req, res) => {
             });
         } else {
             let transaction = await sequelize.transaction();
-            QuizSubmissions.create({ quizId: crypto.decrypt(req.body.quizId), result: req.body.result }, { transaction })
+            QuizSubmissions.create({ quizzId: crypto.decrypt(req.body.quizId), result: req.body.result }, { transaction })
                 .then(async submissionRes => {
 
                     await QuizSubmissionResponse.create({ response: req.body.response, quizSubmissionId: submissionRes.id },

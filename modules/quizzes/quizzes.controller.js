@@ -157,7 +157,7 @@ exports.create = async (req, res) => {
                 })
             ])
 
-            Quizzes.create({
+            const quiz = await Quizzes.create({
                 questionTagsIdList: JSON.stringify(req.body.tagsIdList),
                 courseId: courseId,
                 createdBy: crypto.decrypt(req.userId),
@@ -167,7 +167,9 @@ exports.create = async (req, res) => {
 
             var QuestionsPool = [...qp0, ...qp1, ...qp2, ...qp3, ...qp4];
 
-            res.status(200).send(QuestionsPool)
+            encryptHelper(quiz);
+            encryptHelper(QuestionsPool);
+            res.status(200).send({quiz, QuestionsPool})
         }
     } catch (err) {
         emails.errorEmail(req, err);

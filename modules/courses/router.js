@@ -17,6 +17,9 @@ router.get('/', (req, res) => {
 router.get('/:classId', (req, res) => {
     coursesController.findAllByClass(req, res);
 });
+router.get('/course/:courseId', (req, res) => {
+    coursesController.findByCourseId(req, res);
+});
 router.put('/:courseId', (req, res) => {
     if (req.role == 'Admin' || req.role == 'Editor') {
         coursesController.update(req, res);

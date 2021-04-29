@@ -144,12 +144,11 @@ exports.update = (req, res) => {
             const id = crypto.decrypt(req.params.id);
             const userId = crypto.decrypt(req.userId);
 
-            const tag = {
-                title: req.body.title.trim(),
-                courseId: crypto.decrypt(req.body.courseId)
+            const difficulty = {
+                title: req.body.title.trim()
             }
 
-            QuestionDifficulties.update(tag, { where: { id: id, isActive: 'Y', createdBy: userId } })
+            QuestionDifficulties.update(difficulty, { where: { id: id, isActive: 'Y' } })
                 .then(num => {
                     if (num == 1) {
                         res.send({
@@ -157,7 +156,7 @@ exports.update = (req, res) => {
                         });
                     } else {
                         res.send({
-                            message: `Cannot update Question Difficulty. Maybe Question Difficulty was not found or req.body is empty!`
+                            message: `Cannot update Question Difficulty. Maybe Question Difficulty was not found.`
                         });
                     }
                 })
