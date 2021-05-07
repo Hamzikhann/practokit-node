@@ -91,6 +91,7 @@ exports.create = async (req, res) => {
                         options.push({
                             questionsId: questionResult.id,
                             title: option.title,
+                            image: option.image,
                             fileName: option.fileName,
                             imageSource: option.imageSource,
                             correct: option.correct,
