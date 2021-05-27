@@ -17,6 +17,7 @@ const { sequelize } = require("../../models");
 
 // Create and Save a new Question
 exports.create = async (req, res) => {
+    console.log('entered create');
 
     try {
         const joiSchema = Joi.object({
@@ -57,6 +58,7 @@ exports.create = async (req, res) => {
                 message: message
             });
         } else {
+		console.log('joi veified');
             const question = {
                 statement: req.body.statement,
                 duration: req.body.duration,
@@ -83,7 +85,7 @@ exports.create = async (req, res) => {
             let transaction = await sequelize.transaction();
             Questions.create(question, { transaction })
                 .then(async questionResult => {
-
+		console.log('1')
                     questionAttributes.questionId = questionResult.id;
 
                     var options = [];
@@ -105,13 +107,14 @@ exports.create = async (req, res) => {
                             questionId: questionResult.id
                         });
                     })
+		console.log('2')
 
                     QuestionsAttributes.create(questionAttributes, { transaction })
                         .then(async questionAttributesReult => {
-
+				console.log('3')
                             QuestionsOptions.bulkCreate(options, { transaction })
                                 .then(async optionsResult => {
-
+					console.log('4')
                                     QuestionTags.bulkCreate(tags, { transaction })
                                         .then(async tagsResult => {
 

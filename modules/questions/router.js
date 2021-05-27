@@ -9,6 +9,7 @@ const { upload } = fileUpload("questions");
 
 router.post('/', (req, res) => {
     if (req.role == 'Admin' || req.role == 'Editor') {
+		console.log('somtething');
         questionsController.create(req, res);
     } else {
         res.status(403).send({ message: 'Forbidden Access' });
