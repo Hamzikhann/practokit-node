@@ -4,28 +4,28 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     return Promise.all([
       queryInterface.addColumn(
-        'quizsubmissions', // table name
+        'quizSubmissions', // table name
         'totalMarks', // new field name
         {
           type: Sequelize.INTEGER,
         },
       ),
       queryInterface.addColumn(
-        'quizsubmissions', // table name
+        'quizSubmissions', // table name
         'attempted', // new field name
         {
           type: Sequelize.INTEGER,
         },
       ),
       queryInterface.addColumn(
-        'quizsubmissions', // table name
+        'quizSubmissions', // table name
         'totalQuestions', // new field name
         {
           type: Sequelize.INTEGER,
         },
       ),
       queryInterface.addColumn(
-        'quizsubmissions', // table name
+        'quizSubmissions', // table name
         'timeSpend', // new field name
         {
           type: Sequelize.INTEGER,
@@ -36,10 +36,10 @@ module.exports = {
 
   down: async (queryInterface, Sequelize) => {
     return Promise.all([
-      queryInterface.removeColumn('quizsubmissions', 'totalMarks'),
-      queryInterface.removeColumn('quizsubmissions', 'attempted'),
-      queryInterface.removeColumn('quizsubmissions', 'totalQuestions'),
-      queryInterface.removeColumn('quizsubmissions', 'timeSpend'),
+      queryInterface.removeColumn('quizSubmissions', 'totalMarks'),
+      queryInterface.removeColumn('quizSubmissions', 'attempted'),
+      queryInterface.removeColumn('quizSubmissions', 'totalQuestions'),
+      queryInterface.removeColumn('quizSubmissions', 'timeSpend'),
     ]);
   }
 };

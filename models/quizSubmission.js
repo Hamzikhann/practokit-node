@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = (sequelize, DataTypes) => {
-  const quizSubmission = sequelize.define('quizSubmission', {
+  const quizSubmission = sequelize.define('quizSubmissions', {
     result: DataTypes.INTEGER,
     totalMarks: DataTypes.INTEGER,
     attempted: DataTypes.INTEGER,
