@@ -11,5 +11,14 @@ router.post('/', (req, res) => {
         res.status(403).send({ message: 'Forbidden Access' });
     }
 });
+router.get('/:quizId', (req, res) => {
+    quizzesController.findQuizById(req, res);
+});
+router.get('/:quizId/wrong/Questions', (req, res) => {
+    quizzesController.findQuizWrongQuestions(req, res);
+});
+router.get('/:quizId/result', (req, res) => {
+    quizzesController.findQuizResultById(req, res);
+});
 module.exports = router;
 

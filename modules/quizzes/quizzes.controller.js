@@ -7,14 +7,16 @@ const Questions = db.questions;
 const QuestionsAttributes = db.questionsAttributes;
 const QuestionsOptions = db.questionsOptions;
 const QuestionTags = db.questionTags;
-const Tags = db.tags;
 const Quizzes = db.quizzes;
-const QuestionDifficulties = db.questionDifficulties;
+const QuizSubmissions = db.quizSubmission;
+const QuizSubmissionResponse = db.quizSubmissionResponse;
+const Courses = db.courses;
+const Classes = db.classes;
 
 const Joi = require('@hapi/joi');
 const { sequelize } = require("../../models");
 
-// Create and Save a new Question Type
+// Create and Save a new Quiz Type
 exports.create = async (req, res) => {
 
     try {
@@ -61,7 +63,7 @@ exports.create = async (req, res) => {
                     },
                     {
                         model: QuestionsOptions, where: { isActive: 'Y' },
-                        required: false, attributes: ['id', 'title', 'image', 'imageSource', 'correct']
+                        required: false, attributes: ['id', 'title', 'image', 'imageSource']
                     },
                     {
                         model: QuestionsAttributes, where: { isActive: 'Y' }, required: false,
@@ -82,7 +84,7 @@ exports.create = async (req, res) => {
                     },
                     {
                         model: QuestionsOptions, where: { isActive: 'Y' },
-                        required: false, attributes: ['id', 'title', 'image', 'imageSource', 'correct']
+                        required: false, attributes: ['id', 'title', 'image', 'imageSource']
                     },
                     {
                         model: QuestionsAttributes, where: { isActive: 'Y' }, required: false,
@@ -103,7 +105,7 @@ exports.create = async (req, res) => {
                     },
                     {
                         model: QuestionsOptions, where: { isActive: 'Y' },
-                        required: false, attributes: ['id', 'title', 'image', 'imageSource', 'correct']
+                        required: false, attributes: ['id', 'title', 'image', 'imageSource']
                     },
                     {
                         model: QuestionsAttributes, where: { isActive: 'Y' }, required: false,
@@ -124,7 +126,7 @@ exports.create = async (req, res) => {
                     },
                     {
                         model: QuestionsOptions, where: { isActive: 'Y' },
-                        required: false, attributes: ['id', 'title', 'image', 'imageSource', 'correct']
+                        required: false, attributes: ['id', 'title', 'image', 'imageSource']
                     },
                     {
                         model: QuestionsAttributes, where: { isActive: 'Y' }, required: false,
@@ -145,7 +147,7 @@ exports.create = async (req, res) => {
                     },
                     {
                         model: QuestionsOptions, where: { isActive: 'Y' },
-                        required: false, attributes: ['id', 'title', 'image', 'imageSource', 'correct']
+                        required: false, attributes: ['id', 'title', 'image', 'imageSource']
                     },
                     {
                         model: QuestionsAttributes, where: { isActive: 'Y' }, required: false,
@@ -157,19 +159,18 @@ exports.create = async (req, res) => {
                 })
             ])
 
+            var QuestionsPool = await [...qp0, ...qp1, ...qp2, ...qp3, ...qp4];
+
             const quiz = await Quizzes.create({
                 questionTagsIdList: JSON.stringify(req.body.tagsIdList),
                 courseId: courseId,
                 createdBy: crypto.decrypt(req.userId),
                 questionTypeId: 1,
-                questionDifficultyList: JSON.stringify(req.body.questions)
+                questionDifficultyList: JSON.stringify(req.body.questions),
+                questionsPool: JSON.stringify(encryptHelper(QuestionsPool))
             })
 
-            var QuestionsPool = [...qp0, ...qp1, ...qp2, ...qp3, ...qp4];
-
-            encryptHelper(quiz);
-            encryptHelper(QuestionsPool);
-            res.status(200).send({quiz, QuestionsPool})
+            res.status(200).send({ quizId: crypto.encrypt(quiz.id), message: "Quiz Created." })
         }
     } catch (err) {
         emails.errorEmail(req, err);
@@ -178,3 +179,181 @@ exports.create = async (req, res) => {
         });
     }
 };
+
+// Retrieve Quiz by Id.
+exports.findQuizById = (req, res) => {
+    try {
+        Quizzes.findOne({
+            where: { id: crypto.decrypt(req.params.quizId), isActive: 'Y' },
+            include:
+                [
+                    {
+                        model: Courses,
+                        where: { isActive: 'Y' },
+                        include: [
+                            {
+                                model: Classes,
+                                where: { isActive: 'Y' },
+                                attributes: ['title']
+                            }
+                        ],
+                        attributes: ['title']
+                    }
+                ],
+            attributes: ['id', 'questionsPool']
+        })
+            .then(quiz => {
+
+                res.send({
+                    id: crypto.encrypt(quiz.id),
+                    courseTitle: quiz.course.title,
+                    classTitle: quiz.course.class.title,
+                    QuestionsPool: JSON.parse(quiz.questionsPool)
+                });
+            })
+            .catch(err => {
+                emails.errorEmail(req, err);
+                res.status(500).send({
+                    message:
+                        err.message || "Some error occurred while retrieving Quiz by Id."
+                });
+            });
+    } catch (err) {
+        emails.errorEmail(req, err);
+
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred."
+        });
+    }
+};
+
+// Retrieve Wrong questions of quiz by Quiz Id.
+exports.findQuizWrongQuestions = (req, res) => {
+    try {
+        QuizSubmissions.findOne({
+            where: { isActive: 'Y' },
+            include: [
+                {
+                    model: Quizzes,
+                    where: { id: crypto.decrypt(req.params.quizId), isActive: 'Y' },
+                    include: [
+                        {
+                            model: Courses,
+                            where: { isActive: 'Y' },
+                            include: [
+                                {
+                                    model: Classes,
+                                    where: { isActive: 'Y' },
+                                    attributes: ['title']
+                                }
+                            ],
+                            attributes: ['title']
+                        }
+                    ],
+                    attributes: ['id', 'courseId']
+                },
+                {
+                    model: QuizSubmissionResponse,
+                    attributes: ['response']
+                }
+            ],
+            order: [['createdAt', 'DESC']],
+            limit: 1,
+            attributes: ['result', 'totalMarks', 'attempted', 'totalQuestions', 'timeSpend', 'createdAt']
+        })
+            .then(quiz => {
+                const response = JSON.parse(quiz.quizSubmissionResponse.response)
+                var questionsPool = []
+                response.forEach(question => {
+                    if (question.isWrong) {
+                        questionsPool.push(question)
+                    }
+                });
+
+                res.send({
+                    id: crypto.encrypt(quiz.quiz.id),
+                    courseTitle: quiz.quiz.course.title,
+                    classTitle: quiz.quiz.course.class.title,
+                    QuestionsPool: questionsPool
+                });
+            })
+            .catch(err => {
+                emails.errorEmail(req, err);
+                res.status(500).send({
+                    message:
+                        err.message || "Some error occurred while retrieving Quiz by Id."
+                });
+            });
+    } catch (err) {
+        emails.errorEmail(req, err);
+
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred."
+        });
+    }
+};
+
+// Retrieve Quiz Result of quiz bu quiz Id.
+exports.findQuizResultById = (req, res) => {
+    try {
+        QuizSubmissions.findOne({
+            where: { isActive: 'Y' },
+            include: [
+                {
+                    model: Quizzes,
+                    where: { id: crypto.decrypt(req.params.quizId), isActive: 'Y' },
+                    include: [
+                        {
+                            model: Courses,
+                            where: { isActive: 'Y' },
+                            include: [
+                                {
+                                    model: Classes,
+                                    where: { isActive: 'Y' },
+                                    attributes: ['title']
+                                }
+                            ],
+                            attributes: ['title']
+                        }
+                    ],
+                    attributes: ['courseId']
+                }
+            ],
+            order: [['createdAt', 'DESC']],
+            limit: 1,
+            attributes: ['result', 'totalMarks', 'attempted', 'totalQuestions', 'timeSpend', 'createdAt']
+        })
+            .then(quiz => {
+                if (quiz) {
+                    res.send({
+                        result: quiz.result,
+                        totalMarks: quiz.totalMarks,
+                        attempted: quiz.attempted,
+                        totalQuestions: quiz.totalQuestions,
+                        timeSpend: quiz.timeSpend,
+                        courseTitle: quiz.quiz.course.title,
+                        gradeTitle: quiz.quiz.course.class.title,
+                        quiz: quiz
+                    });
+                } else {
+                    res.send(null)
+                }
+            })
+            .catch(err => {
+                emails.errorEmail(req, err);
+                res.status(500).send({
+                    message:
+                        err.message || "Some error occurred while retrieving Quiz by Id."
+                });
+            });
+    } catch (err) {
+        emails.errorEmail(req, err);
+
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred."
+        });
+    }
+}

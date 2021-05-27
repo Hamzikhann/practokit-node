@@ -4,6 +4,7 @@ module.exports = (sequelize, DataTypes) => {
   const quizzes = sequelize.define('quizzes', {
     questionTagsIdList: DataTypes.TEXT,
     questionDifficultyList: DataTypes.TEXT,
+    questionsPool: DataTypes.TEXT,
     isActive: {
       type: DataTypes.STRING,
       allowNull: false,
