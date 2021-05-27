@@ -30,7 +30,6 @@ exports.create = async (req, res) => {
         // Validate request
         const joiSchema = Joi.object({
             quizId: Joi.string().required(),
-            result: Joi.number().integer().required(),
             response: Joi.string().required()
         });
         const { error, value } = joiSchema.validate(req.body);
@@ -46,10 +45,56 @@ exports.create = async (req, res) => {
             });
         } else {
             let transaction = await sequelize.transaction();
-            QuizSubmissions.create({ quizId: crypto.decrypt(req.body.quizId), result: req.body.result }, { transaction })
-                .then(async submissionRes => {
 
-                    await QuizSubmissionResponse.create({ response: req.body.response, quizSubmissionId: submissionRes.id },
+            var quizResponse = JSON.parse(req.body.response);
+            var result = totalMarks = attempted = totalQuestions = timeSpend = 0;
+            const questionsIdList = []
+            quizResponse.forEach((element) => {
+                questionsIdList.push(crypto.decrypt(element.id))
+                totalMarks += element.points;
+                attempted = element.selectedOption != null ? attempted + 1 : attempted;
+                timeSpend = element.remainingDuration >= 0 ? timeSpend + (element.duration - element.remainingDuration) : timeSpend;
+            });
+
+            const questionsCorrectAnswers = await Questions.findAll({
+                where: { id: questionsIdList },
+                include: [
+                    {
+                        model: QuestionsOptions,
+                        attributes: ['id', 'correct']
+                    }
+                ],
+                attributes: ['id']
+            })
+
+            var list = {};
+            questionsCorrectAnswers.forEach((element) => {
+                element.questionsOptions.forEach(option => {
+                    if (option.correct) {
+                        list[element.id] = option.id
+                    }
+                });
+            });
+
+            quizResponse.forEach((element, index) => {
+                if (element.selectedOption != null && list[crypto.decrypt(element.id)] == crypto.decrypt(element.selectedOption)) {
+                    result += element.points;
+                    quizResponse[index].isWrong = false;
+                } else {
+                    quizResponse[index].isWrong = true;
+                }
+            })
+
+            QuizSubmissions.create({
+                quizzId: crypto.decrypt(req.body.quizId),
+                result: result,
+                totalMarks: totalMarks,
+                attempted: attempted,
+                totalQuestions: quizResponse.length,
+                timeSpend: timeSpend
+            }, { transaction })
+                .then(async submissionRes => {
+                    await QuizSubmissionResponse.create({ response: JSON.stringify(quizResponse), quizSubmissionId: submissionRes.id },
                         { transaction })
 
                     await transaction.commit();
@@ -71,7 +116,7 @@ exports.create = async (req, res) => {
     } catch (err) {
         emails.errorEmail(req, err);
 
-        console.log('error');
+        console.log('error', err);
         res.status(500).send({
             message:
                 err.message || "Some error occurred."

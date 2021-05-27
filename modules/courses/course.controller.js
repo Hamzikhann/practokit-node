@@ -3,6 +3,7 @@ const encryptHelper = require("../../utils/encryptHelper");
 const emails = require("../../utils/emails");
 
 const Courses = db.courses;
+const Classes = db.classes;
 
 const Joi = require('@hapi/joi');
 
@@ -26,26 +27,40 @@ exports.create = async (req, res) => {
             });
         } else {
             const course = {
-                title: req.body.title,
+                title: req.body.title.trim(),
                 classId: crypto.decrypt(req.body.classId),
                 createdBy: crypto.decrypt(req.userId)
             }
-            
-            Courses.create(course)
-                .then(async result => {
-                   
-                    res.status(200).send({
-                        message: "Course created successfully."
-                    })
 
-                })
-                .catch(async err => {
-                    emails.errorEmail(req, err);
-                    res.status(500).send({
-                        message:
-                            err.message || "Some error occurred while creating the Quiz."
-                    });
+            const alreadyExist = await Courses.findOne({
+                where: {
+                    title: course.title,
+                    classId: course.classId
+                },
+                attributes: ['id']
+            })
+            if (alreadyExist) {
+                res.status(405).send({
+                    title: 'Already exist.',
+                    message: "Course is already exist with same class."
                 });
+            } else {
+                Courses.create(course)
+                    .then(async result => {
+
+                        res.status(200).send({
+                            message: "Course created successfully."
+                        })
+
+                    })
+                    .catch(async err => {
+                        emails.errorEmail(req, err);
+                        res.status(500).send({
+                            message:
+                                err.message || "Some error occurred while creating the Quiz."
+                        });
+                    });
+            }
         }
     } catch (err) {
         emails.errorEmail(req, err);
@@ -103,6 +118,42 @@ exports.findAllByClass = (req, res) => {
                 res.status(500).send({
                     message:
                         err.message || "Some error occurred while retrieving Courses."
+                });
+            });
+    } catch (err) {
+        emails.errorEmail(req, err);
+
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred."
+        });
+    }
+};
+
+// Find course by id
+exports.findByCourseId = (req, res) => {
+
+    try {
+        Courses.findOne({
+            where: { id: crypto.decrypt(req.params.courseId), isActive: 'Y' },
+            include: [
+                {
+                    model: Classes,
+                    where: { isActive: 'Y' },
+                    attributes: ['id', 'title']
+                }
+            ],
+            attributes: ['id', 'title']
+        })
+            .then(data => {
+                encryptHelper(data);
+                res.send(data);
+            })
+            .catch(err => {
+                emails.errorEmail(req, err);
+                res.status(500).send({
+                    message:
+                        err.message || "Some error occurred while retrieving Course."
                 });
             });
     } catch (err) {

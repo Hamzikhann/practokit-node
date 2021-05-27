@@ -24,25 +24,38 @@ exports.create = async (req, res) => {
             });
         } else {
             const difficulty = {
-                title: req.body.title,
+                title: req.body.title.trim(),
                 createdBy: crypto.decrypt(req.userId)
             }
 
-            QuestionDifficulties.create(difficulty)
-                .then(async result => {
-
-                    res.status(200).send({
-                        message: "Question Difficulty created successfully."
-                    })
-
-                })
-                .catch(async err => {
-                    emails.errorEmail(req, err);
-                    res.status(500).send({
-                        message:
-                            err.message || "Some error occurred while creating the Question Difficulty."
-                    });
+            const alreadyExist = await QuestionDifficulties.findOne({
+                where: {
+                    title: difficulty.title
+                },
+                attributes: ['id']
+            })
+            if (alreadyExist) {
+                res.status(405).send({
+                    title: 'Already exist.',
+                    message: "'" + difficulty.title + "' difficulty is already exist."
                 });
+            } else {
+                QuestionDifficulties.create(difficulty)
+                    .then(async result => {
+
+                        res.status(200).send({
+                            message: "Question Difficulty created successfully."
+                        })
+
+                    })
+                    .catch(async err => {
+                        emails.errorEmail(req, err);
+                        res.status(500).send({
+                            message:
+                                err.message || "Some error occurred while creating the Question Difficulty."
+                        });
+                    });
+            }
         }
     } catch (err) {
         emails.errorEmail(req, err);
@@ -131,12 +144,11 @@ exports.update = (req, res) => {
             const id = crypto.decrypt(req.params.id);
             const userId = crypto.decrypt(req.userId);
 
-            const tag = { 
-                title: req.body.title.trim(), 
-                courseId: crypto.decrypt(req.body.courseId) 
+            const difficulty = {
+                title: req.body.title.trim()
             }
 
-            QuestionDifficulties.update(tag, { where: { id: id, isActive: 'Y', createdBy: userId } })
+            QuestionDifficulties.update(difficulty, { where: { id: id, isActive: 'Y' } })
                 .then(num => {
                     if (num == 1) {
                         res.send({
@@ -144,7 +156,7 @@ exports.update = (req, res) => {
                         });
                     } else {
                         res.send({
-                            message: `Cannot update Question Difficulty. Maybe Question Difficulty was not found or req.body is empty!`
+                            message: `Cannot update Question Difficulty. Maybe Question Difficulty was not found.`
                         });
                     }
                 })

@@ -25,7 +25,7 @@ module.exports = {
     await queryInterface.bulkInsert('users', [{
       firstName: 'Admin',
       lastName: '',
-      email: 'admin@quiz.pk',
+      email: 'admin@oxibit.com',
       password: 'dell',
       roleId: 1,
       createdAt: new Date(),
@@ -34,7 +34,7 @@ module.exports = {
     {
       firstName: 'Content',
       lastName: 'Editor',
-      email: 'editor@quiz.pk',
+      email: 'editor@oxibit.com',
       password: 'dell',
       roleId: 2,
       createdAt: new Date(),

@@ -2,8 +2,9 @@
 
 module.exports = (sequelize, DataTypes) => {
   const quizzes = sequelize.define('quizzes', {
-    questionsCount: DataTypes.INTEGER,
-    questionTagsIdList: DataTypes.STRING,
+    questionTagsIdList: DataTypes.TEXT,
+    questionDifficultyList: DataTypes.TEXT,
+    questionsPool: DataTypes.TEXT,
     isActive: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -14,8 +15,7 @@ module.exports = (sequelize, DataTypes) => {
     // associations can be defined here
     quizzes.belongsTo(models.users, { foreignKey: { name: 'createdBy', allowNull: false  } })
     quizzes.belongsTo(models.courses, { foreignKey: { allowNull: false }})
-    quizzes.hasMany(models.quizSubmission, { foreignKey: { name: "quizId", allowNull: false }})
-    quizzes.belongsTo(models.questionDifficulties, { foreignKey: { allowNull: false }})
+    quizzes.hasMany(models.quizSubmission, { foreignKey: { name: "quizzId", allowNull: false }})
     quizzes.belongsTo(models.questionType, { foreignKey: { allowNull: false }})
   };
   return quizzes;

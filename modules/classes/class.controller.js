@@ -25,25 +25,38 @@ exports.create = async (req, res) => {
         } else {
 
             const classObj = {
-                title: req.body.title,
+                title: req.body.title.trim(),
                 createdBy: crypto.decrypt(req.userId)
             };
 
-            Classes.create(classObj)
-                .then(async result => {
-
-                    res.status(200).send({
-                        message: "Class created successfully."
-                    })
-
-                })
-                .catch(async err => {
-                    emails.errorEmail(req, err);
-                    res.status(500).send({
-                        message:
-                            err.message || "Some error occurred while creating the Quiz."
-                    });
+            const alreadyExist = await Classes.findOne({
+                where: {
+                    title: classObj.title
+                },
+                attributes: ['id']
+            })
+            if (alreadyExist) {
+                res.status(405).send({
+                    title: 'Already exist.',
+                    message: "Class is already exist."
                 });
+            } else {
+                Classes.create(classObj)
+                    .then(async result => {
+
+                        res.status(200).send({
+                            message: "Class created successfully."
+                        })
+
+                    })
+                    .catch(async err => {
+                        emails.errorEmail(req, err);
+                        res.status(500).send({
+                            message:
+                                err.message || "Some error occurred while creating the Quiz."
+                        });
+                    });
+            }
         }
     } catch (err) {
         emails.errorEmail(req, err);
@@ -91,7 +104,8 @@ exports.findClasseswithCourses = (req, res) => {
         Classes.findAll({
             where: { isActive: 'Y' },
             include: {
-                model: Courses
+                model: Courses,
+                attributes: ['id', 'title']
             },
             attributes: { exclude: ['createdAt', 'updatedAt'] }
         })

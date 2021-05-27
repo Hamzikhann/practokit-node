@@ -90,10 +90,10 @@ exports.create = async (req, res) => {
 
                     var options = [];
                     req.body.options.forEach(option => {
-                        console.log(option.fileName);
                         options.push({
                             questionsId: questionResult.id,
                             title: option.title,
+                            image: option.image,
                             fileName: option.fileName,
                             imageSource: option.imageSource,
                             correct: option.correct,
@@ -200,7 +200,7 @@ exports.updateQuestion = async (req, res) => {
             options: Joi.array().items(
                 Joi.object().keys({
                     title: Joi.string().required(),
-                    image: Joi.string().optional().allow(''),
+                    image: Joi.optional().allow(''),
                     imageSource: Joi.string().required(),
                     fileName: Joi.string().required().allow(''),
                     correct: Joi.boolean().required(),
@@ -379,6 +379,7 @@ exports.findQuestion = (req, res) => {
                         {
                             model: Tags,
                             where: { isActive: 'Y' },
+                            required: false,
                             include: [
                                 {
                                     model: Courses,
