@@ -487,6 +487,13 @@ exports.findAll = (req, res) => {
                 {
                     model: Courses,
                     where: { isActive: 'Y' },
+                    include: [
+                        {
+                            model: Classes,
+                            where: { isActive: 'Y' },
+                            attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy'] }
+                        }
+                    ],
                     attributes: ['id', 'title'] 
                 }
             ],

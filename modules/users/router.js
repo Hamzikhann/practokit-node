@@ -6,7 +6,7 @@ const router = express.Router()
 
 
 router.post('/', (req, res) => {
-    if (req.role == 'Admin' || req.role == 'Editor') {
+    if (req.role == 'Admin') {
         usersController.create(req, res);
     } else {
         res.status(403).send({ message: 'Forbidden Access' });
@@ -18,15 +18,21 @@ router.get('/', (req, res) => {
 router.get('/:classId', (req, res) => {
     usersController.findUserById(req, res);
 });
-router.put('/:classId', (req, res) => {
-    if (req.role == 'Admin' || req.role == 'Editor') {
+router.put('/:userId', (req, res) => {
+    if (req.role == 'Admin') {
         usersController.update(req, res);
     } else {
         res.status(403).send({ message: 'Forbidden Access' });
     }
 });
-router.delete('/:classId', (req, res) => {
-    if (req.role == 'Admin' || req.role == 'Editor') {
+router.put('/profile/edit', (req, res) => {
+    usersController.updatePassword(req, res);
+});
+router.put('/reset/password', (req, res) => {
+    usersController.changePassword(req, res);
+});
+router.delete('/:userId', (req, res) => {
+    if (req.role == 'Admin') {
         usersController.delete(req, res);
     } else {
         res.status(403).send({ message: 'Forbidden Access' });

@@ -47,5 +47,29 @@ Email.errorEmail = async (req, error) => {
     }
 };
 
+Email.addUser = async (user) => {
+    try {
+        const data = fs.readFileSync("./templates/addUser.html", "utf8");
+        var text = data;
+
+        text = text.replace("[USER_NAME]", user.name);
+        text = text.replace("[PASSWORD]", user.password);
+        text = text.replace("[SIGNIN_BUTTON]", process.env.frontend_URL);
+
+        var mailOptions = {
+            from: 'Assessment Tool <info@entuition.pk>',
+            to: user.email,
+            subject: "Welcome To Assesment Tool",
+            html: text
+        }
+
+        return nodeMailer(mailOptions)
+
+    } catch (error) {
+        console.log(error)
+        throw error;
+    }
+};
+
 
 module.exports = Email;

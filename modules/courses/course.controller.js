@@ -78,7 +78,15 @@ exports.findAll = (req, res) => {
     try {
         Courses.findAll({
             where: { isActive: 'Y' },
-            attributes: { exclude: ['isActive'] }
+            include: 
+            [
+                {
+                    model: Classes,
+                    where: { isActive: 'Y' },
+                    attributes: ['id', 'title']
+                }
+            ],
+            attributes: ['id', 'title']
         })
             .then(data => {
                 encryptHelper(data);
@@ -171,7 +179,8 @@ exports.update = (req, res) => {
 
     try {
         const joiSchema = Joi.object({
-            title: Joi.string().required()
+            title: Joi.string().required(),
+            classId: Joi.string().required()
         });
         const { error, value } = joiSchema.validate(req.body);
 
@@ -184,7 +193,8 @@ exports.update = (req, res) => {
             const courseId = crypto.decrypt(req.params.courseId);
             const userId = crypto.decrypt(req.userId);
 
-            Courses.update({ title: req.body.title.trim() }, { where: { id: courseId, isActive: 'Y', createdBy: userId } })
+            Courses.update({ title: req.body.title.trim(), classId: crypto.decrypt(req.body.classId.trim()) }, 
+            { where: { id: courseId, isActive: 'Y', createdBy: userId } })
                 .then(num => {
                     if (num == 1) {
                         res.send({
