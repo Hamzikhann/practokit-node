@@ -52,7 +52,7 @@ Email.addUser = async (user) => {
         const data = fs.readFileSync("./templates/addUser.html", "utf8");
         var text = data;
 
-        text = text.replace("[USER_NAME]", user.name);
+        text = text.replace("[USER_NAME]", user.firstName + " " + user.lastName);
         text = text.replace("[PASSWORD]", user.password);
         text = text.replace("[SIGNIN_BUTTON]", process.env.frontend_URL);
 

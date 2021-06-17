@@ -47,17 +47,15 @@ exports.create = async (req, res) => {
             } else {
                 Courses.create(course)
                     .then(async result => {
-
                         res.status(200).send({
                             message: "Course created successfully."
                         })
-
                     })
                     .catch(async err => {
                         emails.errorEmail(req, err);
                         res.status(500).send({
                             message:
-                                err.message || "Some error occurred while creating the Quiz."
+                                err.message || "Some error occurred while creating the course."
                         });
                     });
             }
@@ -78,17 +76,20 @@ exports.findAll = (req, res) => {
     try {
         Courses.findAll({
             where: { isActive: 'Y' },
-            include: 
-            [
-                {
-                    model: Classes,
-                    where: { isActive: 'Y' },
-                    attributes: ['id', 'title']
-                }
+            include:
+                [
+                    {
+                        model: Classes,
+                        where: { isActive: 'Y' },
+                        attributes: ['id', 'title']
+                    }
+                ],
+            order: [
+                ['title', 'ASC'],
             ],
             attributes: ['id', 'title']
         })
-            .then(data => {
+            .then(async data => {
                 encryptHelper(data);
                 res.send(data);
             })
@@ -175,7 +176,7 @@ exports.findByCourseId = (req, res) => {
 };
 
 // Update a course by the id in the request
-exports.update = (req, res) => {
+exports.update = async (req, res) => {
 
     try {
         const joiSchema = Joi.object({
@@ -193,25 +194,43 @@ exports.update = (req, res) => {
             const courseId = crypto.decrypt(req.params.courseId);
             const userId = crypto.decrypt(req.userId);
 
-            Courses.update({ title: req.body.title.trim(), classId: crypto.decrypt(req.body.classId.trim()) }, 
-            { where: { id: courseId, isActive: 'Y', createdBy: userId } })
-                .then(num => {
-                    if (num == 1) {
-                        res.send({
-                            message: "Course was updated successfully."
-                        });
-                    } else {
-                        res.send({
-                            message: `Cannot update Course. Maybe Course was not found or req.body is empty!`
-                        });
-                    }
-                })
-                .catch(err => {
-                    emails.errorEmail(req, err);
-                    res.status(500).send({
-                        message: "Error updating Course"
-                    });
+            const alreadyExist = await Courses.findOne({
+                where: {
+                    title: req.body.title.trim(),
+                    classId: crypto.decrypt(req.body.classId.trim())
+                },
+                attributes: ['id']
+            })
+            if (alreadyExist) {
+                res.status(405).send({
+                    title: 'Already exist.',
+                    message: "Course is already exist with same class."
                 });
+            } else {
+                Courses.update({
+                    title: req.body.title.trim(),
+                    classId: crypto.decrypt(req.body.classId.trim()),
+                    updatedBy: crypto.decrypt(req.userId)
+                },
+                    { where: { id: courseId, isActive: 'Y', createdBy: userId } })
+                    .then(num => {
+                        if (num == 1) {
+                            res.send({
+                                message: "Course was updated successfully."
+                            });
+                        } else {
+                            res.send({
+                                message: `Cannot update Course. Maybe Course was not found or req.body is empty!`
+                            });
+                        }
+                    })
+                    .catch(err => {
+                        emails.errorEmail(req, err);
+                        res.status(500).send({
+                            message: "Error updating Course"
+                        });
+                    });
+            }
         }
     } catch (err) {
         emails.errorEmail(req, err);

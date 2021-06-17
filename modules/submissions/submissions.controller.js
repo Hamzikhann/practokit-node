@@ -3,21 +3,10 @@ const encryptHelper = require("../../utils/encryptHelper");
 const emails = require("../../utils/emails");
 const Sequelize = require('sequelize');
 
-const Quizzes = db.quizzes;
-const QuestionTypes = db.questionType;
-const QuizSubmissions = db.quizSubmission;
+const QuizSubmissions = db.quizSubmissions;
 const QuizSubmissionResponse = db.quizSubmissionResponse;
-
-const Courses = db.courses;
-const Classes = db.classes;
-const Tags = db.tags;
 const Questions = db.questions;
-const QuestionsAttributes = db.questionsAttributes;
 const QuestionsOptions = db.questionsOptions;
-const QuestionTags = db.questionTags;
-const QuestionDifficulties = db.questionDifficulties;
-const Users = db.users;
-const Roles = db.roles;
 
 const Op = db.Sequelize.Op;
 const Joi = require('@hapi/joi');
@@ -46,418 +35,157 @@ exports.create = async (req, res) => {
         } else {
             let transaction = await sequelize.transaction();
 
+            const quizId = crypto.decrypt(req.body.quizId)
             var quizResponse = JSON.parse(req.body.response);
             var result = totalMarks = attempted = totalQuestions = timeSpend = 0;
             const questionsIdList = []
-            quizResponse.forEach((element) => {
-                questionsIdList.push(crypto.decrypt(element.id))
-                totalMarks += element.points;
-                attempted = element.selectedOption != null ? attempted + 1 : attempted;
-                timeSpend = element.remainingDuration >= 0 ? timeSpend + (element.duration - element.remainingDuration) : timeSpend;
-            });
 
-            const questionsCorrectAnswers = await Questions.findAll({
-                where: { id: questionsIdList },
-                include: [
-                    {
-                        model: QuestionsOptions,
-                        attributes: ['id', 'correct']
-                    }
-                ],
-                attributes: ['id']
+            const oldQuizAttributes = await QuizSubmissions.findOne({
+                where: { quizzId: quizId }
             })
 
-            var list = {};
-            questionsCorrectAnswers.forEach((element) => {
-                element.questionsOptions.forEach(option => {
-                    if (option.correct) {
-                        list[element.id] = option.id
-                    }
+            if (!oldQuizAttributes) {
+                quizResponse.forEach((element) => {
+                    questionsIdList.push(crypto.decrypt(element.id))
+                    totalMarks += element.points;
+                    attempted = element.selectedOption != null ? attempted + 1 : attempted;
+                    timeSpend = element.remainingDuration >= 0 ? timeSpend + (element.duration - element.remainingDuration) : timeSpend;
                 });
-            });
 
-            quizResponse.forEach((element, index) => {
-                if (element.selectedOption != null && list[crypto.decrypt(element.id)] == crypto.decrypt(element.selectedOption)) {
-                    result += element.points;
-                    quizResponse[index].isWrong = false;
-                } else {
-                    quizResponse[index].isWrong = true;
-                }
-            })
-
-            QuizSubmissions.create({
-                quizzId: crypto.decrypt(req.body.quizId),
-                result: result,
-                totalMarks: totalMarks,
-                attempted: attempted,
-                totalQuestions: quizResponse.length,
-                timeSpend: timeSpend
-            }, { transaction })
-                .then(async submissionRes => {
-                    await QuizSubmissionResponse.create({ response: JSON.stringify(quizResponse), quizSubmissionId: submissionRes.id },
-                        { transaction })
-
-                    await transaction.commit();
-                    res.status(200).send({
-                        message: "Question Submission created successfully."
-                    })
-
+                const questionsCorrectAnswers = await Questions.findAll({
+                    where: { id: questionsIdList },
+                    include: [
+                        {
+                            model: QuestionsOptions,
+                            attributes: ['id', 'correct']
+                        }
+                    ],
+                    attributes: ['id']
                 })
-                .catch(async err => {
-                    if (transaction) await transaction.rollback();
 
-                    emails.errorEmail(req, err);
-                    res.status(500).send({
-                        message:
-                            err.message || "Some error occurred while creating the Quiz Submission."
+                var list = {};
+                questionsCorrectAnswers.forEach((element) => {
+                    element.questionsOptions.forEach(option => {
+                        if (option.correct) {
+                            list[element.id] = option.id
+                        }
                     });
                 });
+
+                quizResponse.forEach((element, index) => {
+                    if (element.selectedOption != null && list[crypto.decrypt(element.id)] == crypto.decrypt(element.selectedOption)) {
+                        result += element.points;
+                        quizResponse[index].isWrong = false;
+                    } else {
+                        quizResponse[index].isWrong = true;
+                    }
+                })
+
+                QuizSubmissions.create({
+                    quizzId: quizId,
+                    result: result,
+                    totalMarks: totalMarks,
+                    attempted: attempted,
+                    totalQuestions: quizResponse.length,
+                    timeSpend: timeSpend
+                }, { transaction })
+                    .then(async submissionRes => {
+                        await QuizSubmissionResponse.create({ response: JSON.stringify(quizResponse), quizSubmissionId: submissionRes.id },
+                            { transaction })
+
+                        await transaction.commit();
+                        res.status(200).send({
+                            message: "Question Submission created successfully."
+                        })
+
+                    })
+                    .catch(async err => {
+                        if (transaction) await transaction.rollback();
+
+                        emails.errorEmail(req, err);
+                        res.status(500).send({
+                            message:
+                                err.message || "Some error occurred while creating the Quiz Submission."
+                        });
+                    });
+            } else {
+                result = oldQuizAttributes.result;
+                totalMarks = oldQuizAttributes.totalMarks;
+                timeSpend = oldQuizAttributes.timeSpend;
+
+                quizResponse.forEach((element) => {
+                    questionsIdList.push(crypto.decrypt(element.id))
+                    attempted = element.selectedOption != null ? attempted + 1 : attempted;
+                    timeSpend = element.remainingDuration >= 0 ? timeSpend + (element.duration - element.remainingDuration) : timeSpend;
+                });
+
+                const questionsCorrectAnswers = await Questions.findAll({
+                    where: { id: questionsIdList },
+                    include: [
+                        {
+                            model: QuestionsOptions,
+                            attributes: ['id', 'correct']
+                        }
+                    ],
+                    attributes: ['id']
+                })
+
+                var list = {};
+                questionsCorrectAnswers.forEach((element) => {
+                    element.questionsOptions.forEach(option => {
+                        if (option.correct) {
+                            list[element.id] = option.id
+                        }
+                    });
+                });
+
+                quizResponse.forEach((element, index) => {
+                    if (element.selectedOption != null && list[crypto.decrypt(element.id)] == crypto.decrypt(element.selectedOption)) {
+                        result += element.points;
+                        quizResponse[index].isWrong = false;
+                    } else {
+                        quizResponse[index].isWrong = true;
+                    }
+                })
+
+                QuizSubmissions.update({
+                    result: result,
+                    attempted: attempted,
+                    timeSpend: timeSpend
+                },
+                    { where: { quizzId: quizId }, transaction })
+                    .then(async num => {
+                        if (num) {
+                            await QuizSubmissionResponse.create({
+                                response: JSON.stringify(quizResponse),
+                                quizSubmissionId: oldQuizAttributes.id
+                            }, { transaction })
+
+                            await transaction.commit();
+                            res.status(200).send({
+                                message: "Question Submission created successfully."
+                            })
+                        } else {
+                            res.send({
+                                message: `Cannot update Quiz Attributes. Maybe Quiz was not found or req.body is empty!`
+                            });
+                        }
+                    })
+                    .catch(async err => {
+                        if (transaction) await transaction.rollback();
+
+                        emails.errorEmail(req, err);
+                        res.status(500).send({
+                            message:
+                                err.message || "Some error occurred while creating the Quiz Submission."
+                        });
+                    });
+            }
         }
     } catch (err) {
         emails.errorEmail(req, err);
 
         console.log('error', err);
-        res.status(500).send({
-            message:
-                err.message || "Some error occurred."
-        });
-    }
-};
-
-// Find All Quiz Submission
-exports.findAll = (req, res) => {
-
-    try {
-        Quizzes.findAll({
-            where: { isActive: 'Y' },
-            include: [
-                {
-                    model: Courses,
-                    include: [
-                        {
-                            model: Classes,
-                            attributes: ['title'],
-                        }
-                    ],
-                    attributes: ['title'],
-                },
-                {
-                    model: QuestionDifficulties,
-                    attributes: ['title'],
-                },
-                {
-                    model: QuestionTypes,
-                    attributes: ['title'],
-                },
-                {
-                    model: QuizSubmissions,
-                    where: { isActive: 'Y' },
-                    include: [
-                        {
-                            model: QuizSubmissionResponse,
-                            where: { isActive: 'Y' },
-                            attributes: ['response']
-                        }
-                    ],
-                    attributes: ['id', 'result', 'quizId']
-                },
-                {
-                    model: Users,
-                    include: [
-                        {
-                            model: Roles,
-                            where: { isActive: 'Y' },
-                            attributes: ['title'],
-                        }
-                    ],
-                    attributes: ['firstName', 'lastName', 'email', 'password'],
-                },
-            ],
-            attributes: ['id', 'questionsCount', 'questionTagsIdList'],
-        })
-            .then(async data => {
-                encryptHelper(data);
-                res.send(data);
-            })
-            .catch(err => {
-                emails.errorEmail(req, err);
-                res.status(500).send({
-                    message:
-                        err.message || "Some error occurred while retrieving Questioniz Submission"
-                });
-            });
-    } catch (err) {
-        emails.errorEmail(req, err);
-
-        res.status(500).send({
-            message:
-                err.message || "Some error occurred."
-        });
-    }
-};
-// Find Single Quiz Submission
-exports.findById = (req, res) => {
-
-    try {
-        Quizzes.findOne({
-            where: { isActive: 'Y', id: crypto.decrypt(req.params.id) },
-            include: [
-                {
-                    model: Courses,
-                    include: [
-                        {
-                            model: Classes,
-                            attributes: ['title'],
-                        }
-                    ],
-                    attributes: ['title'],
-                },
-                {
-                    model: QuestionDifficulties,
-                    attributes: ['title'],
-                },
-                {
-                    model: QuestionTypes,
-                    attributes: ['title'],
-                },
-                {
-                    model: QuizSubmissions,
-                    where: { isActive: 'Y' },
-                    include: [
-                        {
-                            model: QuizSubmissionResponse,
-                            where: { isActive: 'Y' },
-                            attributes: ['response']
-                        }
-                    ],
-                    attributes: ['id', 'result', 'quizId']
-                },
-                {
-                    model: Users,
-                    include: [
-                        {
-                            model: Roles,
-                            where: { isActive: 'Y' },
-                            attributes: ['title'],
-                        }
-                    ],
-                    attributes: ['firstName', 'lastName', 'email', 'password'],
-                },
-            ],
-            attributes: ['id', 'questionsCount', 'questionTagsIdList'],
-        })
-            .then(async data => {
-
-                if (data && data.questionTagsIdList) {
-                    data.dataValues.tags = await Tags.findAll({
-                        where: { isActive: 'Y', id: JSON.parse(data.questionTagsIdList) },
-                        include: [
-                            {
-                                model: Courses,
-                                where: { isActive: 'Y' },
-                                include: [
-                                    {
-                                        model: Classes,
-                                        where: { isActive: 'Y' },
-                                        attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy'] }
-                                    }
-                                ],
-                                attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy', 'classId'] }
-                            }
-                        ],
-                        attributes: ['id', 'title']
-                    })
-                }
-
-                encryptHelper(data);
-                res.send({ Quiz: data });
-            })
-            .catch(err => {
-                emails.errorEmail(req, err);
-                res.status(500).send({
-                    message:
-                        err.message || "Some error occurred while retrieving Questioniz Submission"
-                });
-            });
-    } catch (err) {
-        emails.errorEmail(req, err);
-
-        res.status(500).send({
-            message:
-                err.message || "Some error occurred."
-        });
-    }
-};
-// Find Single Quiz Submission
-exports.findByUserId = (req, res) => {
-
-    try {
-        Quizzes.findAll({
-            where: { isActive: 'Y', createdBy: crypto.decrypt(req.params.id) },
-            include: [
-                {
-                    model: Courses,
-                    include: [
-                        {
-                            model: Classes,
-                            attributes: ['title'],
-                        }
-                    ],
-                    attributes: ['title'],
-                },
-                {
-                    model: QuestionDifficulties,
-                    attributes: ['title'],
-                },
-                {
-                    model: QuestionTypes,
-                    attributes: ['title'],
-                },
-                {
-                    model: QuizSubmissions,
-                    where: { isActive: 'Y' },
-                    include: [
-                        {
-                            model: QuizSubmissionResponse,
-                            where: { isActive: 'Y' },
-                            attributes: ['response']
-                        }
-                    ],
-                    attributes: ['id', 'result', 'quizId']
-                },
-                {
-                    model: Users,
-                    include: [
-                        {
-                            model: Roles,
-                            where: { isActive: 'Y' },
-                            attributes: ['title'],
-                        }
-                    ],
-                    attributes: ['firstName', 'lastName', 'email', 'password'],
-                },
-            ],
-            attributes: ['id', 'questionsCount', 'questionTagsIdList'],
-        })
-            .then(async data => {
-
-                encryptHelper(data);
-                res.send({ Quiz: data });
-            })
-            .catch(err => {
-                emails.errorEmail(req, err);
-                res.status(500).send({
-                    message:
-                        err.message || "Some error occurred while retrieving Quiz Submission by User Id."
-                });
-            });
-    } catch (err) {
-        emails.errorEmail(req, err);
-
-        res.status(500).send({
-            message:
-                err.message || "Some error occurred."
-        });
-    }
-};
-// Find Single Quiz Submission
-exports.findByCourseId = (req, res) => {
-
-    try {
-        Quizzes.findAll({
-            where: { isActive: 'Y', courseId: crypto.decrypt(req.params.id) },
-            include: [
-                {
-                    model: Courses,
-                    include: [
-                        {
-                            model: Classes,
-                            attributes: ['title'],
-                        }
-                    ],
-                    attributes: ['title'],
-                },
-                {
-                    model: QuestionDifficulties,
-                    attributes: ['title'],
-                },
-                {
-                    model: QuestionTypes,
-                    attributes: ['title'],
-                },
-                {
-                    model: QuizSubmissions,
-                    where: { isActive: 'Y' },
-                    include: [
-                        {
-                            model: QuizSubmissionResponse,
-                            where: { isActive: 'Y' },
-                            attributes: ['response']
-                        }
-                    ],
-                    attributes: ['id', 'result', 'quizId']
-                },
-                {
-                    model: Users,
-                    include: [
-                        {
-                            model: Roles,
-                            where: { isActive: 'Y' },
-                            attributes: ['title'],
-                        }
-                    ],
-                    attributes: ['firstName', 'lastName', 'email', 'password'],
-                },
-            ],
-            attributes: ['id', 'questionsCount', 'questionTagsIdList'],
-        })
-            .then(async data => {
-                encryptHelper(data);
-                res.send({ Quiz: data });
-            })
-            .catch(err => {
-                emails.errorEmail(req, err);
-                res.status(500).send({
-                    message:
-                        err.message || "Some error occurred while retrieving Quiz Submission by Course Id."
-                });
-            });
-    } catch (err) {
-        emails.errorEmail(req, err);
-
-        res.status(500).send({
-            message:
-                err.message || "Some error occurred."
-        });
-    }
-};
-
-// Delete a Quiz Submission with the specified id in the request
-exports.delete = (req, res) => {
-    try {
-        QuizSubmissions.update({ isActive: 'N' }, {
-            where: { id: crypto.decrypt(req.params.id) }
-        })
-            .then(num => {
-                if (num == 1) {
-                    res.send({
-                        message: "Quiz Submission was deleted successfully."
-                    });
-                } else {
-                    res.send({
-                        message: `Cannot delete Quiz Submission. Maybe Quiz Submission was not found or req.body is empty!`
-                    });
-                }
-            })
-            .catch(err => {
-                emails.errorEmail(req, err);
-                res.status(500).send({
-                    message: "Error updating Quiz Submission"
-                });
-            });
-    } catch (err) {
-        emails.errorEmail(req, err);
-
         res.status(500).send({
             message:
                 err.message || "Some error occurred."

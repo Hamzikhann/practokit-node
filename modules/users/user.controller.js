@@ -48,6 +48,7 @@ exports.create = async (req, res) => {
                     firstName: req.body.firstName?.trim(),
                     lastName: req.body.lastName?.trim(),
                     email: req.body.email,
+                    createdBy: crypto.decrypt(req.userId),
                     roleId: crypto.decrypt(req.body.role),
                     password: password
                 };
@@ -119,7 +120,7 @@ exports.findUserById = (req, res) => {
 
     try {
         Users.findOne({
-            where: { id: crypto.decrypt(req.params.classId), isActive: 'Y' },
+            where: { id: crypto.decrypt(req.params.userId), isActive: 'Y' },
             attributes: { exclude: ['isActive'] }
         })
             .then(data => {
@@ -130,7 +131,7 @@ exports.findUserById = (req, res) => {
                 emails.errorEmail(req, err);
                 res.status(500).send({
                     message:
-                        err.message || "Some error occurred while retrieving Classes."
+                        err.message || "Some error occurred while retrieving user."
                 });
             });
     } catch (err) {
@@ -160,7 +161,10 @@ exports.update = (req, res) => {
         } else {
             const userId = crypto.decrypt(req.params.userId);
 
-            Users.update({ roleId: crypto.decrypt(req.body.role?.trim()) }, {
+            Users.update({ 
+                roleId: crypto.decrypt(req.body.role?.trim()),
+                updatedBy: crypto.decrypt(req.userId),
+            }, {
                 where: { id: userId, isActive: 'Y' }
             })
                 .then(num => {

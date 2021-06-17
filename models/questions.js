@@ -5,6 +5,7 @@ module.exports = (sequelize, DataTypes) => {
     statement: DataTypes.STRING,
     duration: DataTypes.INTEGER,
     points: DataTypes.INTEGER,
+    updatedBy: DataTypes.STRING,
     isActive: {
       type: DataTypes.STRING,
       allowNull: false,

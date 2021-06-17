@@ -5,7 +5,7 @@ const express = require('express')
 const router = express.Router()
 
 router.post('/', (req, res) => {
-    if (req.role == 'Admin' || req.role == 'Editor') {
+    if (req.role == 'Admin') {
         coursesController.create(req, res);
     } else {
         res.status(403).send({ message: 'Forbidden Access' });
@@ -21,14 +21,14 @@ router.get('/course/:courseId', (req, res) => {
     coursesController.findByCourseId(req, res);
 });
 router.put('/:courseId', (req, res) => {
-    if (req.role == 'Admin' || req.role == 'Editor') {
+    if (req.role == 'Admin') {
         coursesController.update(req, res);
     } else {
         res.status(403).send({ message: 'Forbidden Access' });
     }
 });
 router.delete('/:courseId', (req, res) => {
-    if (req.role == 'Admin' || req.role == 'Editor') {
+    if (req.role == 'Admin') {
         coursesController.delete(req, res);
     } else {
         res.status(403).send({ message: 'Forbidden Access' });

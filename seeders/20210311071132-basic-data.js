@@ -13,55 +13,55 @@ module.exports = {
     */
      await queryInterface.bulkInsert('classes', [{
       title: 'A Levels',
-      createdBy: 2,
+      createdBy: 1,
       createdAt: new Date(),
       updatedAt: new Date()
     },
     {
       title: 'O Levels',
-      createdBy: 2,
+      createdBy: 1,
       createdAt: new Date(),
       updatedAt: new Date()
     }], {});
     await queryInterface.bulkInsert('courses', [{
       title: 'Mathematics D1',
       classId: 1,
-      createdBy: 2,
+      createdBy: 1,
       createdAt: new Date(),
       updatedAt: new Date()
     },
     {
       title: 'Mathematics D2',
       classId: 1,
-      createdBy: 2,
+      createdBy: 1,
       createdAt: new Date(),
       updatedAt: new Date()
     }], {});
     await queryInterface.bulkInsert('questionDifficulties', [{
       title: 'Very Easy',
-      createdBy: 2,
+      createdBy: 1,
       createdAt: new Date(),
       updatedAt: new Date()
     },
     {
       title: 'Easy',
-      createdBy: 2,
+      createdBy: 1,
       createdAt: new Date(),
       updatedAt: new Date()
     },
     {
       title: 'Medium',
-      createdBy: 2,
+      createdBy: 1,
       createdAt: new Date(),
       updatedAt: new Date()
     },{
       title: 'Hard',
-      createdBy: 2,
+      createdBy: 1,
       createdAt: new Date(),
       updatedAt: new Date()
     },{
       title: 'Very Hard',
-      createdBy: 2,
+      createdBy: 1,
       createdAt: new Date(),
       updatedAt: new Date()
     }], {});

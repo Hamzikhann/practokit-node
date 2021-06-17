@@ -25,13 +25,19 @@ router.get('/find/:questionId', (req, res) => {
     questionsController.findQuestion(req, res);
 });
 router.get('/', (req, res) => {
-    questionsController.findAll(req, res);
+    if (req.role == 'Admin') {
+        questionsController.findAll(req, res);
+    } else if (req.role == 'Editor') {
+        questionsController.findAllForEditor(req, res);
+    } else {
+        res.status(403).send({ message: 'Forbidden Access' });
+    }
 });
 router.get('/course/:courseId', (req, res) => {
     questionsController.findQuestionsOfCourse(req, res);
 });
 router.delete('/:questionId', (req, res) => {
-    if (req.role == 'Admin' || req.role == 'Editor') {
+    if (req.role == 'Admin') {
         questionsController.delete(req, res);
     } else {
         res.status(403).send({ message: 'Forbidden Access' });

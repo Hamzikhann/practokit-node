@@ -15,7 +15,7 @@ router.post('/', (req, res) => {
 router.get('/', (req, res) => {
     usersController.findAllUsers(req, res);
 });
-router.get('/:classId', (req, res) => {
+router.get('/:userId', (req, res) => {
     usersController.findUserById(req, res);
 });
 router.put('/:userId', (req, res) => {
