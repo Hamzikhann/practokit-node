@@ -329,18 +329,24 @@ exports.findQuizResultById = (req, res) => {
             ],
             order: [['createdAt', 'DESC']],
             limit: 1,
-            attributes: ['result', 'totalMarks', 'attempted', 'totalQuestions', 'timeSpend', 'createdAt']
+            attributes: ['id', 'result', 'totalMarks', 'wrong', 'totalQuestions', 'timeSpend', 'createdAt']
         })
-            .then(quiz => {
+            .then(async quiz => {
                 if (quiz) {
+
+                    const count = await QuizSubmissionResponse.count({
+                        where: { quizSubmissionId: quiz.id, isActive: 'Y' }
+                    })
+
                     res.send({
                         result: quiz.result,
                         totalMarks: quiz.totalMarks,
-                        attempted: quiz.attempted,
+                        wrong: quiz.wrong,
                         totalQuestions: quiz.totalQuestions,
                         timeSpend: quiz.timeSpend,
                         courseTitle: quiz.quiz.course.title,
                         gradeTitle: quiz.quiz.course.class.title,
+                        tries: count,
                         quiz: quiz
                     });
                 } else {

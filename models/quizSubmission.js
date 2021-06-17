@@ -4,7 +4,8 @@ module.exports = (sequelize, DataTypes) => {
   const quizSubmission = sequelize.define('quizSubmissions', {
     result: DataTypes.INTEGER,
     totalMarks: DataTypes.INTEGER,
-    attempted: DataTypes.INTEGER,
+    // attempted: DataTypes.INTEGER,
+    wrong: DataTypes.INTEGER,
     totalQuestions: DataTypes.INTEGER,
     timeSpend: DataTypes.INTEGER,
     isActive: {
