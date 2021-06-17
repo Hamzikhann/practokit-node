@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
     // associations can be defined here
     quizzes.belongsTo(models.users, { foreignKey: { name: 'createdBy', allowNull: false  } })
     quizzes.belongsTo(models.courses, { foreignKey: { allowNull: false }})
-    quizzes.hasMany(models.quizSubmission, { foreignKey: { name: "quizzId", allowNull: false }})
+    quizzes.hasMany(models.quizSubmissions, { foreignKey: { name: "quizzId", allowNull: false }})
     quizzes.belongsTo(models.questionType, { foreignKey: { allowNull: false }})
   };
   return quizzes;

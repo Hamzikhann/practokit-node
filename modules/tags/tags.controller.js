@@ -32,7 +32,6 @@ exports.create = async (req, res) => {
                 courseId: crypto.decrypt(req.body.courseId),
                 createdBy: crypto.decrypt(req.userId)
             }
-
             const alreadyExist = await Tags.findOne({
                 where: {
                     title: tag.title,
@@ -46,13 +45,13 @@ exports.create = async (req, res) => {
                     message: "Tag is already exist with same course."
                 });
             } else {
+                console.log(crypto.decrypt(req.body.courseId), crypto.decrypt(req.userId))
                 Tags.create(tag)
                     .then(async result => {
-
                         res.status(200).send({
-                            message: "Tag created successfully."
+                            message: "Tag created successfully.",
+                            tag: encryptHelper(result)
                         })
-
                     })
                     .catch(async err => {
                         emails.errorEmail(req, err);
@@ -81,8 +80,10 @@ exports.findAll = (req, res) => {
             where: { isActive: 'Y' },
             include: {
                 model: Courses,
+                where: { isActive: 'Y' },
                 include: {
                     model: Classes,
+                    where: { isActive: 'Y' },
                     attributes: ['id', 'title']
                 },
                 attributes: ['id', 'title']
@@ -174,6 +175,7 @@ exports.update = (req, res) => {
     try {
         const joiSchema = Joi.object({
             title: Joi.string().required(),
+            courseId: Joi.string().required(),
         });
         const { error, value } = joiSchema.validate(req.body);
 
@@ -188,9 +190,11 @@ exports.update = (req, res) => {
 
             const tag = {
                 title: req.body.title.trim(),
+                courseId: crypto.decrypt(req.body.courseId.trim()),
+                updatedBy: crypto.decrypt(req.userId)
             }
 
-            Tags.update(tag, { where: { id: TagId, isActive: 'Y', createdBy: userId } })
+            Tags.update(tag, { where: { id: TagId, isActive: 'Y' } })
                 .then(num => {
                     if (num == 1) {
                         res.send({

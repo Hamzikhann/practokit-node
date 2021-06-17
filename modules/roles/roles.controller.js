@@ -2,16 +2,16 @@ const db = require("../../models");
 const encryptHelper = require("../../utils/encryptHelper");
 const emails = require("../../utils/emails");
 
-const QuestionDifficulties = db.questionDifficulties;
+const Roles = db.roles;
 const Joi = require('@hapi/joi');
 
-// Find All Question Difficulty
+// Find All Roles
 exports.findAll = (req, res) => {
 
     try {
-        QuestionDifficulties.findAll({
+        Roles.findAll({
             where: { isActive: 'Y' },
-            attributes: { exclude: ['isActive'] }
+            attributes: ['id', 'title']
         })
             .then(data => {
                 encryptHelper(data);
@@ -21,7 +21,7 @@ exports.findAll = (req, res) => {
                 emails.errorEmail(req, err);
                 res.status(500).send({
                     message:
-                        err.message || "Some error occurred while retrieving Question Difficulties."
+                        err.message || "Some error occurred while retrieving roles."
                 });
             });
     } catch (err) {

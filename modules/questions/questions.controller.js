@@ -225,7 +225,7 @@ exports.updateQuestion = async (req, res) => {
                 questionDifficultyId: crypto.decrypt(req.body.difficultyId),
                 questionTypeId: crypto.decrypt(req.body.typeId),
                 coursesId: crypto.decrypt(req.body.courseId),
-                createdBy: crypto.decrypt(req.userId),
+                updatedBy: crypto.decrypt(req.userId)
             };
 
             const questionAttributes = {
@@ -411,7 +411,7 @@ exports.findQuestion = (req, res) => {
                 },
                 
             ],
-            attributes: ['id', 'statement', 'duration', 'points']
+            attributes: ['id', 'statement', 'duration', 'points', 'createdBy']
         })
             .then(data => {
                 encryptHelper(data);
@@ -463,6 +463,96 @@ exports.findAll = (req, res) => {
                 {
                     model: QuestionTags,
                     where: { isActive: 'Y' },
+                    // required: false,
+                    include: [
+                        {
+                            model: Tags,
+                            where: { isActive: 'Y' },
+                            include: [
+                                {
+                                    model: Courses,
+                                    where: { isActive: 'Y' },
+                                    include: [
+                                        {
+                                            model: Classes,
+                                            where: { isActive: 'Y' },
+                                            attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy'] }
+                                        }
+                                    ],
+                                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy', 'classId'] }
+                                }
+                            ],
+                            attributes: ['id', 'title']
+                        }
+                    ],
+                    attributes: ['id', 'isActive', 'questionId'] 
+                },
+                {
+                    model: Courses,
+                    where: { isActive: 'Y' },
+                    include: [
+                        {
+                            model: Classes,
+                            where: { isActive: 'Y' },
+                            attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy'] }
+                        }
+                    ],
+                    attributes: ['id', 'title'] 
+                }
+            ],
+            attributes: ['id', 'statement', 'duration', 'points', 'createdBy']
+        })
+            .then(data => {
+                encryptHelper(data);
+                res.send(data);
+            })
+            .catch(err => {
+                emails.errorEmail(req, err);
+                res.status(500).send({
+                    message:
+                        err.message || "Some error occurred while retrieving questions."
+                });
+            });
+    } catch (err) {
+        emails.errorEmail(req, err);
+
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred."
+        });
+    }
+};
+
+// Find All Questions for Editor
+exports.findAllForEditor = (req, res) => {
+
+    try {
+        Questions.findAll({
+            where: { isActive: 'Y', createdBy: crypto.decrypt(req.userId) },
+            include: [
+                {
+                    model: QuestionsAttributes,
+                    where: { isActive: 'Y' },
+                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'questionId'] }
+                },
+                {
+                    model: QuestionsOptions,
+                    where: { isActive: 'Y' },
+                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'questionsId'] }
+                },
+                {
+                    model: QuestionTypes,
+                    where: { isActive: 'Y' },
+                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt'] }
+                },
+                {
+                    model: QuestionDifficulties,
+                    where: { isActive: 'Y' },
+                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy'] }
+                },
+                {
+                    model: QuestionTags,
+                    where: { isActive: 'Y' },
                     required: false,
                     include: [
                         {
@@ -490,10 +580,17 @@ exports.findAll = (req, res) => {
                 {
                     model: Courses,
                     where: { isActive: 'Y' },
+                    include: [
+                        {
+                            model: Classes,
+                            where: { isActive: 'Y' },
+                            attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy'] }
+                        }
+                    ],
                     attributes: ['id', 'title'] 
                 }
             ],
-            attributes: ['id', 'statement', 'duration', 'points']
+            attributes: ['id', 'statement', 'duration', 'points', 'createdBy']
         })
             .then(data => {
                 encryptHelper(data);
@@ -515,6 +612,7 @@ exports.findAll = (req, res) => {
         });
     }
 };
+
 // Find All Questions
 exports.findQuestionsOfCourse = (req, res) => {
 
@@ -574,7 +672,7 @@ exports.findQuestionsOfCourse = (req, res) => {
                     attributes: ['id', 'title'] 
                 }
             ],
-            attributes: ['id', 'statement', 'duration', 'points']
+            attributes: ['id', 'statement', 'duration', 'points', 'createdBy']
         })
             .then(data => {
                 encryptHelper(data);

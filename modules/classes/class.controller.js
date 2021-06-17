@@ -160,7 +160,7 @@ exports.findClassById = (req, res) => {
 };
 
 // Update a Class by the id in the request
-exports.update = (req, res) => {
+exports.update = async (req, res) => {
     try {
         const joiSchema = Joi.object({
             title: Joi.string().required(),
@@ -177,27 +177,40 @@ exports.update = (req, res) => {
             const classId = crypto.decrypt(req.params.classId);
             const userId = crypto.decrypt(req.userId);
 
-            Classes.update({ title: req.body.title.trim() }, {
-                where: { id: classId, isActive: 'Y', createdBy: userId }
+            const alreadyExist = await Classes.findOne({
+                where: {
+                    title: req.body.title.trim()
+                },
+                attributes: ['id']
             })
-                .then(num => {
-                    if (num == 1) {
-
-                        res.send({
-                            message: "Class was updated successfully."
-                        });
-                    } else {
-                        res.send({
-                            message: `Cannot update Class. Maybe Class was not found or req.body is empty!`
-                        });
-                    }
-                })
-                .catch(err => {
-                    emails.errorEmail(req, err);
-                    res.status(500).send({
-                        message: "Error updating Class"
-                    });
+            if (alreadyExist) {
+                res.status(405).send({
+                    title: 'Already exist.',
+                    message: "Class is already exist with same name."
                 });
+            } else {
+                Classes.update({ title: req.body.title.trim(), updatedBy: crypto.decrypt(req.userId) }, {
+                    where: { id: classId, isActive: 'Y', createdBy: userId }
+                })
+                    .then(num => {
+                        if (num == 1) {
+
+                            res.send({
+                                message: "Class was updated successfully."
+                            });
+                        } else {
+                            res.send({
+                                message: `Cannot update Class. Maybe Class was not found or req.body is empty!`
+                            });
+                        }
+                    })
+                    .catch(err => {
+                        emails.errorEmail(req, err);
+                        res.status(500).send({
+                            message: "Error updating Class"
+                        });
+                    });
+            }
         }
     } catch (err) {
         emails.errorEmail(req, err);

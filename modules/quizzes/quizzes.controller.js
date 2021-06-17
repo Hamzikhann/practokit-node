@@ -8,7 +8,7 @@ const QuestionsAttributes = db.questionsAttributes;
 const QuestionsOptions = db.questionsOptions;
 const QuestionTags = db.questionTags;
 const Quizzes = db.quizzes;
-const QuizSubmissions = db.quizSubmission;
+const QuizSubmissions = db.quizSubmissions;
 const QuizSubmissionResponse = db.quizSubmissionResponse;
 const Courses = db.courses;
 const Classes = db.classes;
@@ -70,7 +70,8 @@ exports.create = async (req, res) => {
                         attributes: ['id', 'statementImage', 'statementImageSource', 'hint', 'hintFile', 'hintFileSource',
                             'solutionFile', 'solutionFileSource']
                     }],
-                    order: Sequelize.literal('rand()'), limit: req.body.questions[0].count,
+                    order: Sequelize.literal('rand()'), 
+                    limit: req.body.questions[0].count,
                     attributes: ['id', 'statement', 'duration', 'points']
                 }),
                 Questions.findAll({
@@ -91,7 +92,8 @@ exports.create = async (req, res) => {
                         attributes: ['id', 'statementImage', 'statementImageSource', 'hint', 'hintFile', 'hintFileSource',
                             'solutionFile', 'solutionFileSource']
                     }],
-                    order: Sequelize.literal('rand()'), limit: req.body.questions[1].count,
+                    order: Sequelize.literal('rand()'), 
+                    limit: req.body.questions[1].count,
                     attributes: ['id', 'statement', 'duration', 'points']
                 }),
                 Questions.findAll({
@@ -112,7 +114,8 @@ exports.create = async (req, res) => {
                         attributes: ['id', 'statementImage', 'statementImageSource', 'hint', 'hintFile', 'hintFileSource',
                             'solutionFile', 'solutionFileSource']
                     }],
-                    order: Sequelize.literal('rand()'), limit: req.body.questions[2].count,
+                    order: Sequelize.literal('rand()'), 
+                    limit: req.body.questions[2].count,
                     attributes: ['id', 'statement', 'duration', 'points']
                 }),
                 Questions.findAll({
@@ -133,7 +136,8 @@ exports.create = async (req, res) => {
                         attributes: ['id', 'statementImage', 'statementImageSource', 'hint', 'hintFile', 'hintFileSource',
                             'solutionFile', 'solutionFileSource']
                     }],
-                    order: Sequelize.literal('rand()'), limit: req.body.questions[3].count,
+                    order: Sequelize.literal('rand()'), 
+                    limit: req.body.questions[3].count,
                     attributes: ['id', 'statement', 'duration', 'points']
                 }),
                 Questions.findAll({
@@ -154,7 +158,8 @@ exports.create = async (req, res) => {
                         attributes: ['id', 'statementImage', 'statementImageSource', 'hint', 'hintFile', 'hintFileSource',
                             'solutionFile', 'solutionFileSource']
                     }],
-                    order: Sequelize.literal('rand()'), limit: req.body.questions[4].count,
+                    order: Sequelize.literal('rand()'), 
+                    limit: req.body.questions[4].count,
                     attributes: ['id', 'statement', 'duration', 'points']
                 })
             ])
@@ -231,39 +236,40 @@ exports.findQuizById = (req, res) => {
 // Retrieve Wrong questions of quiz by Quiz Id.
 exports.findQuizWrongQuestions = (req, res) => {
     try {
-        QuizSubmissions.findOne({
-            where: { isActive: 'Y' },
+        Quizzes.findOne({
+            where: { id: crypto.decrypt(req.params.quizId), isActive: 'Y' },
             include: [
                 {
-                    model: Quizzes,
-                    where: { id: crypto.decrypt(req.params.quizId), isActive: 'Y' },
+                    model: Courses,
+                    where: { isActive: 'Y' },
                     include: [
                         {
-                            model: Courses,
+                            model: Classes,
                             where: { isActive: 'Y' },
-                            include: [
-                                {
-                                    model: Classes,
-                                    where: { isActive: 'Y' },
-                                    attributes: ['title']
-                                }
-                            ],
                             attributes: ['title']
                         }
                     ],
-                    attributes: ['id', 'courseId']
+                    attributes: ['title']
                 },
                 {
-                    model: QuizSubmissionResponse,
-                    attributes: ['response']
+                    model: QuizSubmissions,
+                    attributes: ['id']
                 }
             ],
-            order: [['createdAt', 'DESC']],
-            limit: 1,
-            attributes: ['result', 'totalMarks', 'attempted', 'totalQuestions', 'timeSpend', 'createdAt']
+            attributes: ['id', 'courseId']
         })
-            .then(quiz => {
-                const response = JSON.parse(quiz.quizSubmissionResponse.response)
+            .then(async quiz => {
+
+                console.log(quiz.id, quiz.quizSubmissions[0].id)
+
+                const quizResponse = await QuizSubmissionResponse.findOne({
+                    where: { quizSubmissionId: quiz.quizSubmissions[0].id },
+                    order: [['createdAt', 'DESC']],
+                    limit: 1,
+                    attributes: ['response']
+                })
+
+                const response = JSON.parse(quizResponse.response)
                 var questionsPool = []
                 response.forEach(question => {
                     if (question.isWrong) {
@@ -272,9 +278,9 @@ exports.findQuizWrongQuestions = (req, res) => {
                 });
 
                 res.send({
-                    id: crypto.encrypt(quiz.quiz.id),
-                    courseTitle: quiz.quiz.course.title,
-                    classTitle: quiz.quiz.course.class.title,
+                    id: crypto.encrypt(quiz.id),
+                    courseTitle: quiz.course.title,
+                    classTitle: quiz.course.class.title,
                     QuestionsPool: questionsPool
                 });
             })

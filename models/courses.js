@@ -3,6 +3,7 @@
 module.exports = (sequelize, DataTypes) => {
   const courses = sequelize.define('courses', {
     title: DataTypes.STRING,
+    updatedBy: DataTypes.STRING,
     isActive: {
       type: DataTypes.STRING,
       allowNull: false,
