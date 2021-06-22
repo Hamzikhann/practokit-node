@@ -105,6 +105,7 @@ exports.findClasseswithCourses = (req, res) => {
             where: { isActive: 'Y' },
             include: {
                 model: Courses,
+                where: { isActive: 'Y' },
                 attributes: ['id', 'title']
             },
             attributes: { exclude: ['createdAt', 'updatedAt'] }
