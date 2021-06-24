@@ -1,5 +1,10 @@
 const fs = require("fs");
+const secrets = require("../config/secrets");
 const nodeMailer = require('./nodeMailer');
+const jwt = require("./jwt");
+
+const baseURL = secrets.frontend_URL
+
 /**
  * Email component
  * @constructor
@@ -65,6 +70,36 @@ Email.addUser = async (user) => {
 
         return nodeMailer(mailOptions)
 
+    } catch (error) {
+        console.log(error)
+        throw error;
+    }
+};
+
+Email.forgotPassword = async (user) => {
+    try {
+        const forgetPasswordToken = jwt.signToken({
+            userId: user.id,
+            roleId: user.roleId,
+            email: user.email
+        });
+
+        var link = baseURL + "reset/password/" + forgetPasswordToken;
+
+        const data = fs.readFileSync("./templates/forgotPassword.html", "utf8");
+        var text = data;
+        text = text.replace("[USER_NAME]", user.firstName + " " + user.lastName);
+        text = text.replace("[BUTTON_LINK_1]", link);
+        text = text.replace("[TEXT_LINK]", link);
+
+        var mailOptions = {
+            from: 'Assessment Tool <info@entuition.pk>',
+            to: user.email,
+            subject: "Reset Password",
+            html: text
+        }
+
+        nodeMailer(mailOptions)
     } catch (error) {
         console.log(error)
         throw error;

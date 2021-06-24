@@ -6,6 +6,7 @@ const Sequelize = require('sequelize');
 const Classes = db.classes;
 const Courses = db.courses;
 const Tags = db.tags;
+const Teaches = db.teaches;
 const Joi = require('@hapi/joi');
 
 // Create and Save a new Tag
@@ -110,6 +111,47 @@ exports.findAll = (req, res) => {
         });
     }
 };
+// Find All Tags for Teacher
+exports.findAllForTeacher = (req, res) => {
+    try {
+        Tags.findAll({
+            where: { isActive: 'Y' },
+            include: {
+                model: Courses,
+                where: { isActive: 'Y' },
+                include: [
+                    {
+                        model: Classes,
+                        where: { isActive: 'Y' },
+                        attributes: ['id', 'title']
+                    },
+                    { model: Teaches, where: { isActive: 'Y', userId: crypto.decrypt(req.userId) } }
+                ],
+                attributes: ['id', 'title']
+            },
+            attributes: { exclude: ['isActive'] }
+        })
+            .then(data => {
+                encryptHelper(data);
+                res.send(data);
+            })
+            .catch(err => {
+                emails.errorEmail(req, err);
+                res.status(500).send({
+                    message:
+                        err.message || "Some error occurred while retrieving Tags."
+                });
+            });
+    } catch (err) {
+        emails.errorEmail(req, err);
+
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred."
+        });
+    }
+};
+
 // Find All Tags of course
 exports.findAllofCourse = (req, res) => {
 
@@ -138,14 +180,18 @@ exports.findAllofCourse = (req, res) => {
         });
     }
 };
-// Find Single Tag
-exports.findTag = (req, res) => {
+// Find All Tags of course for Teacher
+exports.findAllofCourseForTeacher = (req, res) => {
 
     try {
-        const tagId = crypto.decrypt(req.params.tagId)
-
-        Tags.findOne({
-            where: { id: tagId, isActive: 'Y' },
+        Tags.findAll({
+            where: { courseId: crypto.decrypt(req.params.courseId), isActive: 'Y' },
+            include: {
+                model: Courses,
+                where: { isActive: 'Y' },
+                include: [{ model: Teaches, where: { isActive: 'Y', userId: crypto.decrypt(req.userId) } }],
+                attributes: ['id']
+            },
             attributes: { exclude: ['isActive'] }
         })
             .then(data => {
@@ -156,7 +202,7 @@ exports.findTag = (req, res) => {
                 emails.errorEmail(req, err);
                 res.status(500).send({
                     message:
-                        err.message || "Some error occurred while retrieving Tag."
+                        err.message || "Some error occurred while retrieving Courses."
                 });
             });
     } catch (err) {

@@ -4,6 +4,7 @@ const emails = require("../../utils/emails");
 
 const Classes = db.classes;
 const Courses = db.courses;
+const Teaches = db.teaches;
 
 const Joi = require('@hapi/joi');
 
@@ -74,6 +75,41 @@ exports.findAllClasses = (req, res) => {
     try {
         Classes.findAll({
             where: { isActive: 'Y' },
+            attributes: { exclude: ['createdAt', 'updatedAt'] }
+        })
+            .then(data => {
+                encryptHelper(data);
+                res.send(data);
+            })
+            .catch(err => {
+                emails.errorEmail(req, err);
+                res.status(500).send({
+                    message:
+                        err.message || "Some error occurred while retrieving Classes."
+                });
+            });
+    } catch (err) {
+        emails.errorEmail(req, err);
+
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred."
+        });
+    }
+};
+// Retrieve all Classes For Teacher.
+exports.findAllForTeacher = (req, res) => {
+
+    try {
+        Classes.findAll({
+            where: { isActive: 'Y' },
+            include: [
+                {
+                    model: Courses,
+                    where: { isActive: 'Y' },
+                    include: [{ model: Teaches, where: { isActive: 'Y', userId: crypto.decrypt(req.userId) } }]
+                }
+            ],
             attributes: { exclude: ['createdAt', 'updatedAt'] }
         })
             .then(data => {

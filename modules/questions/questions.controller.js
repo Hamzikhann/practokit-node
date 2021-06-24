@@ -11,6 +11,7 @@ const QuestionsOptions = db.questionsOptions;
 const QuestionTags = db.questionTags;
 const QuestionTypes = db.questionType;
 const QuestionDifficulties = db.questionDifficulties;
+const Teaches = db.teaches;
 
 const Joi = require('@hapi/joi');
 const { sequelize } = require("../../models");
@@ -340,6 +341,274 @@ exports.updateQuestion = async (req, res) => {
     }
 };
 
+// Find All Questions for Admin
+exports.findAll = (req, res) => {
+
+    try {
+        Questions.findAll({
+            where: { isActive: 'Y' },
+            include: [
+                {
+                    model: QuestionsAttributes,
+                    where: { isActive: 'Y' },
+                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'questionId'] }
+                },
+                {
+                    model: QuestionsOptions,
+                    where: { isActive: 'Y' },
+                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'questionsId'] }
+                },
+                {
+                    model: QuestionTypes,
+                    where: { isActive: 'Y' },
+                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt'] }
+                },
+                {
+                    model: QuestionDifficulties,
+                    where: { isActive: 'Y' },
+                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy'] }
+                },
+                {
+                    model: QuestionTags,
+                    where: { isActive: 'Y' },
+                    include: [
+                        {
+                            model: Tags,
+                            where: { isActive: 'Y' },
+                            include: [
+                                {
+                                    model: Courses,
+                                    where: { isActive: 'Y' },
+                                    include: [
+                                        {
+                                            model: Classes,
+                                            where: { isActive: 'Y' },
+                                            attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy'] }
+                                        }
+                                    ],
+                                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy', 'classId'] }
+                                }
+                            ],
+                            attributes: ['id', 'title']
+                        }
+                    ],
+                    attributes: ['id', 'isActive', 'questionId'] 
+                },
+                {
+                    model: Courses,
+                    where: { isActive: 'Y' },
+                    include: [
+                        {
+                            model: Classes,
+                            where: { isActive: 'Y' },
+                            attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy'] }
+                        }
+                    ],
+                    attributes: ['id', 'title'] 
+                }
+            ],
+            attributes: ['id', 'statement', 'duration', 'points', 'createdBy']
+        })
+            .then(data => {
+                encryptHelper(data);
+                res.send(data);
+            })
+            .catch(err => {
+                emails.errorEmail(req, err);
+                res.status(500).send({
+                    message:
+                        err.message || "Some error occurred while retrieving questions."
+                });
+            });
+    } catch (err) {
+        emails.errorEmail(req, err);
+
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred."
+        });
+    }
+};
+// Find All Questions for Editor
+exports.findAllForEditor = (req, res) => {
+
+    try {
+        Questions.findAll({
+            where: { isActive: 'Y', createdBy: crypto.decrypt(req.userId) },
+            include: [
+                {
+                    model: QuestionsAttributes,
+                    where: { isActive: 'Y' },
+                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'questionId'] }
+                },
+                {
+                    model: QuestionsOptions,
+                    where: { isActive: 'Y' },
+                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'questionsId'] }
+                },
+                {
+                    model: QuestionTypes,
+                    where: { isActive: 'Y' },
+                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt'] }
+                },
+                {
+                    model: QuestionDifficulties,
+                    where: { isActive: 'Y' },
+                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy'] }
+                },
+                {
+                    model: QuestionTags,
+                    where: { isActive: 'Y' },
+                    include: [
+                        {
+                            model: Tags,
+                            where: { isActive: 'Y' },
+                            include: [
+                                {
+                                    model: Courses,
+                                    where: { isActive: 'Y' },
+                                    include: [
+                                        {
+                                            model: Classes,
+                                            where: { isActive: 'Y' },
+                                            attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy'] }
+                                        }
+                                    ],
+                                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy', 'classId'] }
+                                }
+                            ],
+                            attributes: ['id', 'title']
+                        }
+                    ],
+                    attributes: ['id', 'isActive', 'questionId'] 
+                },
+                {
+                    model: Courses,
+                    where: { isActive: 'Y' },
+                    include: [
+                        {
+                            model: Classes,
+                            where: { isActive: 'Y' },
+                            attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy'] }
+                        }
+                    ],
+                    attributes: ['id', 'title'] 
+                }
+            ],
+            attributes: ['id', 'statement', 'duration', 'points', 'createdBy']
+        })
+            .then(data => {
+                encryptHelper(data);
+                res.send(data);
+            })
+            .catch(err => {
+                emails.errorEmail(req, err);
+                res.status(500).send({
+                    message:
+                        err.message || "Some error occurred while retrieving questions."
+                });
+            });
+    } catch (err) {
+        emails.errorEmail(req, err);
+
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred."
+        });
+    }
+};
+// Find All Questions for Teacher
+exports.findAllForTeacher = (req, res) => {
+
+    try {
+        Questions.findAll({
+            where: { isActive: 'Y' },
+            include: [
+                {
+                    model: QuestionsAttributes,
+                    where: { isActive: 'Y' },
+                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'questionId'] }
+                },
+                {
+                    model: QuestionsOptions,
+                    where: { isActive: 'Y' },
+                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'questionsId'] }
+                },
+                {
+                    model: QuestionTypes,
+                    where: { isActive: 'Y' },
+                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt'] }
+                },
+                {
+                    model: QuestionDifficulties,
+                    where: { isActive: 'Y' },
+                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy'] }
+                },
+                {
+                    model: QuestionTags,
+                    where: { isActive: 'Y' },
+                    required: false,
+                    include: [
+                        {
+                            model: Tags,
+                            where: { isActive: 'Y' },
+                            include: [
+                                {
+                                    model: Courses,
+                                    where: { isActive: 'Y' },
+                                    include: [
+                                        {
+                                            model: Classes,
+                                            where: { isActive: 'Y' },
+                                            attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy'] }
+                                        },
+                                        { model: Teaches, where: { isActive: 'Y', userId: crypto.decrypt(req.userId) } }
+                                    ],
+                                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy', 'classId'] }
+                                }
+                            ],
+                            attributes: ['id', 'title']
+                        }
+                    ],
+                    attributes: ['id', 'isActive', 'questionId'] 
+                },
+                {
+                    model: Courses,
+                    where: { isActive: 'Y' },
+                    include: [
+                        {
+                            model: Classes,
+                            where: { isActive: 'Y' },
+                            attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy'] }
+                        },
+                        { model: Teaches, where: { isActive: 'Y', userId: crypto.decrypt(req.userId) } }
+                    ],
+                    attributes: ['id', 'title'] 
+                }
+            ],
+            attributes: ['id', 'statement', 'duration', 'points', 'createdBy']
+        })
+            .then(data => {
+                encryptHelper(data);
+                res.send(data);
+            })
+            .catch(err => {
+                emails.errorEmail(req, err);
+                res.status(500).send({
+                    message:
+                        err.message || "Some error occurred while retrieving questions."
+                });
+            });
+    } catch (err) {
+        emails.errorEmail(req, err);
+
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred."
+        });
+    }
+};
+
 // Find Single Questions
 exports.findQuestion = (req, res) => {
 
@@ -376,7 +645,6 @@ exports.findQuestion = (req, res) => {
                         {
                             model: Tags,
                             where: { isActive: 'Y' },
-                            required: false,
                             include: [
                                 {
                                     model: Courses,
@@ -430,86 +698,33 @@ exports.findQuestion = (req, res) => {
         });
     }
 };
-// Find All Questions
-exports.findAll = (req, res) => {
 
+// Retrieve questions count.
+exports.findQuestionsCount = async (req, res) => {
     try {
-        Questions.findAll({
-            where: { isActive: 'Y' },
-            include: [
-                {
-                    model: QuestionsAttributes,
-                    where: { isActive: 'Y' },
-                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'questionId'] }
-                },
-                {
-                    model: QuestionsOptions,
-                    where: { isActive: 'Y' },
-                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'questionsId'] }
-                },
-                {
-                    model: QuestionTypes,
-                    where: { isActive: 'Y' },
-                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt'] }
-                },
-                {
-                    model: QuestionDifficulties,
-                    where: { isActive: 'Y' },
-                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy'] }
-                },
-                {
-                    model: QuestionTags,
-                    where: { isActive: 'Y' },
-                    // required: false,
-                    include: [
-                        {
-                            model: Tags,
-                            where: { isActive: 'Y' },
-                            include: [
-                                {
-                                    model: Courses,
-                                    where: { isActive: 'Y' },
-                                    include: [
-                                        {
-                                            model: Classes,
-                                            where: { isActive: 'Y' },
-                                            attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy'] }
-                                        }
-                                    ],
-                                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy', 'classId'] }
-                                }
-                            ],
-                            attributes: ['id', 'title']
-                        }
-                    ],
-                    attributes: ['id', 'isActive', 'questionId'] 
-                },
-                {
-                    model: Courses,
-                    where: { isActive: 'Y' },
-                    include: [
-                        {
-                            model: Classes,
-                            where: { isActive: 'Y' },
-                            attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy'] }
-                        }
-                    ],
-                    attributes: ['id', 'title'] 
-                }
-            ],
-            attributes: ['id', 'statement', 'duration', 'points', 'createdBy']
+        var veryEasy = await Questions.count({
+            where: { isActive: 'Y', questionDifficultyId: 1 }
         })
-            .then(data => {
-                encryptHelper(data);
-                res.send(data);
-            })
-            .catch(err => {
-                emails.errorEmail(req, err);
-                res.status(500).send({
-                    message:
-                        err.message || "Some error occurred while retrieving questions."
-                });
-            });
+        var easy = await Questions.count({
+            where: { isActive: 'Y', questionDifficultyId: 2 }
+        })
+        var medium = await Questions.count({
+            where: { isActive: 'Y', questionDifficultyId: 3 }
+        })
+        var hard = await Questions.count({
+            where: { isActive: 'Y', questionDifficultyId: 4 }
+        })
+        var veryHard = await Questions.count({
+            where: { isActive: 'Y', questionDifficultyId: 5 }
+        })
+
+        res.send({
+            veryEasy: veryEasy,
+            easy: easy,
+            medium: medium,
+            hard: hard,
+            veryHard: veryHard
+        });
     } catch (err) {
         emails.errorEmail(req, err);
 
@@ -519,169 +734,52 @@ exports.findAll = (req, res) => {
         });
     }
 };
-
-// Find All Questions for Editor
-exports.findAllForEditor = (req, res) => {
-
+// Retrieve questions count.
+exports.findQuestionsCountForTeacher = async (req, res) => {
     try {
-        Questions.findAll({
-            where: { isActive: 'Y', createdBy: crypto.decrypt(req.userId) },
-            include: [
-                {
-                    model: QuestionsAttributes,
-                    where: { isActive: 'Y' },
-                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'questionId'] }
-                },
-                {
-                    model: QuestionsOptions,
-                    where: { isActive: 'Y' },
-                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'questionsId'] }
-                },
-                {
-                    model: QuestionTypes,
-                    where: { isActive: 'Y' },
-                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt'] }
-                },
-                {
-                    model: QuestionDifficulties,
-                    where: { isActive: 'Y' },
-                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy'] }
-                },
-                {
-                    model: QuestionTags,
-                    where: { isActive: 'Y' },
-                    required: false,
-                    include: [
-                        {
-                            model: Tags,
-                            where: { isActive: 'Y' },
-                            include: [
-                                {
-                                    model: Courses,
-                                    where: { isActive: 'Y' },
-                                    include: [
-                                        {
-                                            model: Classes,
-                                            where: { isActive: 'Y' },
-                                            attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy'] }
-                                        }
-                                    ],
-                                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy', 'classId'] }
-                                }
-                            ],
-                            attributes: ['id', 'title']
-                        }
-                    ],
-                    attributes: ['id', 'isActive', 'questionId'] 
-                },
-                {
-                    model: Courses,
-                    where: { isActive: 'Y' },
-                    include: [
-                        {
-                            model: Classes,
-                            where: { isActive: 'Y' },
-                            attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy'] }
-                        }
-                    ],
-                    attributes: ['id', 'title'] 
-                }
-            ],
-            attributes: ['id', 'statement', 'duration', 'points', 'createdBy']
+        var veryEasy = await Questions.count({
+            where: { isActive: 'Y', questionDifficultyId: 1 },
+            include: {
+                model: Courses, where: { isActive: 'Y' },
+                include: [{ model: Teaches, where: { isActive: 'Y', userId: crypto.decrypt(req.userId) } }],
+            },
         })
-            .then(data => {
-                encryptHelper(data);
-                res.send(data);
-            })
-            .catch(err => {
-                emails.errorEmail(req, err);
-                res.status(500).send({
-                    message:
-                        err.message || "Some error occurred while retrieving questions."
-                });
-            });
-    } catch (err) {
-        emails.errorEmail(req, err);
+        var easy = await Questions.count({
+            where: { isActive: 'Y', questionDifficultyId: 2 },
+            include: {
+                model: Courses, where: { isActive: 'Y' },
+                include: [{ model: Teaches, where: { isActive: 'Y', userId: crypto.decrypt(req.userId) } }],
+            },
+        })
+        var medium = await Questions.count({
+            where: { isActive: 'Y', questionDifficultyId: 3 },
+            include: {
+                model: Courses, where: { isActive: 'Y' },
+                include: [{ model: Teaches, where: { isActive: 'Y', userId: crypto.decrypt(req.userId) } }],
+            },
+        })
+        var hard = await Questions.count({
+            where: { isActive: 'Y', questionDifficultyId: 4 },
+            include: {
+                model: Courses, where: { isActive: 'Y' },
+                include: [{ model: Teaches, where: { isActive: 'Y', userId: crypto.decrypt(req.userId) } }],
+            },
+        })
+        var veryHard = await Questions.count({
+            where: { isActive: 'Y', questionDifficultyId: 5 },
+            include: {
+                model: Courses, where: { isActive: 'Y' },
+                include: [{ model: Teaches, where: { isActive: 'Y', userId: crypto.decrypt(req.userId) } }],
+            },
+        })
 
-        res.status(500).send({
-            message:
-                err.message || "Some error occurred."
+        res.send({
+            veryEasy: veryEasy,
+            easy: easy,
+            medium: medium,
+            hard: hard,
+            veryHard: veryHard
         });
-    }
-};
-
-// Find All Questions
-exports.findQuestionsOfCourse = (req, res) => {
-
-    try {
-        Questions.findAll({
-            where: { isActive: 'Y' },
-            include: [
-                {
-                    model: QuestionsAttributes,
-                    where: { isActive: 'Y' },
-                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'questionId'] }
-                },
-                {
-                    model: QuestionsOptions,
-                    where: { isActive: 'Y' },
-                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'questionsId'] }
-                },
-                {
-                    model: QuestionTypes,
-                    where: { isActive: 'Y' },
-                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt'] }
-                },
-                {
-                    model: QuestionDifficulties,
-                    where: { isActive: 'Y' },
-                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy'] }
-                },
-                {
-                    model: QuestionTags,
-                    where: { isActive: 'Y' },
-                    include: [
-                        {
-                            model: Tags,
-                            where: { isActive: 'Y' },
-                            include: [
-                                {
-                                    model: Courses,
-                                    where: { isActive: 'Y' },
-                                    include: [
-                                        {
-                                            model: Classes,
-                                            where: { isActive: 'Y' },
-                                            attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy'] }
-                                        }
-                                    ],
-                                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy', 'classId'] }
-                                }
-                            ],
-                            attributes: ['id', 'title']
-                        }
-                    ],
-                    attributes: ['id'] 
-                },
-                {
-                    model: Courses,
-                    where: { id:crypto.decrypt(req.params.courseId), isActive: 'Y' },
-                    attributes: ['id', 'title'] 
-                }
-            ],
-            attributes: ['id', 'statement', 'duration', 'points', 'createdBy']
-        })
-            .then(data => {
-                encryptHelper(data);
-                res.send(data);
-            })
-            .catch(err => {
-                emails.errorEmail(req, err);
-                res.status(500).send({
-                    message:
-                        err.message || "Some error occurred while retrieving questions."
-                });
-            });
     } catch (err) {
         emails.errorEmail(req, err);
 

@@ -37,7 +37,7 @@ exports.create = async (req, res) => {
 
             const quizId = crypto.decrypt(req.body.quizId)
             var quizResponse = JSON.parse(req.body.response);
-            var result = totalMarks = attempted = totalQuestions = timeSpend = wrong = 0;
+            var result = totalMarks = totalQuestions = timeSpend = wrong = 0;
             const questionsIdList = []
 
             const oldQuizAttributes = await QuizSubmissions.findOne({
@@ -48,7 +48,6 @@ exports.create = async (req, res) => {
                 quizResponse.forEach((element) => {
                     questionsIdList.push(crypto.decrypt(element.id))
                     totalMarks += element.points;
-                    attempted = element.selectedOption != null ? attempted + 1 : attempted;
                     timeSpend = element.remainingDuration >= 0 ? timeSpend + (element.duration - element.remainingDuration) : timeSpend;
                 });
 
@@ -111,20 +110,20 @@ exports.create = async (req, res) => {
                     });
             } else {
 
-                if(oldQuizAttributes.totalQuestions == quizResponse.length){
+                if (oldQuizAttributes.totalQuestions == quizResponse.length) {
                     // Reset attributes if re-attempt
-                    result = totalMarks = attempted = wrong = 0;
+                    result = totalMarks = 0;
                 } else {
                     // Do not reset attributes if attempt only wrong questions
                     result = oldQuizAttributes.result;
                     totalMarks = oldQuizAttributes.totalMarks;
-                    timeSpend = oldQuizAttributes.timeSpend;
-                    wrong = 0;
                 }
+                
+                timeSpend = oldQuizAttributes.timeSpend;
+                wrong = 0;
 
                 quizResponse.forEach((element) => {
                     questionsIdList.push(crypto.decrypt(element.id))
-                    // attempted = element.selectedOption != null ? attempted + 1 : attempted;
                     timeSpend = element.remainingDuration >= 0 ? timeSpend + (element.duration - element.remainingDuration) : timeSpend;
                 });
 
@@ -160,7 +159,6 @@ exports.create = async (req, res) => {
 
                 QuizSubmissions.update({
                     result: result,
-                    // attempted: attempted,
                     wrong: wrong,
                     timeSpend: timeSpend
                 },
