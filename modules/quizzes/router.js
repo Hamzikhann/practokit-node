@@ -5,7 +5,7 @@ const express = require('express')
 const router = express.Router()
 
 router.post('/', (req, res) => {
-    if(req.role == 'Editor' || req.role == 'Student') {
+    if(req.role == 'Teacher' || req.role == 'Student') {
         quizzesController.create(req, res);
     } else {
         res.status(403).send({ message: 'Forbidden Access' });
