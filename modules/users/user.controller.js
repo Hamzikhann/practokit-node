@@ -5,6 +5,9 @@ const Sequelize = require('sequelize');
 
 const Users = db.users;
 const Roles = db.roles;
+const Teaches = db.teaches;
+const Classes = db.classes;
+const Courses = db.courses;
 
 const Op = db.Sequelize.Op;
 const Joi = require('@hapi/joi');
@@ -18,6 +21,7 @@ exports.create = async (req, res) => {
             lastName: Joi.string().required(),
             email: Joi.string().required(),
             role: Joi.string().required(),
+            courses: Joi.array().items(Joi.string().optional())
         });
         const { error, value } = joiSchema.validate(req.body);
 
@@ -53,15 +57,28 @@ exports.create = async (req, res) => {
                     password: password
                 };
 
-                Users.create(userObj)
-                    .then(async result => {
-                        emails.addUser(userObj);
+                let transaction = await sequelize.transaction();
+                Users.create(userObj, { transaction })
+                    .then(async user => {
+                        if (user.roleId == 3) {
+                            var teaches = []
+                            req.body.courses.forEach(course => {
+                                teaches.push({
+                                    userId: user.id,
+                                    courseId: crypto.decrypt(course)
+                                })
+                            });
+                            const res = await Teaches.bulkCreate(teaches, { transaction })
+                        }
+
+                        // emails.addUser(userObj);
+                        await transaction.commit();
                         res.status(200).send({
                             message: "User created successfully."
                         })
-
                     })
                     .catch(async err => {
+                        if (transaction) await transaction.rollback();
                         emails.errorEmail(req, err);
                         res.status(500).send({
                             message:
@@ -88,10 +105,18 @@ exports.findAllUsers = (req, res) => {
             where: {
                 isActive: 'Y'
             },
-            include: {
-                model: Roles,
-                attributes: { exclude: ['createdAt', 'updatedAt', 'isActive'] }
-            },
+            include: [
+                {
+                    model: Roles,
+                    attributes: { exclude: ['createdAt', 'updatedAt', 'isActive'] }
+                },
+                {
+                    model: Teaches,
+                    where: { isActive: 'Y' },
+                    required: false,
+                    attributes: ['courseId', 'isActive']
+                }
+            ],
             attributes: { exclude: ['createdAt', 'updatedAt'] }
         })
             .then(data => {
@@ -102,7 +127,7 @@ exports.findAllUsers = (req, res) => {
                 emails.errorEmail(req, err);
                 res.status(500).send({
                     message:
-                        err.message || "Some error occurred while retrieving Classes."
+                        err.message || "Some error occurred while retrieving Users."
                 });
             });
     } catch (err) {
@@ -148,7 +173,8 @@ exports.findUserById = (req, res) => {
 exports.update = (req, res) => {
     try {
         const joiSchema = Joi.object({
-            role: Joi.string().required()
+            role: Joi.string().required(),
+            courses: Joi.array().items(Joi.string().optional())
         });
         const { error, value } = joiSchema.validate(req.body);
 
@@ -161,15 +187,62 @@ exports.update = (req, res) => {
         } else {
             const userId = crypto.decrypt(req.params.userId);
 
-            Users.update({ 
+            Users.update({
                 roleId: crypto.decrypt(req.body.role?.trim()),
                 updatedBy: crypto.decrypt(req.userId),
             }, {
                 where: { id: userId, isActive: 'Y' }
             })
-                .then(num => {
-                    if (num == 1) {
+                .then(async num => {
+                    var flag = false;
+                    if (crypto.decrypt(req.body.role?.trim()) == 3) {
+                        const courses = await Teaches.findAll({
+                            where: { userId: userId, isActive: 'Y' }
+                        })
 
+                        var coursesList = [];
+                        await courses.forEach(course => { coursesList.push(course.courseId) })
+
+                        var addNew = [];
+
+                        req.body.courses.forEach((course) => {
+                            var courseId = crypto.decrypt(course)
+                            var i = -1;
+                            coursesList.forEach((element, index) => {
+                                if (element == courseId) {
+                                    i = index;
+                                }
+                            });
+
+                            if (i == -1) {
+                                console.log()
+                                addNew.push({
+                                    userId: userId,
+                                    courseId: courseId
+                                })
+                            }
+                            coursesList.splice(i, 1);
+                        });
+
+                        if (coursesList.length != 0) {
+                            Teaches.update({ isActive: 'N' }, {
+                                where: { courseId: coursesList }
+                            })
+                            flag = true;
+                        }
+                        if (addNew.length) {
+                            const res = await Teaches.bulkCreate(addNew)
+                            flag = true;
+                        }
+                    } else {
+                        const isTeacher = await Teaches.count({ where: { isActive: 'Y', userId: userId } })
+                        if (isTeacher) {
+                            Teaches.update({ isActive: 'N' }, { where: { userId: userId } })
+                            flag = true;
+                        }
+                    }
+
+                    if (num == 1 || flag) {
                         res.send({
                             message: "User was updated successfully."
                         });
@@ -261,7 +334,7 @@ exports.updateProfile = (req, res) => {
     }
 }
 
-exports.changePassword = async (req, res) => {
+exports.resetPassword = async (req, res) => {
 
     try {
         const joiSchema = Joi.object({

@@ -5,20 +5,25 @@ const express = require('express')
 const router = express.Router()
 
 router.post('/', (req, res) => {
-    if (req.role == 'Admin' || req.role == 'Editor') {
+    if (req.role == 'Editor') {
         tagsController.create(req, res);
     } else {
         res.status(403).send({ message: 'Forbidden Access' });
     }
 });
 router.get('/', (req, res) => {
-    tagsController.findAll(req, res);
+    if (req.role == 'Admin' || req.role == 'Editor') {
+        tagsController.findAll(req, res);
+    } else {
+        res.status(403).send({ message: 'Forbidden Access' });
+    }
 });
 router.get('/:courseId', (req, res) => {
-    tagsController.findAllofCourse(req, res);
-});
-router.get('/tag/:tagId', (req, res) => {
-    tagsController.findTag(req, res);
+    if (req.role == 'Admin' || req.role == 'Editor' || req.role == 'Student') {
+        tagsController.findAllofCourse(req, res);
+    } else {
+        res.status(403).send({ message: 'Forbidden Access' });
+    }
 });
 router.put('/:tagId', (req, res) => {
     if (req.role == 'Admin' || req.role == 'Editor') {

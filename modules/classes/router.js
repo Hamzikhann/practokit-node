@@ -13,7 +13,13 @@ router.post('/', (req, res) => {
     }
 });
 router.get('/', (req, res) => {
-    classesController.findAllClasses(req, res);
+    if (req.role == 'Admin' || req.role == 'Editor') {
+        classesController.findAllClasses(req, res);
+    } else if (req.role == 'Teacher') {
+        classesController.findAllForTeacher(req, res);
+    } else {
+        res.status(403).send({ message: 'Forbidden Access' });
+    }
 });
 router.get('/courses', (req, res) => {
     classesController.findClasseswithCourses(req, res);

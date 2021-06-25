@@ -4,6 +4,7 @@ const emails = require("../../utils/emails");
 
 const Courses = db.courses;
 const Classes = db.classes;
+const Teaches = db.teaches;
 
 const Joi = require('@hapi/joi');
 
@@ -109,6 +110,46 @@ exports.findAll = (req, res) => {
         });
     }
 };
+// Find All course For Teacher
+exports.findAllForTeacher = (req, res) => {
+
+    try {
+        Courses.findAll({
+            where: { isActive: 'Y' },
+            include:
+                [
+                    {
+                        model: Classes,
+                        where: { isActive: 'Y' },
+                        attributes: ['id', 'title']
+                    },
+                    { model: Teaches, where: { isActive: 'Y', userId: crypto.decrypt(req.userId) } }
+                ],
+            order: [
+                ['title', 'ASC'],
+            ],
+            attributes: ['id', 'title']
+        })
+            .then(async data => {
+                encryptHelper(data);
+                res.send(data);
+            })
+            .catch(err => {
+                emails.errorEmail(req, err);
+                res.status(500).send({
+                    message:
+                        err.message || "Some error occurred while retrieving Courses."
+                });
+            });
+    } catch (err) {
+        emails.errorEmail(req, err);
+
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred."
+        });
+    }
+};
 
 // Find All course of classes
 exports.findAllByClass = (req, res) => {
@@ -138,21 +179,14 @@ exports.findAllByClass = (req, res) => {
         });
     }
 };
-
-// Find course by id
-exports.findByCourseId = (req, res) => {
+// Find All course of classes
+exports.findAllByClassForTeacher = (req, res) => {
 
     try {
-        Courses.findOne({
-            where: { id: crypto.decrypt(req.params.courseId), isActive: 'Y' },
-            include: [
-                {
-                    model: Classes,
-                    where: { isActive: 'Y' },
-                    attributes: ['id', 'title']
-                }
-            ],
-            attributes: ['id', 'title']
+        Courses.findAll({
+            where: { classId: crypto.decrypt(req.params.classId), isActive: 'Y' },
+            include: [{ model: Teaches, where: { isActive: 'Y', userId: crypto.decrypt(req.userId) } }],
+            attributes: { exclude: ['isActive'] }
         })
             .then(data => {
                 encryptHelper(data);
@@ -162,7 +196,7 @@ exports.findByCourseId = (req, res) => {
                 emails.errorEmail(req, err);
                 res.status(500).send({
                     message:
-                        err.message || "Some error occurred while retrieving Course."
+                        err.message || "Some error occurred while retrieving Courses."
                 });
             });
     } catch (err) {

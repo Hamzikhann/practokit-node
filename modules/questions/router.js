@@ -8,8 +8,7 @@ const fileUpload = require("../../utils/fileUpload");
 const { upload } = fileUpload("questions");
 
 router.post('/', (req, res) => {
-    if (req.role == 'Admin' || req.role == 'Editor') {
-		console.log('somtething');
+    if (req.role == 'Editor') {
         questionsController.create(req, res);
     } else {
         res.status(403).send({ message: 'Forbidden Access' });
@@ -22,20 +21,28 @@ router.put('/:questionId', (req, res) => {
         res.status(403).send({ message: 'Forbidden Access' });
     }
 });
-router.get('/find/:questionId', (req, res) => {
-    questionsController.findQuestion(req, res);
-});
 router.get('/', (req, res) => {
     if (req.role == 'Admin') {
         questionsController.findAll(req, res);
     } else if (req.role == 'Editor') {
         questionsController.findAllForEditor(req, res);
+    } else if (req.role == 'Teacher') {
+        questionsController.findAllForTeacher(req, res);
     } else {
         res.status(403).send({ message: 'Forbidden Access' });
     }
 });
-router.get('/course/:courseId', (req, res) => {
-    questionsController.findQuestionsOfCourse(req, res);
+router.get('/find/:questionId', (req, res) => {
+    questionsController.findQuestion(req, res);
+});
+router.get('/count', (req, res) => {
+    if (req.role == 'Admin' || req.role == 'Editor') {
+        questionsController.findQuestionsCount(req, res);
+    } else if (req.role == 'Teacher') {
+        questionsController.findQuestionsCountForTeacher(req, res);
+    } else {
+        res.status(403).send({ message: 'Forbidden Access' });
+    }
 });
 router.delete('/:questionId', (req, res) => {
     if (req.role == 'Admin') {

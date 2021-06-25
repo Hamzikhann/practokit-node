@@ -12,13 +12,22 @@ router.post('/', (req, res) => {
     }
 });
 router.get('/', (req, res) => {
-    coursesController.findAll(req, res);
+    if (req.role == 'Admin' || req.role == 'Editor') {
+        coursesController.findAll(req, res);
+    } else if (req.role == 'Teacher') {
+        coursesController.findAllForTeacher(req, res);
+    } else {
+        res.status(403).send({ message: 'Forbidden Access' });
+    }
 });
 router.get('/:classId', (req, res) => {
+    if (req.role == 'Admin' || req.role == 'Editor') {
     coursesController.findAllByClass(req, res);
-});
-router.get('/course/:courseId', (req, res) => {
-    coursesController.findByCourseId(req, res);
+    } else if (req.role == 'Teacher') {
+        coursesController.findAllByClassForTeacher(req, res);
+    } else {
+        res.status(403).send({ message: 'Forbidden Access' });
+    }
 });
 router.put('/:courseId', (req, res) => {
     if (req.role == 'Admin') {

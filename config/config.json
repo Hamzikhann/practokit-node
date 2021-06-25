@@ -20,7 +20,7 @@
     "logging": false
   },
   "test": {
-    "username": "quiz",
+    "username": "oxibit",
     "password": "Oxibit12!@",
     "database": "assessmentTool",
     "host": "localhost",
