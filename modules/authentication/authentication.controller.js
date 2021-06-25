@@ -37,7 +37,8 @@ exports.login = async (req, res) => {
                 where: {
                     email: req.body.email.trim(),
                     password: req.body.password,
-                    isActive: 'Y'
+                    isActive: 'Y',
+                    roleId: roleIdList
                 },
                 include: [
                     {

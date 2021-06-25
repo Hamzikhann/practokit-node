@@ -19,11 +19,7 @@ router.get('/', (req, res) => {
     }
 });
 router.get('/:courseId', (req, res) => {
-    if (req.role == 'Admin' || req.role == 'Editor' || req.role == 'Student') {
-        tagsController.findAllofCourse(req, res);
-    } else {
-        res.status(403).send({ message: 'Forbidden Access' });
-    }
+    tagsController.findAllofCourse(req, res);
 });
 router.put('/:tagId', (req, res) => {
     if (req.role == 'Admin' || req.role == 'Editor') {
