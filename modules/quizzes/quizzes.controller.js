@@ -3,6 +3,7 @@ const encryptHelper = require("../../utils/encryptHelper");
 const emails = require("../../utils/emails");
 const { Sequelize } = require('sequelize');
 
+const Users = db.users;
 const Questions = db.questions;
 const QuestionsAttributes = db.questionsAttributes;
 const QuestionsOptions = db.questionsOptions;
@@ -16,7 +17,7 @@ const Classes = db.classes;
 const Joi = require('@hapi/joi');
 const { sequelize } = require("../../models");
 
-// Create and Save a new Quiz Type
+// Create and Save a new Quiz
 exports.create = async (req, res) => {
 
     try {
@@ -45,7 +46,7 @@ exports.create = async (req, res) => {
             const questionTagsIdList = [];
 
             req.body.tagsIdList.forEach(element => {
-                questionTagsIdList.push(crypto.decrypt(element))
+                questionTagsIdList.push(+crypto.decrypt(element))
             });
             req.body.questions.forEach((element, index) => {
                 req.body.questions[index].difficultyId = crypto.decrypt(element.difficultyId)
@@ -55,124 +56,81 @@ exports.create = async (req, res) => {
                 Questions.findAll({
                     where: {
                         questionDifficultyId: req.body.questions[0].difficultyId,
-                        questionTypeId: 1, coursesId: courseId, isActive: 'Y'
+                        coursesId: courseId, isActive: 'Y'
                     },
                     include: [{
                         model: QuestionTags,
                         where: { isActive: 'Y', tagsId: questionTagsIdList }, attributes: []
-                    },
-                    {
-                        model: QuestionsOptions, where: { isActive: 'Y' },
-                        required: false, attributes: ['id', 'title', 'image', 'imageSource']
-                    },
-                    {
-                        model: QuestionsAttributes, where: { isActive: 'Y' }, required: false,
-                        attributes: ['id', 'statementImage', 'statementImageSource', 'hint', 'hintFile', 'hintFileSource',
-                            'solutionFile', 'solutionFileSource']
                     }],
-                    order: Sequelize.literal('rand()'), 
+                    order: Sequelize.literal('rand()'),
                     limit: req.body.questions[0].count,
-                    attributes: ['id', 'statement', 'duration', 'points']
+                    attributes: ['id']
                 }),
                 Questions.findAll({
                     where: {
                         questionDifficultyId: req.body.questions[1].difficultyId,
-                        questionTypeId: 1, coursesId: courseId, isActive: 'Y'
+                        coursesId: courseId, isActive: 'Y'
                     },
                     include: [{
                         model: QuestionTags,
                         where: { isActive: 'Y', tagsId: questionTagsIdList }, attributes: []
-                    },
-                    {
-                        model: QuestionsOptions, where: { isActive: 'Y' },
-                        required: false, attributes: ['id', 'title', 'image', 'imageSource']
-                    },
-                    {
-                        model: QuestionsAttributes, where: { isActive: 'Y' }, required: false,
-                        attributes: ['id', 'statementImage', 'statementImageSource', 'hint', 'hintFile', 'hintFileSource',
-                            'solutionFile', 'solutionFileSource']
                     }],
-                    order: Sequelize.literal('rand()'), 
+                    order: Sequelize.literal('rand()'),
                     limit: req.body.questions[1].count,
-                    attributes: ['id', 'statement', 'duration', 'points']
+                    attributes: ['id']
                 }),
                 Questions.findAll({
                     where: {
                         questionDifficultyId: req.body.questions[2].difficultyId,
-                        questionTypeId: 1, coursesId: courseId, isActive: 'Y'
+                        coursesId: courseId, isActive: 'Y'
                     },
                     include: [{
                         model: QuestionTags,
                         where: { isActive: 'Y', tagsId: questionTagsIdList }, attributes: []
-                    },
-                    {
-                        model: QuestionsOptions, where: { isActive: 'Y' },
-                        required: false, attributes: ['id', 'title', 'image', 'imageSource']
-                    },
-                    {
-                        model: QuestionsAttributes, where: { isActive: 'Y' }, required: false,
-                        attributes: ['id', 'statementImage', 'statementImageSource', 'hint', 'hintFile', 'hintFileSource',
-                            'solutionFile', 'solutionFileSource']
                     }],
-                    order: Sequelize.literal('rand()'), 
+                    order: Sequelize.literal('rand()'),
                     limit: req.body.questions[2].count,
-                    attributes: ['id', 'statement', 'duration', 'points']
+                    attributes: ['id']
                 }),
                 Questions.findAll({
                     where: {
                         questionDifficultyId: req.body.questions[3].difficultyId,
-                        questionTypeId: 1, coursesId: courseId, isActive: 'Y'
+                        coursesId: courseId, isActive: 'Y'
                     },
                     include: [{
                         model: QuestionTags,
                         where: { isActive: 'Y', tagsId: questionTagsIdList }, attributes: []
-                    },
-                    {
-                        model: QuestionsOptions, where: { isActive: 'Y' },
-                        required: false, attributes: ['id', 'title', 'image', 'imageSource']
-                    },
-                    {
-                        model: QuestionsAttributes, where: { isActive: 'Y' }, required: false,
-                        attributes: ['id', 'statementImage', 'statementImageSource', 'hint', 'hintFile', 'hintFileSource',
-                            'solutionFile', 'solutionFileSource']
                     }],
-                    order: Sequelize.literal('rand()'), 
+                    order: Sequelize.literal('rand()'),
                     limit: req.body.questions[3].count,
-                    attributes: ['id', 'statement', 'duration', 'points']
+                    attributes: ['id']
                 }),
                 Questions.findAll({
                     where: {
                         questionDifficultyId: req.body.questions[4].difficultyId,
-                        questionTypeId: 1, coursesId: courseId, isActive: 'Y'
+                        coursesId: courseId, isActive: 'Y'
                     },
                     include: [{
                         model: QuestionTags,
                         where: { isActive: 'Y', tagsId: questionTagsIdList }, attributes: []
-                    },
-                    {
-                        model: QuestionsOptions, where: { isActive: 'Y' },
-                        required: false, attributes: ['id', 'title', 'image', 'imageSource']
-                    },
-                    {
-                        model: QuestionsAttributes, where: { isActive: 'Y' }, required: false,
-                        attributes: ['id', 'statementImage', 'statementImageSource', 'hint', 'hintFile', 'hintFileSource',
-                            'solutionFile', 'solutionFileSource']
                     }],
-                    order: Sequelize.literal('rand()'), 
+                    order: Sequelize.literal('rand()'),
                     limit: req.body.questions[4].count,
-                    attributes: ['id', 'statement', 'duration', 'points']
+                    attributes: ['id']
                 })
             ])
 
             var QuestionsPool = await [...qp0, ...qp1, ...qp2, ...qp3, ...qp4];
 
+            var questionsIds = QuestionsPool.map(e => { return e.id }).sort();
+            var levelCountList = req.body.questions.map(e => { return e.count });
+
             const quiz = await Quizzes.create({
-                questionTagsIdList: JSON.stringify(req.body.tagsIdList),
+                questionTagsIdList: JSON.stringify(questionTagsIdList),
                 courseId: courseId,
                 createdBy: crypto.decrypt(req.userId),
-                questionTypeId: 1,
-                questionDifficultyList: JSON.stringify(req.body.questions),
-                questionsPool: JSON.stringify(encryptHelper(QuestionsPool))
+                questionDifficultiesCount: JSON.stringify(levelCountList),
+                questionsPool: JSON.stringify(questionsIds)
             })
 
             res.status(200).send({ quizId: crypto.encrypt(quiz.id), message: "Quiz Created." })
@@ -181,6 +139,151 @@ exports.create = async (req, res) => {
         emails.errorEmail(req, err);
         res.status(500).send({
             message: err.message || "Some error occurred."
+        });
+    }
+};
+// Create a new Quiz by teacher
+exports.createByTeacher = async (req, res) => {
+
+    try {
+        // Validate request
+        const joiSchema = Joi.object({
+            title: Joi.string().required(),
+            courseId: Joi.string().required(),
+            tagsIdList: Joi.array().items(Joi.string().required()),
+            questionsIds: Joi.array().items(Joi.string().required()),
+        }).prefs({ convert: false });
+        const { error, value } = joiSchema.validate(req.body);
+
+        if (error) {
+            emails.errorEmail(req, error);
+
+            const message = error.details[0].message.replace(/"/g, '');
+            res.status(400).send({
+                message: message
+            });
+        } else {
+
+            const tagsIdList = req.body.tagsIdList.map(e => +crypto.decrypt(e)).sort();
+            const questionsIds = req.body.questionsIds.map(e => +crypto.decrypt(e)).sort();
+            console.log(tagsIdList, questionsIds)
+
+            const quiz = await Quizzes.create({
+                title: req.body.title,
+                courseId: crypto.decrypt(req.body.courseId),
+                questionTagsIdList: JSON.stringify(tagsIdList),
+                questionsPool: JSON.stringify(questionsIds),
+                createdBy: crypto.decrypt(req.userId)
+            })
+
+            res.status(200).send({ quizId: crypto.encrypt(quiz.id), message: "Assessment Created." })
+        }
+    } catch (err) {
+        emails.errorEmail(req, err);
+        res.status(500).send({
+            message: err.message || "Some error occurred."
+        });
+    }
+};
+
+// Assign Quiz to students
+exports.assignQuizToStudent = async (req, res) => {
+
+    try {
+        // Validate request
+        const joiSchema = Joi.object({
+            studentList: Joi.array().items(Joi.string().required()),
+        });
+        const { error, value } = joiSchema.validate(req.body);
+
+        if (error) {
+            emails.errorEmail(req, error);
+
+            const message = error.details[0].message.replace(/"/g, '');
+            res.status(400).send({
+                message: message
+            });
+        } else {
+            const quizId = crypto.decrypt(req.params.quizId);
+
+            const ids = req.body.studentList.map(e => { return +crypto.decrypt(e) })
+
+            var emailsList = await Users.findAll({
+                where: {
+                    id: ids,
+                    isActive: 'Y'
+                },
+                attributes: ['email']
+            })
+
+            emailsList = emailsList.map(e => { return e.email })
+
+            const result = emails.assignQuiz(emailsList);
+            res.status(200).send(emailsList)
+        }
+    } catch (err) {
+        emails.errorEmail(req, err);
+        res.status(500).send({
+            message: err.message || "Some error occurred."
+        });
+    }
+};
+
+// Retrieve All Assessments created by teacher.
+exports.findAllForTeacher = (req, res) => {
+    try {
+        Quizzes.findAll({
+            where: { createdBy: crypto.decrypt(req.userId), isActive: 'Y' },
+            include: [{
+                model: Courses,
+                where: { isActive: 'Y' },
+                include: [{
+                    model: Classes, attributes: ['title'],
+                    where: { isActive: 'Y' },
+                }],
+                attributes: ['title']
+            }],
+            attributes: { exclude: ['isActive',] }
+        })
+            .then(async quiz => {
+                const questionsIds = JSON.parse(quiz.questionsPool);
+                const tagIds = JSON.parse(quiz.questionTagsIdList);
+
+                const questionsPool = await Questions.findAll({
+                    where: { id: questionsIds, isActive: 'Y' },
+                    include: [
+                        {
+                            model: QuestionsOptions, where: { isActive: 'Y' },
+                            required: false, attributes: ['id', 'title', 'image', 'imageSource']
+                        },
+                        {
+                            model: QuestionsAttributes, where: { isActive: 'Y' }, required: false,
+                            attributes: ['id', 'statementImage', 'statementImageSource', 'hint', 'hintFile', 'hintFileSource',
+                                'solutionFile', 'solutionFileSource']
+                        }],
+                    attributes: ['id', 'statement', 'duration', 'points']
+                })
+
+                res.send({
+                    id: crypto.encrypt(quiz.id),
+                    courseTitle: quiz.course.title,
+                    classTitle: quiz.course.class.title,
+                    QuestionsPool: encryptHelper(questionsPool)
+                });
+            })
+            .catch(err => {
+                emails.errorEmail(req, err);
+                res.status(500).send({
+                    message:
+                        err.message || "Some error occurred while retrieving Quiz by Id."
+                });
+            });
+    } catch (err) {
+        emails.errorEmail(req, err);
+
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred."
         });
     }
 };
@@ -207,13 +310,30 @@ exports.findQuizById = (req, res) => {
                 ],
             attributes: ['id', 'questionsPool']
         })
-            .then(quiz => {
+            .then(async quiz => {
+                const questionsIds = JSON.parse(quiz.questionsPool)
+                const questionsPool = await Questions.findAll({
+                    where: {
+                        id: questionsIds, isActive: 'Y'
+                    },
+                    include: [
+                        {
+                            model: QuestionsOptions, where: { isActive: 'Y' },
+                            required: false, attributes: ['id', 'title', 'image', 'imageSource']
+                        },
+                        {
+                            model: QuestionsAttributes, where: { isActive: 'Y' }, required: false,
+                            attributes: ['id', 'statementImage', 'statementImageSource', 'hint', 'hintFile', 'hintFileSource',
+                                'solutionFile', 'solutionFileSource']
+                        }],
+                    attributes: ['id', 'statement', 'duration', 'points']
+                })
 
                 res.send({
                     id: crypto.encrypt(quiz.id),
                     courseTitle: quiz.course.title,
                     classTitle: quiz.course.class.title,
-                    QuestionsPool: JSON.parse(quiz.questionsPool)
+                    QuestionsPool: encryptHelper(questionsPool)
                 });
             })
             .catch(err => {

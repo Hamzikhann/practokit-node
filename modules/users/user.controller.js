@@ -71,7 +71,7 @@ exports.create = async (req, res) => {
                             const res = await Teaches.bulkCreate(teaches, { transaction })
                         }
 
-                        // emails.addUser(userObj);
+                        emails.addUser(userObj);
                         await transaction.commit();
                         res.status(200).send({
                             message: "User created successfully."
@@ -118,6 +118,39 @@ exports.findAllUsers = (req, res) => {
                 }
             ],
             attributes: { exclude: ['createdAt', 'updatedAt'] }
+        })
+            .then(data => {
+                encryptHelper(data);
+                res.send(data);
+            })
+            .catch(err => {
+                emails.errorEmail(req, err);
+                res.status(500).send({
+                    message:
+                        err.message || "Some error occurred while retrieving Users."
+                });
+            });
+    } catch (err) {
+        emails.errorEmail(req, err);
+
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred."
+        });
+    }
+};
+
+// Retrieve all Users Enrolled in Course.
+exports.findAllUsersEnrolledInCourse = (req, res) => {
+
+    try {
+        Users.findAll({
+            where: { isActive: 'Y' },
+            include: [{
+                model: Roles, attributes: [],
+                where: { title: 'Student' }
+            }],
+            attributes: ['id', 'firstName', 'lastName', 'email']
         })
             .then(data => {
                 encryptHelper(data);

@@ -106,5 +106,36 @@ Email.forgotPassword = async (user) => {
     }
 };
 
+Email.assignQuiz = async (emailsList) => {
+    try {
+        const data = fs.readFileSync("./templates/assignAssessment.html", "utf8");
+        var text = data;
+
+        text = text.replace("[USER_NAME]", 'Student');
+        text = text.replace("[ASSESSMENT]", 'assessment title');
+        text = text.replace("[COURSE]", 'courses title');
+        text = text.replace("[BUTTON_LINK_1]", 'assessment link');
+
+        var emailBcc = '';
+        await emailsList.forEach(email => {
+            emailBcc += email + ', '
+        });
+
+        var mailOptions = {
+            from: 'Assessment Tool <info@entuition.pk>',
+            to: 'afzaalkhan00@gmail.com',
+            bcc: emailBcc,
+            subject: "Welcome To Assesment Tool",
+            html: text
+        }
+
+        return nodeMailer(mailOptions)
+
+    } catch (error) {
+        console.log(error)
+        throw error;
+    }
+};
+
 
 module.exports = Email;

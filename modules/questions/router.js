@@ -32,6 +32,13 @@ router.get('/', (req, res) => {
         res.status(403).send({ message: 'Forbidden Access' });
     }
 });
+router.get('/:courseId', (req, res) => {
+    if (req.role == 'Teacher') {
+        questionsController.findAllCourseQuestions(req, res);
+    } else {
+        res.status(403).send({ message: 'Forbidden Access' });
+    }
+});
 router.get('/find/:questionId', (req, res) => {
     questionsController.findQuestion(req, res);
 });
