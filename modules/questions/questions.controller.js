@@ -43,11 +43,11 @@ exports.create = async (req, res) => {
                 Joi.object().keys({
                     title: Joi.string().required(),
                     image: Joi.string().optional().allow(''),
-                    imageSource: Joi.string().required(),
+                    imageSource: Joi.string().required().allow(''),
                     fileName: Joi.string().required().allow(''),
                     correct: Joi.boolean().required(),
                 })
-            ).min(2).max(8).required()
+            ).min(1).max(8).required()
         });
         const { error, value } = joiSchema.validate(req.body);
 
@@ -69,7 +69,6 @@ exports.create = async (req, res) => {
                 coursesId: crypto.decrypt(req.body.courseId),
                 createdBy: crypto.decrypt(req.userId),
             };
-
             const questionAttributes = {
                 statementImageSource: req.body.statementImageSource,
                 statementImage: req.body.statementImage,
@@ -86,21 +85,8 @@ exports.create = async (req, res) => {
             let transaction = await sequelize.transaction();
             Questions.create(question, { transaction })
                 .then(async questionResult => {
-		console.log('1')
-                    questionAttributes.questionId = questionResult.id;
 
-                    var options = [];
-                    req.body.options.forEach(option => {
-                        options.push({
-                            questionsId: questionResult.id,
-                            title: option.title,
-                            image: option.image,
-                            fileName: option.fileName,
-                            imageSource: option.imageSource,
-                            correct: option.correct,
-                        })
-                    });
-
+                    // Question Tags
                     var tags = [];
                     req.body.tagIds.forEach(tagId => {
                         tags.push({
@@ -108,53 +94,43 @@ exports.create = async (req, res) => {
                             questionId: questionResult.id
                         });
                     })
-		console.log('2')
+                    QuestionTags.bulkCreate(tags, { transaction })
+                        .then(async tagsResult => {
 
-                    QuestionsAttributes.create(questionAttributes, { transaction })
-                        .then(async questionAttributesReult => {
-				console.log('3')
-                            QuestionsOptions.bulkCreate(options, { transaction })
-                                .then(async optionsResult => {
-					console.log('4')
-                                    QuestionTags.bulkCreate(tags, { transaction })
-                                        .then(async tagsResult => {
+                            // Question Attributes
+                            if (req.body.statementImage || req.body.solutionFileName || req.body.statementFileName ||
+                                req.body.hint || req.body.hintFileName || req.body.solutionFile || req.body.hintFile) {
+                                questionAttributes.questionId = questionResult.id;
+                                var qaRes = await QuestionsAttributes.create(questionAttributes, { transaction })
+                            }
 
-                                            await transaction.commit();
-                                            res.status(200).send({
-                                                message: "Question created successfully."
-                                            });
+                            var options = [];
+                            req.body.options.forEach(option => {
+                                options.push({
+                                    questionsId: questionResult.id,
+                                    title: option.title,
+                                    image: option.image,
+                                    fileName: option.fileName,
+                                    imageSource: option.imageSource,
+                                    correct: option.correct,
+                                })
+                            });
+                            const optionRes = await QuestionsOptions.bulkCreate(options, { transaction })
 
-                                        }).catch(async err => {
-                                            if (transaction) await transaction.rollback();
+                            await transaction.commit();
+                            res.status(200).send({
+                                message: "Question created successfully."
+                            });
 
-                                            emails.errorEmail(req, err);
-                                            res.status(500).send({
-                                                message:
-                                                    err.message || "Some error occurred while Question Tags."
-                                            });
-                                        });
-
-                                }).catch(async err => {
-                                    if (transaction) await transaction.rollback();
-
-                                    emails.errorEmail(req, err);
-                                    res.status(500).send({
-                                        message:
-                                            err.message || "Some error occurred while creating the Question Options."
-                                    });
-                                });
-
-                        })
-                        .catch(async err => {
+                        }).catch(async err => {
                             if (transaction) await transaction.rollback();
 
                             emails.errorEmail(req, err);
                             res.status(500).send({
                                 message:
-                                    err.message || "Some error occurred while creating the Question Attributes."
+                                    err.message || "Some error occurred while Question Tags."
                             });
                         });
-
                 })
                 .catch(async err => {
                     if (transaction) await transaction.rollback();
@@ -268,23 +244,33 @@ exports.updateQuestion = async (req, res) => {
                                 questionId: questionId
                             });
                         });
-                        
-                        QuestionsAttributes.update(questionAttributes, { where: { questionId: questionId }, transaction })
-                        .then(async questionAttributesReult => {
-                            if(questionAttributesReult == 1) {
 
-                                await QuestionsOptions.destroy({ where: { questionsId: questionId }, transaction })
-                                QuestionsOptions.bulkCreate(options, { transaction })
-                                .then(async optionsResult => {
-                                    
-                                    await QuestionTags.destroy({ where: { questionId: questionId }, transaction })
-                                    QuestionTags.bulkCreate(tags, { transaction })
-                                    .then(async tagsResult => {
-                                        
-                                            await transaction.commit();
-                                            res.status(200).send({
-                                                message: "Question updated successfully."
-                                            });
+                        QuestionsAttributes.update(questionAttributes, { where: { questionId: questionId }, transaction })
+                            .then(async questionAttributesReult => {
+                                if (questionAttributesReult == 1) {
+
+                                    await QuestionsOptions.destroy({ where: { questionsId: questionId }, transaction })
+                                    QuestionsOptions.bulkCreate(options, { transaction })
+                                        .then(async optionsResult => {
+
+                                            await QuestionTags.destroy({ where: { questionId: questionId }, transaction })
+                                            QuestionTags.bulkCreate(tags, { transaction })
+                                                .then(async tagsResult => {
+
+                                                    await transaction.commit();
+                                                    res.status(200).send({
+                                                        message: "Question updated successfully."
+                                                    });
+
+                                                }).catch(async err => {
+                                                    if (transaction) await transaction.rollback();
+
+                                                    emails.errorEmail(req, err);
+                                                    res.status(500).send({
+                                                        message:
+                                                            err.message || "Some error occurred while Question Tags."
+                                                    });
+                                                });
 
                                         }).catch(async err => {
                                             if (transaction) await transaction.rollback();
@@ -292,34 +278,24 @@ exports.updateQuestion = async (req, res) => {
                                             emails.errorEmail(req, err);
                                             res.status(500).send({
                                                 message:
-                                                    err.message || "Some error occurred while Question Tags."
+                                                    err.message || "Some error occurred while creating the Question Options."
                                             });
                                         });
 
-                                }).catch(async err => {
-                                    if (transaction) await transaction.rollback();
-
-                                    emails.errorEmail(req, err);
-                                    res.status(500).send({
-                                        message:
-                                            err.message || "Some error occurred while creating the Question Options."
+                                } else {
+                                    res.send({
+                                        message: `Cannot update Question Attributes.`
                                     });
-                                });
+                                }
+                            }).catch(async err => {
+                                if (transaction) await transaction.rollback();
 
-                            } else {
-                                res.send({
-                                    message: `Cannot update Question Attributes.`
+                                emails.errorEmail(req, err);
+                                res.status(500).send({
+                                    message:
+                                        err.message || "Some error occurred while creating the Question Attributes."
                                 });
-                            }
-                        }).catch(async err => {
-                            if (transaction) await transaction.rollback();
-
-                            emails.errorEmail(req, err);
-                            res.status(500).send({
-                                message:
-                                    err.message || "Some error occurred while creating the Question Attributes."
                             });
-                        });
                     } else {
                         res.send({
                             message: `Cannot update Question!.`
@@ -395,7 +371,7 @@ exports.findAll = (req, res) => {
                             attributes: ['id', 'title']
                         }
                     ],
-                    attributes: ['id', 'isActive', 'questionId'] 
+                    attributes: ['id', 'isActive', 'questionId']
                 },
                 {
                     model: Courses,
@@ -407,7 +383,7 @@ exports.findAll = (req, res) => {
                             attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy'] }
                         }
                     ],
-                    attributes: ['id', 'title'] 
+                    attributes: ['id', 'title']
                 }
             ],
             attributes: ['id', 'statement', 'duration', 'points', 'createdBy']
@@ -483,7 +459,7 @@ exports.findAllForEditor = (req, res) => {
                             attributes: ['id', 'title']
                         }
                     ],
-                    attributes: ['id', 'isActive', 'questionId'] 
+                    attributes: ['id', 'isActive', 'questionId']
                 },
                 {
                     model: Courses,
@@ -495,7 +471,7 @@ exports.findAllForEditor = (req, res) => {
                             attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy'] }
                         }
                     ],
-                    attributes: ['id', 'title'] 
+                    attributes: ['id', 'title']
                 }
             ],
             attributes: ['id', 'statement', 'duration', 'points', 'createdBy']
@@ -550,7 +526,6 @@ exports.findAllForTeacher = (req, res) => {
                 {
                     model: QuestionTags,
                     where: { isActive: 'Y' },
-                    required: false,
                     include: [
                         {
                             model: Tags,
@@ -573,7 +548,7 @@ exports.findAllForTeacher = (req, res) => {
                             attributes: ['id', 'title']
                         }
                     ],
-                    attributes: ['id', 'isActive', 'questionId'] 
+                    attributes: ['id', 'isActive', 'questionId']
                 },
                 {
                     model: Courses,
@@ -586,7 +561,7 @@ exports.findAllForTeacher = (req, res) => {
                         },
                         { model: Teaches, where: { isActive: 'Y', userId: crypto.decrypt(req.userId) } }
                     ],
-                    attributes: ['id', 'title'] 
+                    attributes: ['id', 'title']
                 }
             ],
             attributes: ['id', 'statement', 'duration', 'points', 'createdBy']
@@ -600,6 +575,98 @@ exports.findAllForTeacher = (req, res) => {
                 res.status(500).send({
                     message:
                         err.message || "Some error occurred while retrieving questions."
+                });
+            });
+    } catch (err) {
+        emails.errorEmail(req, err);
+
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred."
+        });
+    }
+};
+
+// Find All Questions of course for Teacher
+exports.findAllCourseQuestions = (req, res) => {
+
+    try {
+        const courseId = crypto.decrypt(req.params.courseId)
+
+        Questions.findAll({
+            where: { isActive: 'Y' },
+            include: [
+                {
+                    model: QuestionsAttributes,
+                    where: { isActive: 'Y' },
+                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'questionId'] }
+                },
+                {
+                    model: QuestionsOptions,
+                    where: { isActive: 'Y' },
+                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'questionsId'] }
+                },
+                {
+                    model: QuestionTypes,
+                    where: { isActive: 'Y' },
+                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt'] }
+                },
+                {
+                    model: QuestionDifficulties,
+                    where: { isActive: 'Y' },
+                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy'] }
+                },
+                {
+                    model: QuestionTags,
+                    where: { isActive: 'Y' },
+                    include: [
+                        {
+                            model: Tags,
+                            where: { isActive: 'Y' },
+                            include: [
+                                {
+                                    model: Courses,
+                                    where: { isActive: 'Y' },
+                                    include: [
+                                        {
+                                            model: Classes,
+                                            where: { isActive: 'Y' },
+                                            attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy'] }
+                                        },
+                                        { model: Teaches, where: { isActive: 'Y', userId: crypto.decrypt(req.userId) } }
+                                    ],
+                                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy', 'classId'] }
+                                }
+                            ],
+                            attributes: ['id', 'title']
+                        }
+                    ],
+                    attributes: ['id', 'isActive', 'questionId']
+                },
+                {
+                    model: Courses,
+                    where: { id: courseId, isActive: 'Y' },
+                    include: [
+                        {
+                            model: Classes,
+                            where: { isActive: 'Y' },
+                            attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy'] }
+                        }
+                    ],
+                    attributes: ['id', 'title']
+                }
+            ],
+            attributes: ['id', 'statement', 'duration', 'points', 'createdBy']
+        })
+            .then(data => {
+                encryptHelper(data);
+                res.send(data);
+            })
+            .catch(err => {
+                emails.errorEmail(req, err);
+                res.status(500).send({
+                    message:
+                        err.message || "Some error occurred while retrieving questions of courses."
                 });
             });
     } catch (err) {
@@ -665,7 +732,7 @@ exports.findQuestion = (req, res) => {
                             attributes: ['id', 'title']
                         }
                     ],
-                    attributes: ['id'] 
+                    attributes: ['id']
                 },
                 {
                     model: Courses,
@@ -673,11 +740,11 @@ exports.findQuestion = (req, res) => {
                     include: {
                         model: Classes,
                         where: { isActive: 'Y' },
-                        attributes: ['id', 'title'] 
+                        attributes: ['id', 'title']
                     },
-                    attributes: ['id', 'title'] 
+                    attributes: ['id', 'title']
                 },
-                
+
             ],
             attributes: ['id', 'statement', 'duration', 'points', 'createdBy']
         })

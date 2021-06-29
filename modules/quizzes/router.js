@@ -5,8 +5,24 @@ const express = require('express')
 const router = express.Router()
 
 router.post('/', (req, res) => {
-    if(req.role == 'Teacher' || req.role == 'Student') {
+    if(req.role == 'Student') {
         quizzesController.create(req, res);
+    } else if(req.role == 'Teacher') {
+        quizzesController.createByTeacher(req, res);
+    } else {
+        res.status(403).send({ message: 'Forbidden Access' });
+    }
+});
+router.post('/assign/:quizId', (req, res) => {
+    if(req.role == 'Teacher') {
+        quizzesController.assignQuizToStudent(req, res);
+    } else {
+        res.status(403).send({ message: 'Forbidden Access' });
+    }
+});
+router.get('/', (req, res) => {
+    if(req.role == 'Teacher') {
+        quizzesController.findAllForTeacher(req, res);
     } else {
         res.status(403).send({ message: 'Forbidden Access' });
     }

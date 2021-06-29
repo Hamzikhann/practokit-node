@@ -22,7 +22,13 @@ router.get('/', (req, res) => {
     }
 });
 router.get('/courses', (req, res) => {
-    classesController.findClasseswithCourses(req, res);
+    if (req.role == 'Admin' || req.role == 'Editor') {
+        classesController.findClasseswithCourses(req, res);
+    } else if (req.role == 'Teacher') {
+        classesController.findClasseswithCoursesForTeacher(req, res);
+    } else {
+        res.status(403).send({ message: 'Forbidden Access' });
+    }
 });
 router.get('/:classId', (req, res) => {
     classesController.findClassById(req, res);
