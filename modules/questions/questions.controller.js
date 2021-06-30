@@ -327,6 +327,7 @@ exports.findAll = (req, res) => {
             include: [
                 {
                     model: QuestionsAttributes,
+                    required: false,
                     where: { isActive: 'Y' },
                     attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'questionId'] }
                 },
@@ -415,6 +416,7 @@ exports.findAllForEditor = (req, res) => {
             include: [
                 {
                     model: QuestionsAttributes,
+                    required: false,
                     where: { isActive: 'Y' },
                     attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'questionId'] }
                 },
@@ -503,6 +505,7 @@ exports.findAllForTeacher = (req, res) => {
             include: [
                 {
                     model: QuestionsAttributes,
+                    required: false,
                     where: { isActive: 'Y' },
                     attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'questionId'] }
                 },
@@ -596,6 +599,7 @@ exports.findAllCourseQuestions = (req, res) => {
             include: [
                 {
                     model: QuestionsAttributes,
+                    required: false,
                     where: { isActive: 'Y' },
                     attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'questionId'] }
                 },
@@ -688,6 +692,7 @@ exports.findQuestion = (req, res) => {
             include: [
                 {
                     model: QuestionsAttributes,
+                    required: false,
                     where: { isActive: 'Y' },
                     attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'questionId'] }
                 },
