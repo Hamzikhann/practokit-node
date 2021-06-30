@@ -18,7 +18,6 @@ const { sequelize } = require("../../models");
 
 // Create and Save a new Question
 exports.create = async (req, res) => {
-    console.log('entered create');
 
     try {
         const joiSchema = Joi.object({
@@ -59,7 +58,6 @@ exports.create = async (req, res) => {
                 message: message
             });
         } else {
-		console.log('joi veified');
             const question = {
                 statement: req.body.statement,
                 duration: req.body.duration,

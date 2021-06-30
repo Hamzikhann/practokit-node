@@ -1,8 +1,8 @@
 {
   "development": {
-    "username": "oxibit",
-    "password": "Oxibit12!@",
-    "database": "assessmentTool",
+    "username": "root",
+    "password": "",
+    "database": "standaloneQuiz_live",
     "host": "localhost",
     "dialect": "mysql",
     "port": "3306",
