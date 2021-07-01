@@ -106,7 +106,7 @@ exports.create = async (req, res) => {
                     .catch(async err => {
                         if (transaction) await transaction.rollback();
 
-                        // emails.errorEmail(req, err);
+                        emails.errorEmail(req, err);
                         res.status(500).send({
                             message:
                                 err.message || "Some error occurred while creating the Quiz Submission."
@@ -197,7 +197,7 @@ exports.create = async (req, res) => {
                     .catch(async err => {
                         if (transaction) await transaction.rollback();
 
-                        // emails.errorEmail(req, err);
+                        emails.errorEmail(req, err);
                         res.status(500).send({
                             message:
                                 err.message || "Some error occurred while creating the Quiz Submission."
@@ -206,7 +206,7 @@ exports.create = async (req, res) => {
             }
         }
     } catch (err) {
-        // emails.errorEmail(req, err);
+        emails.errorEmail(req, err);
 
         console.log('error', err);
         res.status(500).send({
