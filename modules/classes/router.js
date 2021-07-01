@@ -22,7 +22,7 @@ router.get('/', (req, res) => {
     }
 });
 router.get('/courses', (req, res) => {
-    if (req.role == 'Admin' || req.role == 'Editor') {
+    if (req.role == 'Admin' || req.role == 'Editor' || req.role == 'Student') {
         classesController.findClasseswithCourses(req, res);
     } else if (req.role == 'Teacher') {
         classesController.findClasseswithCoursesForTeacher(req, res);

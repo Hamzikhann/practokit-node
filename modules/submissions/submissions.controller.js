@@ -52,14 +52,8 @@ exports.create = async (req, res) => {
                 });
 
                 const questionsCorrectAnswers = await Questions.findAll({
-                    where: { id: questionsIdList },
-                    include: [
-                        {
-                            model: QuestionsOptions,
-                            attributes: ['id', 'correct']
-                        }
-                    ],
-                    attributes: ['id']
+                    where: { id: questionsIdList }, attributes: ['id'],
+                    include: [{ model: QuestionsOptions, attributes: ['id', 'correct'] }]
                 })
 
                 var list = {};
@@ -72,12 +66,22 @@ exports.create = async (req, res) => {
                 });
 
                 quizResponse.forEach((element, index) => {
-                    if (element.selectedOption != null && list[crypto.decrypt(element.id)] == crypto.decrypt(element.selectedOption)) {
-                        result += element.points;
-                        quizResponse[index].isWrong = false;
+                    if (element.questionType.title == 'Fill in the Blank') {
+                        if (element.selectedOption != null && element.questionsOptions[0].title == element.selectedOption) {
+                            result += element.points;
+                            quizResponse[index].isWrong = false;
+                        } else {
+                            wrong += 1;
+                            quizResponse[index].isWrong = true;
+                        }
                     } else {
-                        wrong += 1;
-                        quizResponse[index].isWrong = true;
+                        if (element.selectedOption != null && list[crypto.decrypt(element.id)] == crypto.decrypt(element.selectedOption)) {
+                            result += element.points;
+                            quizResponse[index].isWrong = false;
+                        } else {
+                            wrong += 1;
+                            quizResponse[index].isWrong = true;
+                        }
                     }
                 })
 
@@ -102,7 +106,7 @@ exports.create = async (req, res) => {
                     .catch(async err => {
                         if (transaction) await transaction.rollback();
 
-                        emails.errorEmail(req, err);
+                        // emails.errorEmail(req, err);
                         res.status(500).send({
                             message:
                                 err.message || "Some error occurred while creating the Quiz Submission."
@@ -118,7 +122,7 @@ exports.create = async (req, res) => {
                     result = oldQuizAttributes.result;
                     totalMarks = oldQuizAttributes.totalMarks;
                 }
-                
+
                 timeSpend = oldQuizAttributes.timeSpend;
                 wrong = 0;
 
@@ -148,12 +152,22 @@ exports.create = async (req, res) => {
                 });
 
                 quizResponse.forEach((element, index) => {
-                    if (element.selectedOption != null && list[crypto.decrypt(element.id)] == crypto.decrypt(element.selectedOption)) {
-                        result += element.points;
-                        quizResponse[index].isWrong = false;
+                    if (element.questionType.title == 'Fill in the Blank') {
+                        if (element.selectedOption != null && element.questionsOptions[0].title == element.selectedOption) {
+                            result += element.points;
+                            quizResponse[index].isWrong = false;
+                        } else {
+                            wrong += 1;
+                            quizResponse[index].isWrong = true;
+                        }
                     } else {
-                        wrong += 1;
-                        quizResponse[index].isWrong = true;
+                        if (element.selectedOption != null && list[crypto.decrypt(element.id)] == crypto.decrypt(element.selectedOption)) {
+                            result += element.points;
+                            quizResponse[index].isWrong = false;
+                        } else {
+                            wrong += 1;
+                            quizResponse[index].isWrong = true;
+                        }
                     }
                 })
 
@@ -183,7 +197,7 @@ exports.create = async (req, res) => {
                     .catch(async err => {
                         if (transaction) await transaction.rollback();
 
-                        emails.errorEmail(req, err);
+                        // emails.errorEmail(req, err);
                         res.status(500).send({
                             message:
                                 err.message || "Some error occurred while creating the Quiz Submission."
@@ -192,7 +206,7 @@ exports.create = async (req, res) => {
             }
         }
     } catch (err) {
-        emails.errorEmail(req, err);
+        // emails.errorEmail(req, err);
 
         console.log('error', err);
         res.status(500).send({

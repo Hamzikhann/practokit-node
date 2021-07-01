@@ -8,6 +8,7 @@ const Questions = db.questions;
 const QuestionsAttributes = db.questionsAttributes;
 const QuestionsOptions = db.questionsOptions;
 const QuestionTags = db.questionTags;
+const QuestionType = db.questionType;
 const Quizzes = db.quizzes;
 const QuizSubmissions = db.quizSubmissions;
 const QuizSubmissionResponse = db.quizSubmissionResponse;
@@ -325,6 +326,9 @@ exports.findQuizById = (req, res) => {
                             model: QuestionsAttributes, where: { isActive: 'Y' }, required: false,
                             attributes: ['id', 'statementImage', 'statementImageSource', 'hint', 'hintFile', 'hintFileSource',
                                 'solutionFile', 'solutionFileSource']
+                        },
+                        {
+                            model: QuestionType, where: { isActive: 'Y' }, attributes: ['title']
                         }],
                     attributes: ['id', 'statement', 'duration', 'points']
                 })
@@ -379,8 +383,6 @@ exports.findQuizWrongQuestions = (req, res) => {
             attributes: ['id', 'courseId']
         })
             .then(async quiz => {
-
-                console.log(quiz.id, quiz.quizSubmissions[0].id)
 
                 const quizResponse = await QuizSubmissionResponse.findOne({
                     where: { quizSubmissionId: quiz.quizSubmissions[0].id },

@@ -73,6 +73,10 @@ module.exports = {
       title: 'True/False',
       createdAt: new Date(),
       updatedAt: new Date()
+    },{
+      title: 'Fill in the Blank',
+      createdAt: new Date(),
+      updatedAt: new Date()
     }], {});
     await queryInterface.bulkInsert('tags', [{
       title: 'D1 Algorithms',
