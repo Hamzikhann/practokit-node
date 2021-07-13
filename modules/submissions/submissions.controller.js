@@ -3,10 +3,14 @@ const encryptHelper = require("../../utils/encryptHelper");
 const emails = require("../../utils/emails");
 const Sequelize = require('sequelize');
 
+const Quizzes = db.quizzes;
 const QuizSubmissions = db.quizSubmissions;
 const QuizSubmissionResponse = db.quizSubmissionResponse;
 const Questions = db.questions;
 const QuestionsOptions = db.questionsOptions;
+const Users = db.users;
+const Courses = db.courses;
+const Classes = db.classes;
 
 const Op = db.Sequelize.Op;
 const Joi = require('@hapi/joi');
@@ -24,8 +28,6 @@ exports.create = async (req, res) => {
         const { error, value } = joiSchema.validate(req.body);
 
         if (error) {
-            console.log('joi error');
-
             emails.errorEmail(req, error);
 
             const message = error.details[0].message.replace(/"/g, '');
@@ -41,7 +43,7 @@ exports.create = async (req, res) => {
             const questionsIdList = []
 
             const oldQuizAttributes = await QuizSubmissions.findOne({
-                where: { quizzId: quizId }
+                where: { quizzId: quizId, userId: crypto.decrypt(req.userId) }
             })
 
             if (!oldQuizAttributes) {
@@ -91,7 +93,8 @@ exports.create = async (req, res) => {
                     totalMarks: totalMarks,
                     wrong: wrong,
                     totalQuestions: quizResponse.length,
-                    timeSpend: timeSpend
+                    timeSpend: timeSpend,
+                    userId: crypto.decrypt(req.userId)
                 }, { transaction })
                     .then(async submissionRes => {
                         await QuizSubmissionResponse.create({ response: JSON.stringify(quizResponse), quizSubmissionId: submissionRes.id },
@@ -162,6 +165,7 @@ exports.create = async (req, res) => {
                         }
                     } else {
                         if (element.selectedOption != null && list[crypto.decrypt(element.id)] == crypto.decrypt(element.selectedOption)) {
+                            element.correctOption = element.id;
                             result += element.points;
                             quizResponse[index].isWrong = false;
                         } else {
@@ -209,6 +213,69 @@ exports.create = async (req, res) => {
         emails.errorEmail(req, err);
 
         console.log('error', err);
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred."
+        });
+    }
+};
+
+// Retrieve Quiz Submissoin Detail of user by quizId & userId.
+exports.getUserSubmission = (req, res) => {
+    try {
+        const quizId = crypto.decrypt(req.params.quizId);
+        const userId = crypto.decrypt(req.params.userId);
+        QuizSubmissions.findOne({
+            where: {
+                userId: userId,
+                quizzId: quizId,
+                isActive: 'Y'
+            }, 
+            include: [
+                {
+                    model: Quizzes,
+                    where: { isActive: 'Y' }, 
+                    include: [
+                        {
+                            model: Courses,
+                            where: { isActive: 'Y' },
+                            include: [
+                                {
+                                    model: Classes,
+                                    where: { isActive: 'Y' },
+                                    attributes: ['title']
+                                }
+                            ],
+                            attributes: ['title']
+                        },
+                    ]
+                },
+                {
+                    model: QuizSubmissionResponse,
+                    where: { isActive: 'Y' },
+                    attributes: ['id', 'response']
+                },
+                {
+                    model: Users,
+                    where: { isActive: 'Y' },
+                    attributes: ['id', 'firstName', 'lastName', 'email'],
+                }
+            ],
+            order: [[ QuizSubmissionResponse, 'createdAt', 'DESC' ]]
+        })
+            .then(async quiz => {
+                res.send(encryptHelper(quiz));
+            })
+            .catch(err => {
+                // emails.errorEmail(req, err);
+                res.status(500).send({
+                    message:
+                        err.message || "Some error occurred while retrieving Submission of user by quiz and user Id."
+                });
+            });
+    } catch (err) {
+        // emails.errorEmail(req, err);
+
         res.status(500).send({
             message:
                 err.message || "Some error occurred."

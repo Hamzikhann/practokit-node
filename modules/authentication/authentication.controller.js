@@ -17,8 +17,8 @@ exports.login = async (req, res) => {
         } else if (req.headers.origin.indexOf('assessment-tool.mathecad') != -1) {
             roleIdList.push(1, 2, 3) // Admin, Editor, Teacher
         } else if (req.headers.origin.indexOf('localhost') != -1) {
-            // roleIdList.push(1, 2, 3) // Admin, Editor, Teacher
-            roleIdList.push(4) // Student
+            roleIdList.push(1, 2, 3) // Admin, Editor, Teacher
+            // roleIdList.push(4) // Student
         } else {
             roleIdList.push(-1)
         }

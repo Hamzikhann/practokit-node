@@ -46,7 +46,6 @@ exports.create = async (req, res) => {
                     message: "Tag is already exist with same course."
                 });
             } else {
-                console.log(crypto.decrypt(req.body.courseId), crypto.decrypt(req.userId))
                 Tags.create(tag)
                     .then(async result => {
                         res.status(200).send({

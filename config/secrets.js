@@ -39,6 +39,7 @@ module.exports = {
     },
 
     frontend_URL: process.env.frontend_URL,
+    student_frontend_URL: process.env.student_frontend_URL,
 
     sendgridApiKey: process.env.SENDGRID_API_KEY,
 

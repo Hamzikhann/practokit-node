@@ -21,6 +21,8 @@ module.exports = (sequelize, DataTypes) => {
     users.hasMany(models.questions, { foreignKey: { name: 'createdBy', allowNull: false  } })
     users.hasMany(models.tags, { foreignKey: { name: 'createdBy', allowNull: false  } })
     users.hasMany(models.teaches)
+    users.hasMany(models.assignTo)
+    users.hasMany(models.quizSubmissions)
   };
   return users;
 };

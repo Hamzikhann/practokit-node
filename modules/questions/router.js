@@ -42,7 +42,7 @@ router.get('/:courseId', (req, res) => {
 router.get('/find/:questionId', (req, res) => {
     questionsController.findQuestion(req, res);
 });
-router.get('/count', (req, res) => {
+router.get('/all/count', (req, res) => {
     if (req.role == 'Admin' || req.role == 'Editor') {
         questionsController.findQuestionsCount(req, res);
     } else if (req.role == 'Teacher') {

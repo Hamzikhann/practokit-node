@@ -810,39 +810,41 @@ exports.findQuestionsCount = async (req, res) => {
 // Retrieve questions count.
 exports.findQuestionsCountForTeacher = async (req, res) => {
     try {
+        const userId = crypto.decrypt(req.userId);
+
         var veryEasy = await Questions.count({
             where: { isActive: 'Y', questionDifficultyId: 1 },
             include: {
                 model: Courses, where: { isActive: 'Y' },
-                include: [{ model: Teaches, where: { isActive: 'Y', userId: crypto.decrypt(req.userId) } }],
+                include: [{ model: Teaches, where: { isActive: 'Y', userId: userId } }],
             },
         })
         var easy = await Questions.count({
             where: { isActive: 'Y', questionDifficultyId: 2 },
             include: {
                 model: Courses, where: { isActive: 'Y' },
-                include: [{ model: Teaches, where: { isActive: 'Y', userId: crypto.decrypt(req.userId) } }],
+                include: [{ model: Teaches, where: { isActive: 'Y', userId: userId } }],
             },
         })
         var medium = await Questions.count({
             where: { isActive: 'Y', questionDifficultyId: 3 },
             include: {
                 model: Courses, where: { isActive: 'Y' },
-                include: [{ model: Teaches, where: { isActive: 'Y', userId: crypto.decrypt(req.userId) } }],
+                include: [{ model: Teaches, where: { isActive: 'Y', userId: userId } }],
             },
         })
         var hard = await Questions.count({
             where: { isActive: 'Y', questionDifficultyId: 4 },
             include: {
                 model: Courses, where: { isActive: 'Y' },
-                include: [{ model: Teaches, where: { isActive: 'Y', userId: crypto.decrypt(req.userId) } }],
+                include: [{ model: Teaches, where: { isActive: 'Y', userId: userId } }],
             },
         })
         var veryHard = await Questions.count({
             where: { isActive: 'Y', questionDifficultyId: 5 },
             include: {
                 model: Courses, where: { isActive: 'Y' },
-                include: [{ model: Teaches, where: { isActive: 'Y', userId: crypto.decrypt(req.userId) } }],
+                include: [{ model: Teaches, where: { isActive: 'Y', userId: userId } }],
             },
         })
 

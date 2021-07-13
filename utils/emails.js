@@ -3,7 +3,12 @@ const secrets = require("../config/secrets");
 const nodeMailer = require('./nodeMailer');
 const jwt = require("./jwt");
 
-const baseURL = secrets.frontend_URL
+const baseURL = secrets.frontend_URL;
+const studentBaseURL = secrets.student_frontend_URL;
+
+const db = require("../models");
+const Quizzes = db.quizzes;
+const Courses = db.courses;
 
 /**
  * Email component
@@ -40,7 +45,7 @@ Email.errorEmail = async (req, error) => {
         var mailOptions = {
             from: 'Assessment Tool <info@entuition.pk>',
             to: "fareedmurtaza91@gmail.com",
-            subject: "ERROR in Assesment Tool(" + req.headers.origin + ")",
+            subject: "ERROR in Assessment Tool(" + req.headers.origin + ")",
             html: text
         }
 
@@ -106,15 +111,26 @@ Email.forgotPassword = async (user) => {
     }
 };
 
-Email.assignQuiz = async (emailsList) => {
+Email.assignQuiz = async (emailsList, assessmentId) => {
     try {
         const data = fs.readFileSync("./templates/assignAssessment.html", "utf8");
         var text = data;
 
+        const assessment = await Quizzes.findOne({
+            where: { id: assessmentId },
+            include: [{
+                model: Courses,
+                attributes: ['title']
+            }],
+            attributes: ['title']
+        })
+
+        var link = studentBaseURL + "attempt/" + crypto.encrypt(assessmentId);
+
         text = text.replace("[USER_NAME]", 'Student');
-        text = text.replace("[ASSESSMENT]", 'assessment title');
-        text = text.replace("[COURSE]", 'courses title');
-        text = text.replace("[BUTTON_LINK_1]", 'assessment link');
+        text = text.replace("[ASSESSMENT]", assessment.title);
+        text = text.replace("[COURSE]", assessment.course.title);
+        text = text.replace("[BUTTON_LINK_1]", link);
 
         var emailBcc = '';
         await emailsList.forEach(email => {
@@ -123,9 +139,9 @@ Email.assignQuiz = async (emailsList) => {
 
         var mailOptions = {
             from: 'Assessment Tool <info@entuition.pk>',
-            to: 'afzaalkhan00@gmail.com',
+            to: 'fareedmurtaza91@gmail.com',
             bcc: emailBcc,
-            subject: "Welcome To Assesment Tool",
+            subject: "New Assessment",
             html: text
         }
 

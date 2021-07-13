@@ -8,6 +8,7 @@ const Roles = db.roles;
 const Teaches = db.teaches;
 const Classes = db.classes;
 const Courses = db.courses;
+const AssignTo = db.assignTo;
 
 const Op = db.Sequelize.Op;
 const Joi = require('@hapi/joi');
@@ -122,6 +123,57 @@ exports.findAllUsers = (req, res) => {
             .then(data => {
                 encryptHelper(data);
                 res.send(data);
+            })
+            .catch(err => {
+                emails.errorEmail(req, err);
+                res.status(500).send({
+                    message:
+                        err.message || "Some error occurred while retrieving Users."
+                });
+            });
+    } catch (err) {
+        emails.errorEmail(req, err);
+
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred."
+        });
+    }
+};
+
+// Retrieve all Students.
+exports.findAllStudentsForAssessment = async (req, res) => {
+
+    try {
+
+        var quizId = crypto.decrypt(req.params.quizId);
+
+        var alreadyAssignedStudents = await AssignTo.findAll({
+            where: { quizId: quizId },
+            attributes: ['userId']
+        })
+        alreadyAssignedStudents = alreadyAssignedStudents.map(e=>{return +e.userId})
+
+        Users.findAll({
+            where: { isActive: 'Y' },
+            include: [
+                {
+                    model: Roles,
+                    where: { title: 'Student' },
+                    attributes: { exclude: ['createdAt', 'updatedAt', 'isActive'] }
+                }
+            ],
+            attributes: { exclude: ['createdAt', 'updatedAt'] }
+        })
+            .then(async data => {
+                encryptHelper(data);
+                var list = []
+                await data.forEach(user => {
+                    if(alreadyAssignedStudents.indexOf(+crypto.decrypt(user.id)) == -1) {
+                        list.push(user)
+                    }
+                });
+                res.send(list);
             })
             .catch(err => {
                 emails.errorEmail(req, err);

@@ -12,5 +12,14 @@ router.post('/', (req, res) => {
     }
 });
 
+router.get('/:quizId/:userId', (req, res) => {
+    if(req.role == 'Teacher') {
+        submissionsController.getUserSubmission(req, res);
+    } else {
+        res.status(403).send({ message: 'Forbidden Access' });
+    }
+});
+
+
 module.exports = router;
 
