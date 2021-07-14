@@ -267,14 +267,14 @@ exports.getUserSubmission = (req, res) => {
                 res.send(encryptHelper(quiz));
             })
             .catch(err => {
-                // emails.errorEmail(req, err);
+                emails.errorEmail(req, err);
                 res.status(500).send({
                     message:
                         err.message || "Some error occurred while retrieving Submission of user by quiz and user Id."
                 });
             });
     } catch (err) {
-        // emails.errorEmail(req, err);
+        emails.errorEmail(req, err);
 
         res.status(500).send({
             message:

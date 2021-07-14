@@ -329,6 +329,15 @@ exports.findQuizById = async (req, res) => {
                     userId: userId,
                 }
             })
+            if(!canAccess) {
+                canAccess = await Quizzes.findOne({
+                    where: {
+                        isActive: 'Y',
+                        id: quizId,
+                        createdBy: userId,
+                    }
+                })
+            }
         } else {
             canAccess = 'Go On';
         }
@@ -547,8 +556,6 @@ exports.findQuizResultById = (req, res) => {
                     attributes: ['courseId']
                 }
             ],
-            order: [['createdAt', 'DESC']],
-            limit: 1,
             attributes: ['id', 'result', 'totalMarks', 'wrong', 'totalQuestions', 'timeSpend', 'createdAt']
         })
             .then(async quiz => {
@@ -596,7 +603,6 @@ exports.updateQuiz = async (req, res) => {
         // Validate request
         const joiSchema = Joi.object({
             title: Joi.string().required(),
-            courseId: Joi.string().required(),
             tagsIdList: Joi.array().items(Joi.string().required()),
             questionsIds: Joi.array().items(Joi.string().required()),
         }).prefs({ convert: false });
@@ -619,7 +625,6 @@ exports.updateQuiz = async (req, res) => {
 
             Quizzes.update({
                 title: req.body.title,
-                courseId: crypto.decrypt(req.body.courseId),
                 questionTagsIdList: JSON.stringify(tagsIdList),
                 questionsPool: JSON.stringify(questionsIds),
             }, {
@@ -633,7 +638,7 @@ exports.updateQuiz = async (req, res) => {
                     res.status(200).send({ quizId: crypto.encrypt(quizId), message: "Assessment Updated." })
                 })
                 .catch(err => {
-                    // emails.errorEmail(req, err);
+                    emails.errorEmail(req, err);
                     res.status(500).send({
                         message: err.message || "Some error occurred while updating Quiz."
                     });
