@@ -19,6 +19,7 @@ const AssignTo = db.assignTo;
 const Tags = db.tags;
 
 const Joi = require('@hapi/joi');
+const Op = db.Sequelize.Op;
 const { sequelize } = require("../../models");
 
 // Create and Save a new Quiz
@@ -244,6 +245,71 @@ exports.assignQuizToStudent = async (req, res) => {
         emails.errorEmail(req, err);
         res.status(500).send({
             message: err.message || "Some error occurred."
+        });
+    }
+};
+
+// Retrieve All Assessments for Admin.
+exports.findAllForAdmin = (req, res) => {
+    try {
+        Quizzes.findAll({
+            where: { isActive: 'Y', title: {[Op.ne]: null} },
+            include: [
+                {
+                    model: Courses,
+                    where: { isActive: 'Y' },
+                    include: [{
+                        model: Classes, attributes: ['id', 'title'],
+                        where: { isActive: 'Y' },
+                    }],
+                    attributes: ['id', 'title']
+                },
+                {
+                    model: AssignTo,
+                    required: false,
+                    include: [
+                        {
+                            model: Users,
+                            where: { isActive: 'Y' },
+                            attributes: ['firstName', 'lastName', 'email'],
+                        }
+                    ],
+                    where: { isActive: 'Y' },
+                    attributes: ['id', 'userId'],
+                },
+                {
+                    model: QuizSubmissions,
+                    required: false,
+                    include: [
+                        {
+                            model: Users,
+                            where: { isActive: 'Y' },
+                            attributes: ['firstName', 'lastName', 'email'],
+                        }
+                    ],
+                    where: { isActive: 'Y' },
+                    attributes: ['id', 'userId'],
+                }
+            ],
+            order: [['id', 'DESC']],
+            attributes: { exclude: ['isActive',] }
+        })
+            .then(async quiz => {
+                res.send(encryptHelper(quiz))
+            })
+            .catch(err => {
+                emails.errorEmail(req, err);
+                res.status(500).send({
+                    message:
+                        err.message || "Some error occurred while retrieving all Quizzes."
+                });
+            });
+    } catch (err) {
+        emails.errorEmail(req, err);
+
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred."
         });
     }
 };

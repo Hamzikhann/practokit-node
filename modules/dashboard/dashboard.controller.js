@@ -8,6 +8,7 @@ const Courses = db.courses;
 const Classes = db.classes;
 const Tags = db.tags;
 const Questions = db.questions;
+const Quizzes = db.quizzes;
 const Teaches = db.teaches;
 const Roles = db.roles;
 
@@ -28,22 +29,16 @@ exports.findAll = async (req, res) => {
         var users = await Users.count({
             where: { isActive: 'Y' }
         })
-        var editors = await Users.findAll({
+        var editorsAndTeachers = await Users.findAll({
             where: { isActive: 'Y' },
-            include: [
-                {
-                    model: Roles,
-                    where: { 
-                        isActive: 'Y',
-                        title: 'Editor'
-                        // title: { [Op.not]: 'Teacher' }
-                    },
-                    attributes: ['title']
+            include: [{
+                model: Roles, attributes: ['title'],
+                where: {
+                    isActive: 'Y',
+                    [Op.or]: [{ title: { [Op.eq]: 'Editor' } }, { title: { [Op.eq]: 'Teacher' } }]
                 }
-            ],
-            order: [
-                ['firstName', 'ASC']
-            ],
+            }],
+            order: [['firstName', 'ASC']],
             attributes: ['id', 'firstName', 'lastName']
         })
         var courses = await Courses.count({
@@ -60,6 +55,8 @@ exports.findAll = async (req, res) => {
                 },
             },
         })
+
+        // Questions Statistics
         var questions = await Questions.count({
             where: { isActive: 'Y' }
         })
@@ -76,8 +73,25 @@ exports.findAll = async (req, res) => {
             where: { isActive: 'Y', createdAt: { [Op.gt]: month } }
         })
 
+        // Assessments Statistics
+        var quizzes = await Quizzes.count({
+            where: { isActive: 'Y', title: {[Op.ne]: null} }
+        })
+        var todayQuizzes = await Quizzes.count({
+            where: { isActive: 'Y', createdAt: { [Op.gt]: today }, title: {[Op.ne]: null}  }
+        })
+        var yesterdayQuizzes = await Quizzes.count({
+            where: { isActive: 'Y', createdAt: { [Op.gt]: yesterday }, title: {[Op.ne]: null}  }
+        })
+        var thisWeekQuizzes = await Quizzes.count({
+            where: { isActive: 'Y', createdAt: { [Op.gt]: week }, title: {[Op.ne]: null}  }
+        })
+        var thisMonthQuizzes = await Quizzes.count({
+            where: { isActive: 'Y', createdAt: { [Op.gt]: month }, title: {[Op.ne]: null}  }
+        })
+
         res.send({
-            editors: encryptHelper(editors),
+            editorsAndTeachers: encryptHelper(editorsAndTeachers),
             count: {
                 users: users,
                 courses: courses,
@@ -88,11 +102,18 @@ exports.findAll = async (req, res) => {
                     yesterday: yesterdayQuestions - todayQuestions,
                     week: thisWeekQuestions,
                     month: thisMonthQuestions
+                },
+                quizzes: {
+                    total: quizzes,
+                    today: todayQuizzes,
+                    yesterday: yesterdayQuizzes - todayQuizzes,
+                    week: thisWeekQuizzes,
+                    month: thisMonthQuizzes
                 }
             }
         });
     } catch (err) {
-        emails.errorEmail(req, err);
+        // emails.errorEmail(req, err);
 
         res.status(500).send({
             message:
@@ -156,6 +177,13 @@ exports.findAllForEditor = async (req, res) => {
                     yesterday: yesterdayQuestions - todayQuestions,
                     week: thisWeekQuestions,
                     month: thisMonthQuestions
+                },
+                quizzes: {
+                    total: null,
+                    today: null,
+                    yesterday: null,
+                    week: null,
+                    month: null
                 }
             }
         });
@@ -179,12 +207,11 @@ exports.findAllForTeacher = async (req, res) => {
         const week = moment(new Date().setDate(todayDateTime.getDate() - todayDateTime.getDay())).format('YYYY-MM-DD') + ' 00:00:00';
         const month = moment(new Date().setDate(1)).format('YYYY-MM-DD') + ' 00:00:00';
 
-        var users = await Users.count({
-            where: { isActive: 'Y' }
-        })
+        const teacherId = crypto.decrypt(req.userId);
+
         var courses = await Courses.count({
             where: { isActive: 'Y' },
-            include: [{ model: Teaches, where: { isActive: 'Y', userId: crypto.decrypt(req.userId) }}]
+            include: [{ model: Teaches, where: { isActive: 'Y', userId: crypto.decrypt(req.userId) } }]
         })
         var tags = await Tags.count({
             where: { isActive: 'Y' },
@@ -204,47 +231,49 @@ exports.findAllForTeacher = async (req, res) => {
                 include: [{ model: Teaches, where: { isActive: 'Y', userId: crypto.decrypt(req.userId) } }],
             },
         })
-        var todayQuestions = await Questions.count({
-            where: { isActive: 'Y', createdAt: { [Op.gt]: today } },
+
+        var quizzes = await Quizzes.findAll({
+            where: { isActive: 'Y', createdBy: teacherId, title: {[Op.ne]: null} },
             include: {
                 model: Courses, where: { isActive: 'Y' },
-                include: [{ model: Teaches, where: { isActive: 'Y', userId: crypto.decrypt(req.userId) } }],
-            },
+                include: [{ model: Teaches, where: { isActive: 'Y', userId: teacherId } }],
+            }, attributes: ['id']
         })
-        var yesterdayQuestions = await Questions.count({
-            where: { isActive: 'Y', createdAt: { [Op.gt]: yesterday } },
-            include: {
-                model: Courses, where: { isActive: 'Y' },
-                include: [{ model: Teaches, where: { isActive: 'Y', userId: crypto.decrypt(req.userId) } }],
-            },
+        
+        const teacherQuizzes = quizzes.map(e=> {return e.id})
+        
+        var todayQuizzes = await Quizzes.count({
+            where: { id: teacherQuizzes, createdAt: { [Op.gt]: today } }
         })
-        var thisWeekQuestions = await Questions.count({
-            where: { isActive: 'Y', createdAt: { [Op.gt]: week } },
-            include: {
-                model: Courses, where: { isActive: 'Y' },
-                include: [{ model: Teaches, where: { isActive: 'Y', userId: crypto.decrypt(req.userId) } }],
-            },
+        var yesterdayQuizzes = await Quizzes.count({
+            where: { id: teacherQuizzes, createdAt: { [Op.gt]: yesterday } }
         })
-        var thisMonthQuestions = await Questions.count({
-            where: { isActive: 'Y', createdAt: { [Op.gt]: month } },
-            include: {
-                model: Courses, where: { isActive: 'Y' },
-                include: [{ model: Teaches, where: { isActive: 'Y', userId: crypto.decrypt(req.userId) } }],
-            },
+        var thisWeekQuizzes = await Quizzes.count({
+            where: { id: teacherQuizzes, createdAt: { [Op.gt]: week } }
+        })
+        var thisMonthQuizzes = await Quizzes.count({
+            where: { id: teacherQuizzes, createdAt: { [Op.gt]: month } }
         })
 
         res.send({
             count: {
                 editors: null,
-                users: users,
+                users: null,
                 courses: courses,
                 tags: tags,
                 questions: {
                     total: questions,
-                    today: todayQuestions,
-                    yesterday: yesterdayQuestions - todayQuestions,
-                    week: thisWeekQuestions,
-                    month: thisMonthQuestions
+                    today: null,
+                    yesterday: null,
+                    week: null,
+                    month: null
+                },
+                quizzes: {
+                    total: teacherQuizzes.length,
+                    today: todayQuizzes,
+                    yesterday: yesterdayQuizzes - todayQuizzes,
+                    week: thisWeekQuizzes,
+                    month: thisMonthQuizzes
                 }
             }
         });
@@ -258,7 +287,7 @@ exports.findAllForTeacher = async (req, res) => {
     }
 };
 
-// Retrieve dashboard for Editor.
+// Retrieve question stats for Admin.
 exports.findEditorStats = async (req, res) => {
     try {
 
@@ -290,6 +319,51 @@ exports.findEditorStats = async (req, res) => {
                     yesterday: yesterdayQuestions - todayQuestions,
                     week: thisWeekQuestions,
                     month: thisMonthQuestions
+                }
+            }
+        });
+    } catch (err) {
+        emails.errorEmail(req, err);
+
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred."
+        });
+    }
+};
+
+// Retrieve quiz stats for Admin.
+exports.findTeacherStats = async (req, res) => {
+    try {
+
+        const teacherId = crypto.decrypt(req.params.teacherId)
+
+        const todayDateTime = new Date();
+        const today = moment(todayDateTime).format('YYYY-MM-DD') + ' 00:00:00';
+        const yesterday = moment(new Date().setDate(todayDateTime.getDate() - 1)).format('YYYY-MM-DD') + ' 00:00:00';
+        const week = moment(new Date().setDate(todayDateTime.getDate() - todayDateTime.getDay())).format('YYYY-MM-DD') + ' 00:00:00';
+        const month = moment(new Date().setDate(1)).format('YYYY-MM-DD') + ' 00:00:00';
+
+        var todayQuizzes = await Quizzes.count({
+            where: { isActive: 'Y', createdBy: teacherId, createdAt: { [Op.gt]: today }, title: {[Op.ne]: null} }
+        })
+        var yesterdayQuizzes = await Quizzes.count({
+            where: { isActive: 'Y', createdBy: teacherId, createdAt: { [Op.gt]: yesterday }, title: {[Op.ne]: null} }
+        })
+        var thisWeekQuizzes = await Quizzes.count({
+            where: { isActive: 'Y', createdBy: teacherId, createdAt: { [Op.gt]: week }, title: {[Op.ne]: null} }
+        })
+        var thisMonthQuizzes = await Quizzes.count({
+            where: { isActive: 'Y', createdBy: teacherId, createdAt: { [Op.gt]: month }, title: {[Op.ne]: null} }
+        })
+
+        res.send({
+            count: {
+                quizzes: {
+                    today: todayQuizzes,
+                    yesterday: yesterdayQuizzes - todayQuizzes,
+                    week: thisWeekQuizzes,
+                    month: thisMonthQuizzes
                 }
             }
         });

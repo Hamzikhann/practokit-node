@@ -21,14 +21,16 @@ router.post('/assign/:quizId', (req, res) => {
     }
 });
 router.get('/', (req, res) => {
-    if (req.role == 'Teacher') {
+    if (req.role == 'Admin') {
+        quizzesController.findAllForAdmin(req, res);
+    } else if (req.role == 'Teacher') {
         quizzesController.findAllForTeacher(req, res);
     } else {
         res.status(403).send({ message: 'Forbidden Access' });
     }
 });
 router.get('/:quizId', (req, res) => {
-    if (req.role == 'Student' || req.role == 'Teacher') {
+    if (req.role == 'Student' || req.role == 'Teacher' || req.role == 'Admin') {
         quizzesController.findQuizById(req, res);
     } else {
         res.status(403).send({ message: 'Forbidden Access' });

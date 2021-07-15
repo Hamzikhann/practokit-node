@@ -15,9 +15,16 @@ router.get('/', (req, res) => {
         res.status(403).send({ message: 'Forbidden Access' });
     }
 });
-router.get('/:editorId', (req, res) => {
+router.get('/editor/:editorId', (req, res) => {
     if (req.role == 'Admin') {
         dashboardController.findEditorStats(req, res);
+    } else {
+        res.status(403).send({ message: 'Forbidden Access' });
+    }
+});
+router.get('/teacher/:teacherId', (req, res) => {
+    if (req.role == 'Admin') {
+        dashboardController.findTeacherStats(req, res);
     } else {
         res.status(403).send({ message: 'Forbidden Access' });
     }

@@ -13,7 +13,7 @@ router.post('/', (req, res) => {
 });
 
 router.get('/:quizId/:userId', (req, res) => {
-    if(req.role == 'Teacher') {
+    if(req.role == 'Teacher' || req.role == 'Admin') {
         submissionsController.getUserSubmission(req, res);
     } else {
         res.status(403).send({ message: 'Forbidden Access' });
