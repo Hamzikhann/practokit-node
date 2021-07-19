@@ -148,11 +148,18 @@ exports.findAllStudentsForAssessment = async (req, res) => {
 
         var quizId = crypto.decrypt(req.params.quizId);
 
-        var alreadyAssignedStudents = await AssignTo.findAll({
-            where: { quizId: quizId },
-            attributes: ['userId']
+        var alreadyAssignedStudents = await Users.findAll({
+            where: { isActive: 'Y' },
+            include: [ {
+                model: AssignTo,
+                where: { quizId: quizId },
+                attributes: ['userId']
+            }],
+            attributes: ['id', 'firstName', 'lastName', 'email']
         })
-        alreadyAssignedStudents = alreadyAssignedStudents.map(e=>{return +e.userId})
+        
+        encryptHelper(alreadyAssignedStudents)
+        var assignedStudentsIds = alreadyAssignedStudents.map(e=>{return e.id})
 
         Users.findAll({
             where: { isActive: 'Y' },
@@ -163,17 +170,21 @@ exports.findAllStudentsForAssessment = async (req, res) => {
                     attributes: { exclude: ['createdAt', 'updatedAt', 'isActive'] }
                 }
             ],
-            attributes: { exclude: ['createdAt', 'updatedAt'] }
+            attributes: { exclude: ['createdAt', 'updatedAt', 'password', 'isActive', ] }
         })
             .then(async data => {
                 encryptHelper(data);
+                
                 var list = []
                 await data.forEach(user => {
-                    if(alreadyAssignedStudents.indexOf(+crypto.decrypt(user.id)) == -1) {
+                    if(assignedStudentsIds.indexOf(user.id) == -1) {
                         list.push(user)
                     }
                 });
-                res.send(list);
+                res.send({
+                    notAssigned: list,
+                    assigned: alreadyAssignedStudents
+                });
             })
             .catch(err => {
                 emails.errorEmail(req, err);
