@@ -30,8 +30,10 @@ router.get('/', (req, res) => {
     }
 });
 router.get('/:quizId', (req, res) => {
-    if (req.role == 'Student' || req.role == 'Teacher' || req.role == 'Admin') {
+    if (req.role == 'Teacher' || req.role == 'Admin') {
         quizzesController.findQuizById(req, res);
+    } else if (req.role == 'Student') {
+        quizzesController.findQuizByIdForStudent(req, res);
     } else {
         res.status(403).send({ message: 'Forbidden Access' });
     }
