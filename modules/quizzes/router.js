@@ -53,7 +53,7 @@ router.get('/:quizId/result', (req, res) => {
     }
 });
 router.put('/:quizId', (req, res) => {
-    if (req.role == 'Teacher') {
+    if (req.role == 'Admin' || req.role == 'Teacher') {
         quizzesController.updateQuiz(req, res);
     } else {
         res.status(403).send({ message: 'Forbidden Access' });
