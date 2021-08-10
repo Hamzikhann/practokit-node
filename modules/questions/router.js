@@ -33,7 +33,9 @@ router.get('/', (req, res) => {
     }
 });
 router.get('/:courseId', (req, res) => {
-    if (req.role == 'Admin' || req.role == 'Teacher') {
+    if (req.role == 'Admin') { 
+        questionsController.findAllCourseQuestionsForAdmin(req, res);
+    } else if (req.role == 'Teacher') {
         questionsController.findAllCourseQuestions(req, res);
     } else {
         res.status(403).send({ message: 'Forbidden Access' });

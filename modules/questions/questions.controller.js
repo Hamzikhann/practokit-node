@@ -588,6 +588,99 @@ exports.findAllForTeacher = (req, res) => {
     }
 };
 
+
+// Find All Questions of course for Admin
+exports.findAllCourseQuestionsForAdmin = (req, res) => {
+
+    try {
+        const courseId = crypto.decrypt(req.params.courseId)
+
+        Questions.findAll({
+            where: { isActive: 'Y' },
+            include: [
+                {
+                    model: QuestionsAttributes,
+                    required: false,
+                    where: { isActive: 'Y' },
+                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'questionId'] }
+                },
+                {
+                    model: QuestionsOptions,
+                    where: { isActive: 'Y' },
+                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'questionsId'] }
+                },
+                {
+                    model: QuestionTypes,
+                    where: { isActive: 'Y' },
+                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt'] }
+                },
+                {
+                    model: QuestionDifficulties,
+                    where: { isActive: 'Y' },
+                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy'] }
+                },
+                {
+                    model: QuestionTags,
+                    where: { isActive: 'Y' },
+                    include: [
+                        {
+                            model: Tags,
+                            where: { isActive: 'Y' },
+                            include: [
+                                {
+                                    model: Courses,
+                                    where: { isActive: 'Y' },
+                                    include: [
+                                        {
+                                            model: Classes,
+                                            where: { isActive: 'Y' },
+                                            attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy'] }
+                                        }
+                                    ],
+                                    attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy', 'classId'] }
+                                }
+                            ],
+                            attributes: ['id', 'title']
+                        }
+                    ],
+                    attributes: ['id', 'isActive', 'questionId']
+                },
+                {
+                    model: Courses,
+                    where: { id: courseId, isActive: 'Y' },
+                    include: [
+                        {
+                            model: Classes,
+                            where: { isActive: 'Y' },
+                            attributes: { exclude: ['isActive', 'createdAt', 'updatedAt', 'createdBy'] }
+                        }
+                    ],
+                    attributes: ['id', 'title']
+                }
+            ],
+            attributes: ['id', 'statement', 'duration', 'points', 'createdBy']
+        })
+            .then(data => {
+                encryptHelper(data);
+                res.send(data);
+            })
+            .catch(err => {
+                emails.errorEmail(req, err);
+                res.status(500).send({
+                    message:
+                        err.message || "Some error occurred while retrieving questions of courses."
+                });
+            });
+    } catch (err) {
+        emails.errorEmail(req, err);
+
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred."
+        });
+    }
+};
+
 // Find All Questions of course for Teacher
 exports.findAllCourseQuestions = (req, res) => {
 
