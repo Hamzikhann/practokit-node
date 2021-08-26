@@ -44,7 +44,7 @@ router.put('/:userId', (req, res) => {
     }
 });
 router.put('/profile/edit', (req, res) => {
-    usersController.updatePassword(req, res);
+    usersController.updateProfile(req, res);
 });
 router.put('/reset/password', (req, res) => {
     usersController.resetPassword(req, res);

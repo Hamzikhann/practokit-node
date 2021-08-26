@@ -12,6 +12,12 @@ const Users = db.users;
 const Courses = db.courses;
 const Classes = db.classes;
 
+const QuestionType = db.questionType;
+const QuestionsAttributes = db.questionsAttributes;
+const QuestionDifficulties = db.questionDifficulties;
+const QuestionTags = db.questionTags;
+const Tags = db.tags;
+
 const Op = db.Sequelize.Op;
 const Joi = require('@hapi/joi');
 const { sequelize } = require("../../models");
@@ -221,6 +227,58 @@ exports.create = async (req, res) => {
 };
 
 // Retrieve Quiz Submissoin Detail of user by quizId & userId.
+exports.getAllSubmissionsForUser = (req, res) => {
+    try {
+        const userId = crypto.decrypt(req.userId);
+
+        Quizzes.findAll({
+            where: { isActive: 'Y' },
+            include: [
+                {
+                    model: QuizSubmissions,
+                    required: true,
+                    where: { isActive: 'Y', userId: userId },
+                },
+                {
+                    model: Courses,
+                    where: { isActive: 'Y' },
+                    include: [
+                        {
+                            model: Classes,
+                            where: { isActive: 'Y' },
+                            attributes: ['title']
+                        }
+                    ],
+                    attributes: ['title']
+                },
+                {
+                    model: Users,
+                    where: { isActive: 'Y' },
+                    attributes: ['id', 'firstName', 'lastName', 'email'],
+                }
+            ]
+        })
+            .then(async quiz => {
+                res.send(encryptHelper(quiz));
+            })
+            .catch(err => {
+                emails.errorEmail(req, err);
+                res.status(500).send({
+                    message:
+                        err.message || "Some error occurred while retrieving Submission of user by quiz and user Id."
+                });
+            });
+    } catch (err) {
+        emails.errorEmail(req, err);
+
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred."
+        });
+    }
+};
+
+// Retrieve Quiz Submissoin Detail of user by quizId & userId.
 exports.getUserSubmission = (req, res) => {
     try {
         const quizId = crypto.decrypt(req.params.quizId);
@@ -262,6 +320,39 @@ exports.getUserSubmission = (req, res) => {
                 }
             ],
             order: [[ QuizSubmissionResponse, 'createdAt', 'DESC' ]]
+        })
+            .then(async quiz => {
+                res.send(encryptHelper(quiz));
+            })
+            .catch(err => {
+                emails.errorEmail(req, err);
+                res.status(500).send({
+                    message:
+                        err.message || "Some error occurred while retrieving Submission of user by quiz and user Id."
+                });
+            });
+    } catch (err) {
+        emails.errorEmail(req, err);
+
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred."
+        });
+    }
+};
+
+// Retrieve Quiz Submissoin Detail of user by quizId & userId for student.
+exports.getUserResultForStudent = (req, res) => {
+    try {
+        const quizId = crypto.decrypt(req.params.quizId);
+        const userId = crypto.decrypt(req.params.userId);
+        QuizSubmissions.findOne({
+            where: {
+                userId: userId,
+                quizzId: quizId,
+                isActive: 'Y'
+            },
+            attributes: {exclude: ['isActive']}
         })
             .then(async quiz => {
                 res.send(encryptHelper(quiz));

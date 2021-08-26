@@ -125,7 +125,7 @@ Email.assignQuiz = async (emailsList, assessmentId) => {
             attributes: ['title']
         })
 
-        var link = studentBaseURL + "attempt/" + crypto.encrypt(assessmentId);
+        var link = studentBaseURL + "assessments/attempt/" + crypto.encrypt(assessmentId);
 
         text = text.replace("[USER_NAME]", 'Student');
         text = text.replace("[ASSESSMENT]", assessment.title);

@@ -25,6 +25,8 @@ router.get('/', (req, res) => {
         quizzesController.findAllForAdmin(req, res);
     } else if (req.role == 'Teacher') {
         quizzesController.findAllForTeacher(req, res);
+    } else if (req.role == 'Student') {
+        quizzesController.findAllForStudent(req, res);
     } else {
         res.status(403).send({ message: 'Forbidden Access' });
     }
@@ -34,6 +36,13 @@ router.get('/:quizId', (req, res) => {
         quizzesController.findQuizById(req, res);
     } else if (req.role == 'Student') {
         quizzesController.findQuizByIdForStudent(req, res);
+    } else {
+        res.status(403).send({ message: 'Forbidden Access' });
+    }
+});
+router.get('/:quizId/detail', (req, res) => {
+    if (req.role == 'Student') {
+        quizzesController.findQuizDetailForStudent(req, res);
     } else {
         res.status(403).send({ message: 'Forbidden Access' });
     }

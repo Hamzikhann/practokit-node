@@ -865,7 +865,7 @@ exports.findQuestion = (req, res) => {
     }
 };
 
-// Retrieve questions count.
+// Retrieve all questions count.
 exports.findQuestionsCount = async (req, res) => {
     try {
         var veryEasy = await Questions.count({
@@ -900,7 +900,7 @@ exports.findQuestionsCount = async (req, res) => {
         });
     }
 };
-// Retrieve questions count.
+// Retrieve questions count for teacher.
 exports.findQuestionsCountForTeacher = async (req, res) => {
     try {
         const userId = crypto.decrypt(req.userId);
@@ -938,6 +938,59 @@ exports.findQuestionsCountForTeacher = async (req, res) => {
             include: {
                 model: Courses, where: { isActive: 'Y' },
                 include: [{ model: Teaches, where: { isActive: 'Y', userId: userId } }],
+            },
+        })
+
+        res.send({
+            veryEasy: veryEasy,
+            easy: easy,
+            medium: medium,
+            hard: hard,
+            veryHard: veryHard
+        });
+    } catch (err) {
+        emails.errorEmail(req, err);
+
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred."
+        });
+    }
+};
+// Retrieve questions count for student.
+exports.findQuestionsCountForStudent = async (req, res) => {
+    try {
+        const userId = crypto.decrypt(req.userId);
+        const courseId = crypto.decrypt(req.params.courseId);
+
+        var veryEasy = await Questions.count({
+            where: { isActive: 'Y', questionDifficultyId: 1 },
+            include: {
+                model: Courses, where: { id: courseId, isActive: 'Y' }
+            },
+        })
+        var easy = await Questions.count({
+            where: { isActive: 'Y', questionDifficultyId: 2 },
+            include: {
+                model: Courses, where: { id: courseId, isActive: 'Y' }
+            },
+        })
+        var medium = await Questions.count({
+            where: { isActive: 'Y', questionDifficultyId: 3 },
+            include: {
+                model: Courses, where: { id: courseId, isActive: 'Y' },
+            },
+        })
+        var hard = await Questions.count({
+            where: { isActive: 'Y', questionDifficultyId: 4 },
+            include: {
+                model: Courses, where: { id: courseId, isActive: 'Y' },
+            },
+        })
+        var veryHard = await Questions.count({
+            where: { isActive: 'Y', questionDifficultyId: 5 },
+            include: {
+                model: Courses, where: { id: courseId, isActive: 'Y' },
             },
         })
 

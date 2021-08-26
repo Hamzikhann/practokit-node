@@ -12,9 +12,19 @@ router.post('/', (req, res) => {
     }
 });
 
+router.get('', (req, res) => {
+    if(req.role == 'Student') {
+        submissionsController.getAllSubmissionsForUser(req, res);
+    } else {
+        res.status(403).send({ message: 'Forbidden Access' });
+    }
+});
+
 router.get('/:quizId/:userId', (req, res) => {
-    if(req.role == 'Teacher' || req.role == 'Admin') {
+    if (req.role == 'Teacher' || req.role == 'Admin'){
         submissionsController.getUserSubmission(req, res);
+    } else if (req.role == 'Student') {
+        submissionsController.getUserResultForStudent(req, res);
     } else {
         res.status(403).send({ message: 'Forbidden Access' });
     }

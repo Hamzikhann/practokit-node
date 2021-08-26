@@ -389,6 +389,97 @@ exports.findAllForTeacher = (req, res) => {
     }
 };
 
+// Retrieve All Assessments created by students.
+exports.findAllForStudent = async (req, res) => {
+    try {
+
+        const userId = crypto.decrypt(req.userId);
+
+        const [selfCreated, teacherCreated] = await Promise.all([
+            Quizzes.findAll({
+                where: { isActive: 'Y', createdBy: userId },
+                include: [
+                    {
+                        model: Users,
+                        where: { isActive: 'Y' },
+                        attributes: ['id', 'firstName', 'lastName', 'email'],
+                    },
+                    {
+                        model: Courses,
+                        where: { isActive: 'Y' },
+                        include: [
+                            {
+                                model: Classes, attributes: ['id', 'title'],
+                                where: { isActive: 'Y' },
+                            }
+                        ],
+                        attributes: ['id', 'title']
+                    },
+                    {
+                        model: QuizSubmissions,
+                        required: false,
+                        where: { isActive: 'Y' },
+                        attributes: ['id', 'userId'],
+                    }
+                ],
+                attributes: { exclude: ['isActive',] }
+            }),
+            Quizzes.findAll({
+                where: { isActive: 'Y' },
+                include: [
+                    {
+                        model: Users,
+                        where: { isActive: 'Y' },
+                        attributes: ['id', 'firstName', 'lastName', 'email'],
+                    },
+                    {
+                        model: Courses,
+                        where: { isActive: 'Y' },
+                        include: [
+                            {
+                                model: Classes, attributes: ['id', 'title'],
+                                where: { isActive: 'Y' },
+                            }
+                        ],
+                        attributes: ['id', 'title']
+                    },
+                    {
+                        model: AssignTo,
+                        where: { isActive: 'Y', userId: userId },
+                        required: true,
+                        attributes: [],
+                    },
+                    {
+                        model: QuizSubmissions,
+                        required: false,
+                        include: [
+                            {
+                                model: Users,
+                                where: { isActive: 'Y' },
+                                attributes: ['firstName', 'lastName', 'email'],
+                            }
+                        ],
+                        where: { isActive: 'Y' },
+                        attributes: ['id', 'userId'],
+                    }
+                ],
+                attributes: { exclude: ['isActive',] }
+            })
+        ])
+
+        var quizzes = await [...selfCreated, ...teacherCreated] 
+        
+        res.send(encryptHelper(quizzes))
+    } catch (err) {
+        emails.errorEmail(req, err);
+
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred."
+        });
+    }
+};
+
 // Retrieve Quiz by Id.
 exports.findQuizById = async (req, res) => {
     try {
@@ -655,6 +746,85 @@ exports.findQuizByIdForStudent = async (req, res) => {
     }
 };
 
+// Retrieve Quiz Detal by Id for student.
+exports.findQuizDetailForStudent = async (req, res) => {
+    try {
+        const quizId = crypto.decrypt(req.params.quizId);
+
+        Quizzes.findOne({
+            where: { id: quizId, isActive: 'Y' },
+            include:
+                [
+                    {
+                        model: Courses,
+                        where: { isActive: 'Y' },
+                        include: [
+                            {
+                                model: Classes,
+                                where: { isActive: 'Y' },
+                                attributes: ['id', 'title']
+                            },
+                            {
+                                model: Users,
+                                where: { isActive: 'Y' },
+                                attributes: ['id', 'firstName', 'lastName', 'email'],
+                            }
+                        ],
+                        attributes: ['id', 'title']
+                    }
+                ]
+        })
+            .then(async quiz => {
+                const questionsIds = JSON.parse(quiz.questionsPool)
+                const questionsTags = JSON.parse(quiz.questionTagsIdList)
+
+                const tags = await Tags.findAll({
+                    where: { id: questionsTags, isActive: 'Y' }, attributes: ['id', 'title']
+                })
+                const questionsPool = await Questions.findAll({
+                    where: {id: questionsIds, isActive: 'Y'},
+                    attributes: ['id', 'statement', 'duration', 'points'],
+                    include: [{
+                        model: QuestionType, where: { isActive: 'Y' }
+                    }]
+                })
+
+                encryptHelper(quiz);
+                var questionsType = [];
+                var totalTime = 0;
+                var totalMarks = 0;
+
+                questionsPool.forEach(q => {
+                    if(!questionsType.includes(q.questionType.title)){
+                        questionsType.push(q.questionType.title);
+                    }
+                    totalMarks += q.points;
+                    totalTime += q.duration;
+                });
+
+                res.send({
+                    id: quiz.id,
+                    title: quiz.title,
+                    course: quiz.course,
+                    createdAt: quiz.createdAt,
+                    createdBy: quiz.user,
+                    tags: encryptHelper(tags),
+                    types: questionsType,
+                    totalTime: Math.floor(totalTime / 60) + ' min ' + Math.floor(totalTime % 60) + ' sec',
+                    totalMarks: totalMarks,
+                    totalQuestions: questionsPool.length
+                });
+        })
+    } catch (err) {
+        emails.errorEmail(req, err);
+
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred."
+        });
+    }
+};
+
 // Retrieve Wrong questions of quiz by Quiz Id.
 exports.findQuizWrongQuestions = (req, res) => {
     try {
@@ -767,7 +937,7 @@ exports.findQuizResultById = (req, res) => {
                         courseTitle: quiz.quiz.course.title,
                         gradeTitle: quiz.quiz.course.class.title,
                         tries: count,
-                        quiz: quiz
+                        // quiz: quiz
                     });
                 } else {
                     res.send(null)

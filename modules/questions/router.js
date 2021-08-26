@@ -45,10 +45,17 @@ router.get('/find/:questionId', (req, res) => {
     questionsController.findQuestion(req, res);
 });
 router.get('/all/count', (req, res) => {
-    if (req.role == 'Admin' || req.role == 'Editor') {
+    if (req.role == 'Admin' || req.role == 'Editor' || req.role == 'Student') {
         questionsController.findQuestionsCount(req, res);
     } else if (req.role == 'Teacher') {
         questionsController.findQuestionsCountForTeacher(req, res);
+    } else {
+        res.status(403).send({ message: 'Forbidden Access' });
+    }
+});
+router.get('/course/:courseId/count', (req, res) => {
+    if (req.role == 'Student') {
+        questionsController.findQuestionsCountForStudent(req, res);
     } else {
         res.status(403).send({ message: 'Forbidden Access' });
     }
