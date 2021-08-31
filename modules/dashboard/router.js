@@ -11,6 +11,8 @@ router.get('/', (req, res) => {
         dashboardController.findAllForEditor(req, res);
     } else if (req.role == 'Teacher') {
         dashboardController.findAllForTeacher(req, res);
+    } else if (req.role == 'Student') {
+        dashboardController.findAllForStudent(req, res);
     } else {
         res.status(403).send({ message: 'Forbidden Access' });
     }

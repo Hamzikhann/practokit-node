@@ -9,8 +9,10 @@ const Classes = db.classes;
 const Tags = db.tags;
 const Questions = db.questions;
 const Quizzes = db.quizzes;
+const QuizSubmissions = db.quizSubmissions;
 const Teaches = db.teaches;
 const Roles = db.roles;
+const AssignTo = db.assignTo
 
 const moment = require('moment');
 const Op = db.Sequelize.Op;
@@ -286,6 +288,66 @@ exports.findAllForTeacher = async (req, res) => {
         });
     }
 };
+
+// Retrieve dashboard for Student.
+exports.findAllForStudent = async (req, res) => {
+    try {
+
+        // Last 12 months assessments detail 
+        const d = new Date();
+        var todayDateTime = moment(d).format('YYYY-MM-DD') + ' 00:00:00';
+        
+        const month = d.getMonth()+2 >= 10 ? (d.getMonth() + 2) : '0' + (d.getMonth()+2)
+        var yearLaterDate = d.getFullYear() - 1 + '-' + month + '-01 00:00:00';
+
+        const userId = crypto.decrypt(req.userId);
+
+        const [selfCreated, teacherCreated] = await Promise.all([
+            Quizzes.findAll({
+                where: { createdBy: userId, createdAt: { [Op.gt]: yearLaterDate } },
+                include: [
+                    {
+                        model: QuizSubmissions,
+                        required: false,
+                        where: { isActive: 'Y' },
+                        attributes: ['id', 'userId'],
+                    }
+                ],
+                attributes: { exclude: ['isActive',] }
+            }),
+            Quizzes.findAll({
+                where: { createdAt: { [Op.gt]: yearLaterDate } },
+                include: [
+                    {
+                        model: AssignTo,
+                        where: { userId: userId },
+                        required: true,
+                        attributes: [],
+                    },
+                    {
+                        model: QuizSubmissions,
+                        required: false,
+                        where: { isActive: 'Y' },
+                        attributes: ['id', 'userId'],
+                    }
+                ],
+                attributes: { exclude: ['isActive',] }
+            })
+        ])
+
+        const quiz = [...selfCreated, ...teacherCreated]
+        res.send({quiz: encryptHelper(quiz), yearLaterDate: yearLaterDate});
+    } catch (err) {
+        emails.errorEmail(req, err);
+
+        res.status(500).send({
+            message:
+                err.message || "Some error occurred."
+        });
+    }
+};
+
+
 
 // Retrieve question stats for Admin.
 exports.findEditorStats = async (req, res) => {
