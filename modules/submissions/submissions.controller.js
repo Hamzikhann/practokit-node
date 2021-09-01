@@ -189,6 +189,24 @@ exports.create = async (req, res) => {
                     { where: { quizzId: quizId }, transaction })
                     .then(async num => {
                         if (num) {
+
+                            const previousResponse = await QuizSubmissionResponse.findOne({
+                                where: { quizSubmissionId: oldQuizAttributes.id },
+                                order: [['createdAt', 'DESC']],
+                                limit: 1,
+                                attributes: ['response']
+                            })
+
+                            const qids = quizResponse.map(e=> { return e.id })
+                            if(previousResponse){
+                                previousResponse.response = JSON.parse(previousResponse.response)
+                                previousResponse.response.forEach(element => {
+                                    if(!qids.includes(element.id)){
+                                        quizResponse.push(element)
+                                    }       
+                                });
+                            }
+
                             await QuizSubmissionResponse.create({
                                 response: JSON.stringify(quizResponse),
                                 quizSubmissionId: oldQuizAttributes.id
