@@ -276,7 +276,7 @@ exports.findAllForAdmin = (req, res) => {
                         }
                     ],
                     where: { isActive: 'Y' },
-                    attributes: ['id', 'userId'],
+                    attributes: ['id', 'userId', 'quizId'],
                 },
                 {
                     model: QuizSubmissions,
@@ -350,7 +350,7 @@ exports.findAllForTeacher = (req, res) => {
                         }
                     ],
                     where: { isActive: 'Y' },
-                    attributes: ['id', 'userId'],
+                    attributes: ['id', 'userId', 'quizId'],
                 },
                 {
                     model: QuizSubmissions,
