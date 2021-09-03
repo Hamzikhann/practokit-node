@@ -108,7 +108,7 @@ exports.create = async (req, res) => {
 
                         await transaction.commit();
                         res.status(200).send({
-                            message: "Question Submission created successfully."
+                            message: "Quiz Submission created successfully."
                         })
 
                     })
@@ -214,7 +214,7 @@ exports.create = async (req, res) => {
 
                             await transaction.commit();
                             res.status(200).send({
-                                message: "Question Submission created successfully."
+                                message: "Quiz Submission created successfully."
                             })
                         } else {
                             res.send({

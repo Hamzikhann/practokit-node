@@ -14,7 +14,7 @@ const questionTypesRouteHandler = require('../modules/questionTypes/router');
 const questionRouteHandler = require('../modules/questions/router');
 const quizzesRouteHandler = require('../modules/quizzes/router');
 const submissionsRouteHandler = require('../modules/submissions/router');
-
+const reportAProblemRouteHandler = require('../modules/reportAProblem/router');
 
 class Routes {
     constructor(app) {
@@ -35,6 +35,7 @@ class Routes {
         this.app.use("/api/v1/questions", jwt.protect, questionRouteHandler)
         this.app.use("/api/v1/quizzes", jwt.protect, quizzesRouteHandler)
         this.app.use("/api/v1/submissions", jwt.protect, submissionsRouteHandler)
+        this.app.use("/api/v1/problems", jwt.protect, reportAProblemRouteHandler)
 
 
         this.app.get("/", (req, res) => {
