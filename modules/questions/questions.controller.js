@@ -164,7 +164,7 @@ exports.updateQuestion = async (req, res) => {
             statementImage: Joi.string().required().allow(''),
             statementFileName: Joi.string().required().allow(''),
             statementImageSource: Joi.string().required(),
-            hint: Joi.string().required().allow(''),
+            hint: Joi.string().required().allow('').allow(null),
             hintFile: Joi.string().required().allow(''),
             hintFileName: Joi.string().required().allow(''),
             hintFileSource: Joi.string().required(),
