@@ -1,8 +1,8 @@
 {
   "development": {
     "username": "root",
-    "password": "",
-    "database": "standaloneQuiz_live",
+    "password": "Ahmad12!@",
+    "database": "assessment-tool",
     "host": "localhost",
     "dialect": "mysql",
     "port": "3306",
