@@ -180,7 +180,7 @@ exports.updateQuestion = async (req, res) => {
                     fileName: Joi.string().required().allow(''),
                     correct: Joi.boolean().required(),
                 })
-            ).min(2).max(8).required()
+            ).min(1).max(8).required()
         });
         const { error, value } = joiSchema.validate(req.body);
 
