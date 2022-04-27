@@ -44,7 +44,7 @@ Email.errorEmail = async (req, error) => {
 
         var mailOptions = {
             from: 'Assessment Tool <info@entuition.pk>',
-            to: "fareedmurtaza91@gmail.com",
+            to: "ahmad@oxibit.com",
             subject: "ERROR in Assessment Tool(" + req.headers.origin + ")",
             html: text
         }
@@ -139,7 +139,7 @@ Email.assignQuiz = async (emailsList, assessmentId) => {
 
         var mailOptions = {
             from: 'Assessment Tool <info@entuition.pk>',
-            to: 'fareedmurtaza91@gmail.com',
+            to: 'ahmad@oxibit.com',
             bcc: emailBcc,
             subject: "New Assessment",
             html: text

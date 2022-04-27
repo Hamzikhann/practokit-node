@@ -302,6 +302,7 @@ exports.updateQuestion = async (req, res) => {
                 })
                 .catch(async err => {
                     if (transaction) await transaction.rollback();
+                    console.log(err)
                     emails.errorEmail(req, err);
                     res.status(500).send({
                         message: "Error updating Quiz Question."
