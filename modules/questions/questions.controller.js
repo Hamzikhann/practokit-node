@@ -96,11 +96,11 @@ exports.create = async (req, res) => {
                         .then(async tagsResult => {
 
                             // Question Attributes
-                            if (req.body.statementImage || req.body.solutionFileName || req.body.statementFileName ||
-                                req.body.hint || req.body.hintFileName || req.body.solutionFile || req.body.hintFile) {
+                            // if (req.body.statementImage || req.body.solutionFileName || req.body.statementFileName ||
+                            //     req.body.hint || req.body.hintFileName || req.body.solutionFile || req.body.hintFile) {
                                 questionAttributes.questionId = questionResult.id;
                                 var qaRes = await QuestionsAttributes.create(questionAttributes, { transaction })
-                            }
+                            // }
 
                             var options = [];
                             req.body.options.forEach(option => {
@@ -217,11 +217,14 @@ exports.updateQuestion = async (req, res) => {
                 solutionFileName: req.body.solutionFileName
             };
 
+            console.log(question)
+
             let transaction = await sequelize.transaction();
             Questions.update(question, {
                 where: { id: questionId, isActive: 'Y' }, transaction
             })
                 .then(async num => {
+                    console.log(num)
                     if (num == 1) {
                         var options = [];
                         req.body.options.forEach(option => {
@@ -243,19 +246,24 @@ exports.updateQuestion = async (req, res) => {
                             });
                         });
 
+                        console.log(questionAttributes)
                         QuestionsAttributes.update(questionAttributes, { where: { questionId: questionId }, transaction })
                             .then(async questionAttributesReult => {
+                                console.log(questionAttributesReult);
                                 if (questionAttributesReult == 1) {
 
+                                    console.log(questionAttributesReult, options)
                                     await QuestionsOptions.destroy({ where: { questionsId: questionId }, transaction })
                                     QuestionsOptions.bulkCreate(options, { transaction })
                                         .then(async optionsResult => {
 
+                                            console.log(optionsResult, tags)
                                             await QuestionTags.destroy({ where: { questionId: questionId }, transaction })
                                             QuestionTags.bulkCreate(tags, { transaction })
                                                 .then(async tagsResult => {
 
-                                                    await transaction.commit();
+                                                console.log(tagsResult)
+                                                await transaction.commit();
                                                     res.status(200).send({
                                                         message: "Question updated successfully."
                                                     });
