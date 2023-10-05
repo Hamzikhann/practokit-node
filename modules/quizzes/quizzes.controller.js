@@ -278,7 +278,7 @@ exports.assignQuizToStudent = async (req, res) => {
 
 // Retrieve All Assessments for Admin.
 exports.findAllForAdmin = (req, res) => {
-	console.log(req.body);
+	// console.log(req.body);
 	// title: { [Op.ne]: null }
 	try {
 		Quizzes.findAll({
@@ -424,6 +424,7 @@ exports.findAllForTeacher = (req, res) => {
 exports.findAllForStudent = async (req, res) => {
 	try {
 		const userId = crypto.decrypt(req.userId);
+		// console.log(userId);
 
 		const [selfCreated, teacherCreated] = await Promise.all([
 			Quizzes.findAll({
@@ -431,7 +432,7 @@ exports.findAllForStudent = async (req, res) => {
 				include: [
 					{
 						model: Users,
-						where: { isActive: "Y" },
+						// where: { isActive: "Y" },
 						attributes: ["id", "firstName", "lastName", "email"]
 					},
 					{
@@ -500,7 +501,6 @@ exports.findAllForStudent = async (req, res) => {
 		]);
 
 		var quizzes = await [...selfCreated, ...teacherCreated];
-
 		res.send(encryptHelper(quizzes));
 	} catch (err) {
 		emails.errorEmail(req, err);
@@ -871,7 +871,6 @@ exports.findQuizDetailForStudent = async (req, res) => {
 				totalMarks += q.points;
 				totalTime += q.duration;
 			});
-
 			res.send({
 				id: quiz.id,
 				title: quiz.title,
@@ -962,7 +961,7 @@ exports.findQuizResultById = (req, res) => {
 	try {
 		const quizId = crypto.decrypt(req.params.quizId);
 		const userId = crypto.decrypt(req.userId);
-		console.log(quizId, userId);
+		// console.log(quizId, userId);
 		QuizSubmissions.findOne({
 			where: { isActive: "Y", quizzId: quizId, userId: userId },
 			include: [

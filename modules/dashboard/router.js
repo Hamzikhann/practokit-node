@@ -4,7 +4,7 @@ const express = require("express");
 const router = express.Router();
 
 router.get("/", (req, res) => {
-	console.log(req.role);
+	// console.log(req.role);
 	if (req.role == "Admin") {
 		dashboardController.findAll(req, res);
 	} else if (req.role == "Editor") {

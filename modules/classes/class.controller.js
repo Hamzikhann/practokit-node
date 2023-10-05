@@ -91,7 +91,7 @@ exports.findAllClasses = (req, res) => {
 // Retrieve all Classes For Teacher.
 exports.findAllForTeacher = (req, res) => {
 	try {
-		console.log(crypto.decrypt(req.userId));
+		// console.log(crypto.decrypt(req.userId));
 		Classes.findAll({
 			where: { isActive: "Y" },
 			include: [
@@ -104,7 +104,7 @@ exports.findAllForTeacher = (req, res) => {
 			attributes: { exclude: ["createdAt", "updatedAt"] }
 		})
 			.then((data) => {
-				console.log(data);
+				// console.log(data);
 				encryptHelper(data);
 				res.send(data);
 			})

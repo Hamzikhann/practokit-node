@@ -60,7 +60,6 @@ exports.create = async (req, res) => {
 					roleId: crypto.decrypt(req.body.role),
 					password: password
 				};
-				console.log(req.body.courses);
 
 				let transaction = await sequelize.transaction();
 				Users.create(userObj, { transaction })
@@ -294,7 +293,6 @@ exports.update = (req, res) => {
 						const courses = await Teaches.findAll({
 							where: { userId: userId, isActive: "Y" }
 						});
-						console.log(courses);
 						var coursesList = [];
 						await courses.forEach((course) => {
 							coursesList.push(course.courseId);
@@ -312,7 +310,6 @@ exports.update = (req, res) => {
 							});
 
 							if (i == -1) {
-								console.log();
 								addNew.push({
 									userId: userId,
 									courseId: courseId

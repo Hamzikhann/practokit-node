@@ -211,7 +211,7 @@ exports.findAllForTeacher = async (req, res) => {
 		const month = moment(new Date().setDate(1)).format("YYYY-MM-DD") + " 00:00:00";
 
 		const teacherId = crypto.decrypt(req.userId);
-		console.log(teacherId);
+		// console.log(teacherId);
 
 		var courses = await Courses.count({
 			where: { isActive: "Y" },
@@ -228,7 +228,7 @@ exports.findAllForTeacher = async (req, res) => {
 				]
 			}
 		});
-		console.log(tags);
+		// console.log(tags);
 		var questions = await Questions.count({
 			where: { isActive: "Y" },
 			include: {
