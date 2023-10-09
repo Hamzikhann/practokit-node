@@ -34,12 +34,12 @@ exports.login = async (req, res) => {
 			}
 		});
 		console.log(userExist);
-
+		// crypto.encrypt(req.body.password)
 		if (userExist && userExist.isActive == "Y") {
 			const user = await Users.findOne({
 				where: {
 					email: req.body.email.trim(),
-					password: req.body.password,
+					password: crypto.encrypt(req.body.password),
 					isActive: "Y",
 					roleId: roleIdList
 				},
@@ -162,7 +162,7 @@ exports.resetPassword = async (req, res) => {
 			if (user) {
 				var password = req.body.password;
 
-				Users.update({ password: password }, { where: { id: user.id } })
+				Users.update({ password: crypto.encrypt(password) }, { where: { id: user.id } })
 					.then((result) => {
 						res.send({
 							message: "User password reset successfully."

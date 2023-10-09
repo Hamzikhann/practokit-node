@@ -425,14 +425,14 @@ exports.findAllForStudent = async (req, res) => {
 	try {
 		const userId = crypto.decrypt(req.userId);
 		// console.log(userId);
-
+		console.log("hi");
 		const [selfCreated, teacherCreated] = await Promise.all([
 			Quizzes.findAll({
 				where: { isActive: "Y", createdBy: userId },
 				include: [
 					{
 						model: Users,
-						// where: { isActive: "Y" },
+						where: { isActive: "Y" },
 						attributes: ["id", "firstName", "lastName", "email"]
 					},
 					{
@@ -656,7 +656,7 @@ exports.findQuizByIdForStudent = async (req, res) => {
 		const userId = crypto.decrypt(req.userId);
 
 		var canAccess = "";
-
+		console.log("hi");
 		if (req.role == "Student") {
 			canAccess = await AssignTo.findOne({
 				where: {

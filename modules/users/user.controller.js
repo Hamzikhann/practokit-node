@@ -2,6 +2,7 @@ const db = require("../../models");
 const encryptHelper = require("../../utils/encryptHelper");
 const emails = require("../../utils/emails");
 const Sequelize = require("sequelize");
+const crypto = require("../../utils/crypto");
 
 const Users = db.users;
 const Roles = db.roles;
@@ -21,8 +22,10 @@ exports.create = async (req, res) => {
 			lastName: Joi.string().required(),
 			email: Joi.string().required(),
 			role: Joi.string().required(),
+			password: Joi.string().required(),
 			courses: Joi.array().items(Joi.string().optional())
 		});
+		console.log(req.body);
 		const { error, value } = joiSchema.validate(req.body);
 
 		if (error) {
@@ -40,17 +43,17 @@ exports.create = async (req, res) => {
 					mesage: "Email already registered."
 				});
 			} else {
-				const chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*+-";
-				var shuffled = chars
-					.split("")
-					.sort(function() {
-						return 0.5 - Math.random();
-					})
-					.join("");
-				var password = "";
-				for (var i = 0; i < 20; i++) {
-					password += shuffled[Math.floor(Math.random() * shuffled.length)];
-				}
+				// const chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*+-";
+				// var shuffled = chars
+				// 	.split("")
+				// 	.sort(function() {
+				// 		return 0.5 - Math.random();
+				// 	})
+				// 	.join("");
+				// var password = req.body.password;
+				// for (var i = 0; i < 20; i++) {
+				// 	password += shuffled[Math.floor(Math.random() * shuffled.length)];
+				// }
 
 				const userObj = {
 					firstName: req.body.firstName?.trim(),
@@ -58,7 +61,7 @@ exports.create = async (req, res) => {
 					email: req.body.email,
 					createdBy: crypto.decrypt(req.userId),
 					roleId: crypto.decrypt(req.body.role),
-					password: password
+					password: crypto.encrypt(req.body.password)
 				};
 
 				let transaction = await sequelize.transaction();
