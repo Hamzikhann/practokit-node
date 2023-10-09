@@ -10,7 +10,8 @@ function fileUpload(dest) {
 			cb(null, Date.now().toString() + "-" + fileName);
 		}
 	});
-	const upload = multer({ storage: fileStorage });
+	// multer.memoryStorage()
+	const upload = multer({ storage: multer.memoryStorage() });
 	return {
 		upload: upload
 	};

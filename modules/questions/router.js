@@ -4,7 +4,7 @@ const express = require("express");
 const router = express.Router();
 
 const fileUpload = require("../../utils/fileUpload");
-const { upload } = fileUpload("questions");
+const { upload } = fileUpload("questiones");
 
 router.post("/image", (req, res) => {
 	questionsController.getImage(req, res);
@@ -19,7 +19,11 @@ router.post(
 		{ name: "options-0", maxCount: 10 },
 		{ name: "options-1", maxCount: 10 },
 		{ name: "options-2", maxCount: 10 },
-		{ name: "options-3", maxCount: 10 }
+		{ name: "options-3", maxCount: 10 },
+		{ name: "options-4", maxCount: 10 },
+		{ name: "options-5", maxCount: 10 },
+		{ name: "options-6", maxCount: 10 },
+		{ name: "options-7", maxCount: 10 }
 		// { name: "options-", maxCount: 20 } // Allow up to 10 files for 'solution'
 	]),
 	(req, res) => {

@@ -106,7 +106,7 @@ exports.create = async (req, res) => {
 			});
 		} else {
 			// console.log(req.body);
-			// console.log(req.files);
+			console.log(req.files);
 			// let body;
 
 			const question = {
@@ -141,10 +141,15 @@ exports.create = async (req, res) => {
 			const option1 = req.files["options-1"];
 			const option2 = req.files["options-2"];
 			const option3 = req.files["options-3"];
+			const option4 = req.files["options-4"];
+			const option5 = req.files["options-5"];
+			const option6 = req.files["options-6"];
+			const option7 = req.files["options-7"];
 			// console.log(option0, 5555);
 			// options
 			if (option0) {
-				await uploadMultipleImages(option0)
+				let optionsLink = req.body.optionsLink;
+				await uploadMultipleImages(option0, optionsLink)
 					.then((uploadedImages) => {
 						let uu = uploadedImages == undefined;
 
@@ -165,7 +170,8 @@ exports.create = async (req, res) => {
 			}
 
 			if (option1) {
-				await uploadMultipleImages(option1)
+				let optionsLink = req.body.optionsLink;
+				await uploadMultipleImages(option1, optionsLink)
 					.then((uploadedImages) => {
 						let uu = uploadedImages == undefined;
 
@@ -187,7 +193,8 @@ exports.create = async (req, res) => {
 			}
 
 			if (option2) {
-				await uploadMultipleImages(option2)
+				let optionsLink = req.body.optionsLink;
+				await uploadMultipleImages(option2, optionsLink)
 					.then((uploadedImages) => {
 						let uu = uploadedImages == undefined;
 
@@ -207,7 +214,8 @@ exports.create = async (req, res) => {
 					});
 			}
 			if (option3) {
-				await uploadMultipleImages(option3)
+				let optionsLink = req.body.optionsLink;
+				await uploadMultipleImages(option3, optionsLink)
 					.then((uploadedImages) => {
 						let uu = uploadedImages == undefined;
 
@@ -218,8 +226,92 @@ exports.create = async (req, res) => {
 								optionsBody[3].fileName = e.name;
 							});
 						} else {
-							optionsBody[0].image = "";
-							optionsBody[0].fileName = "";
+							optionsBody[3].image = "";
+							optionsBody[3].fileName = "";
+						}
+					})
+					.catch((error) => {
+						console.error(error);
+					});
+			}
+			if (option4) {
+				let optionsLink = req.body.optionsLink;
+				await uploadMultipleImages(option4, optionsLink)
+					.then((uploadedImages) => {
+						let uu = uploadedImages == undefined;
+
+						if (!uu) {
+							body = uploadedImages;
+							body.forEach((e, index) => {
+								optionsBody[4].image = e.path_display;
+								optionsBody[4].fileName = e.name;
+							});
+						} else {
+							optionsBody[4].image = "";
+							optionsBody[4].fileName = "";
+						}
+					})
+					.catch((error) => {
+						console.error(error);
+					});
+			}
+			if (option5) {
+				let optionsLink = req.body.optionsLink;
+				await uploadMultipleImages(option5, optionsLink)
+					.then((uploadedImages) => {
+						let uu = uploadedImages == undefined;
+
+						if (!uu) {
+							body = uploadedImages;
+							body.forEach((e, index) => {
+								optionsBody[5].image = e.path_display;
+								optionsBody[5].fileName = e.name;
+							});
+						} else {
+							optionsBody[5].image = "";
+							optionsBody[5].fileName = "";
+						}
+					})
+					.catch((error) => {
+						console.error(error);
+					});
+			}
+			if (option6) {
+				let optionsLink = req.body.optionsLink;
+				await uploadMultipleImages(option6, optionsLink)
+					.then((uploadedImages) => {
+						let uu = uploadedImages == undefined;
+
+						if (!uu) {
+							body = uploadedImages;
+							body.forEach((e, index) => {
+								optionsBody[6].image = e.path_display;
+								optionsBody[6].fileName = e.name;
+							});
+						} else {
+							optionsBody[6].image = "";
+							optionsBody[6].fileName = "";
+						}
+					})
+					.catch((error) => {
+						console.error(error);
+					});
+			}
+			if (option7) {
+				let optionsLink = req.body.optionsLink;
+				await uploadMultipleImages(option7, optionsLink)
+					.then((uploadedImages) => {
+						let uu = uploadedImages == undefined;
+
+						if (!uu) {
+							body = uploadedImages;
+							body.forEach((e, index) => {
+								optionsBody[7].image = e.path_display;
+								optionsBody[7].fileName = e.name;
+							});
+						} else {
+							optionsBody[7].image = "";
+							optionsBody[7].fileName = "";
 						}
 					})
 					.catch((error) => {
@@ -231,7 +323,9 @@ exports.create = async (req, res) => {
 			var body;
 
 			if (statementFile) {
-				await uploadMultipleImages(statementFile)
+				let statementLink = req.body.statementLink;
+				console.log(statementLink);
+				await uploadMultipleImages(statementFile, statementLink)
 					.then((uploadedImages) => {
 						let uu = uploadedImages == undefined;
 
@@ -254,7 +348,9 @@ exports.create = async (req, res) => {
 			}
 
 			if (hintFile) {
-				await uploadMultipleImages(hintFile)
+				let hintLink = req.body.hintLink;
+				console.log(hintLink);
+				await uploadMultipleImages(hintFile, hintLink)
 					.then((uploadedImages) => {
 						let uu = uploadedImages == undefined;
 
@@ -278,7 +374,9 @@ exports.create = async (req, res) => {
 			}
 
 			if (solutionFile) {
-				await uploadMultipleImages(solutionFile)
+				let soluctionLink = req.body.soluctionLink;
+				console.log(soluctionLink);
+				await uploadMultipleImages(solutionFile, soluctionLink)
 					.then((uploadedImages) => {
 						// console.log(uploadedImages, 444);
 						let uu = uploadedImages == undefined;

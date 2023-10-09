@@ -7,24 +7,26 @@ const moment = require("moment");
 
 const dbx = new Dropbox({ accessToken: process.env.ACCESS_TOKEN, fetch: fetch });
 
-const uploadMultipleImages = async (files) => {
+const uploadMultipleImages = async (files, foldername) => {
 	const uploadedImages = [];
 
 	if (typeof files == "undefined") {
 		return undefined;
 	} else {
 		for (const file of files) {
-			const fileContent = fs.readFileSync(file.path);
+			const fileContent = file.buffer;
+			// const fileContent = fs.readFileSync(file.path);
+			console.log(fileContent);
 
 			try {
-				const datetime = moment().format("YYMMDDHHmmss");
+				const datetime = await moment().format("YYMMDDHHmmss");
 				const response = await dbx.filesUpload({
-					path: `/images/${datetime}-${file.originalname}`,
+					path: `/v2/${foldername}${datetime}-${file.originalname}`,
 					contents: fileContent
 				});
 
 				uploadedImages.push(response.result);
-				fs.unlinkSync(file.path);
+				// fs.unlinkSync(file.path);
 			} catch (error) {
 				console.error(error);
 			}
