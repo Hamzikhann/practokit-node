@@ -50,7 +50,8 @@ exports.create = async (req, res) => {
 			difficultyId: Joi.string().required(),
 			typeId: Joi.string().required(),
 			courseId: Joi.string().required(),
-			statementImage: Joi.string()
+			statementImage: Joi.array()
+				.items(Joi.any())
 				.allow("")
 				.optional(),
 			statementFileName: Joi.string()
@@ -60,14 +61,16 @@ exports.create = async (req, res) => {
 			hint: Joi.string()
 				.optional()
 				.allow(""),
-			hintFile: Joi.string()
+			hintFile: Joi.array()
+				.items(Joi.any())
 				.allow("")
 				.optional(),
 			hintFileName: Joi.string()
 				.allow("")
 				.optional(),
 			hintFileSource: Joi.string().optional(),
-			solutionFile: Joi.string()
+			solutionFile: Joi.array()
+				.items(Joi.any())
 				.optional()
 				.allow(""),
 			solutionFileName: Joi.string()
@@ -78,27 +81,44 @@ exports.create = async (req, res) => {
 				.items(Joi.string().required())
 				.min(1),
 			options: Joi.array()
-				.items(
-					Joi.object().keys({
-						title: Joi.string().optional(),
-						image: Joi.string()
-							.optional()
-							.allow(""),
-						imageSource: Joi.string()
-							.allow("")
-							.optional(),
-						fileName: Joi.string()
-							.allow("")
-							.optional(),
-						correct: Joi.boolean().required()
-					})
-				)
+				.items(Joi.any())
 				.min(1)
-				.max(8)
-				.required()
+				.max(8),
+			optionsLink: Joi.string().allow(""),
+			hintLink: Joi.string().allow(""),
+			soluctionLink: Joi.string().allow(""),
+			statementLink: Joi.string().allow(""),
+			"options-0": Joi.array()
+				.items(Joi.any())
+				.allow(""),
+			"options-1": Joi.array()
+				.items(Joi.any())
+				.allow(""),
+			"options-2": Joi.array()
+				.items(Joi.any())
+				.allow(""),
+			"options-3": Joi.array()
+				.items(Joi.any())
+				.allow(""),
+			"options-4": Joi.array()
+				.items(Joi.any())
+				.allow(""),
+			"options-5": Joi.array()
+				.items(Joi.any())
+				.allow(""),
+			"options-6": Joi.array()
+				.items(Joi.any())
+				.allow(""),
+			"options-7": Joi.array().items(Joi.any().allow(""))
 		});
-		// const { error, value } = joiSchema.validate(req.body);
-		if (!req.body) {
+		console.log(req.body);
+		let tagIds = JSON.parse(req.body.tagIds);
+		let optionsBody = JSON.parse(req.body.options);
+		req.body.options = optionsBody;
+		req.body.tagIds = tagIds;
+		console.log(optionsBody);
+		const { error, value } = joiSchema.validate(req.body);
+		if (error) {
 			emails.errorEmail(req, error);
 			const message = error.details[0].message.replace(/"/g, "");
 			res.status(400).send({
@@ -131,7 +151,7 @@ exports.create = async (req, res) => {
 				solutionFileName: null
 			};
 
-			let optionsBody = JSON.parse(req.body.options);
+			// let optionsBody = JSON.parse(req.body.options);
 			// console.log(optionsBody);
 
 			const statementFile = req.files["statementImage"];
@@ -405,7 +425,7 @@ exports.create = async (req, res) => {
 				.then(async (questionResult) => {
 					// Question Tags
 					var tags = [];
-					let tagIds = JSON.parse(req.body.tagIds);
+					// let tagIds = JSON.parse(req.body.tagIds);
 					tagIds.forEach((tagId) => {
 						tags.push({
 							tagsId: crypto.decrypt(tagId),
@@ -486,51 +506,67 @@ exports.updateQuestion = async (req, res) => {
 			difficultyId: Joi.string().required(),
 			typeId: Joi.string().required(),
 			courseId: Joi.string().required(),
-			statementImage: Joi.string()
-				.required()
-				.allow(""),
-			statementFileName: Joi.string()
-				.required()
-				.allow(""),
-			statementImageSource: Joi.string().required(),
-			hint: Joi.string()
-				.required()
+			statementImage: Joi.array()
+				.items(Joi.any())
 				.allow("")
-				.allow(null),
-			hintFile: Joi.string()
-				.required()
+				.optional(),
+			statementFileName: Joi.string()
+				.allow("")
+				.optional(),
+			statementImageSource: Joi.string().optional(),
+			hint: Joi.string()
+				.optional()
 				.allow(""),
+			hintFile: Joi.array()
+				.items(Joi.any())
+				.allow("")
+				.optional(),
 			hintFileName: Joi.string()
-				.required()
-				.allow(""),
-			hintFileSource: Joi.string().required(),
-			solutionFile: Joi.string()
-				.required()
+				.allow("")
+				.optional(),
+			hintFileSource: Joi.string().optional(),
+			solutionFile: Joi.array()
+				.items(Joi.any())
+				.optional()
 				.allow(""),
 			solutionFileName: Joi.string()
-				.required()
-				.allow(""),
-			solutionFileSource: Joi.string().required(),
+				.allow("")
+				.optional(),
+			solutionFileSource: Joi.string().optional(),
 			tagIds: Joi.array()
 				.items(Joi.string().required())
 				.min(1),
 			options: Joi.array()
-				.items(
-					Joi.object().keys({
-						title: Joi.string().required(),
-						image: Joi.optional().allow(""),
-						imageSource: Joi.string()
-							.required()
-							.allow(""),
-						fileName: Joi.string()
-							.required()
-							.allow(""),
-						correct: Joi.boolean().required()
-					})
-				)
+				.items(Joi.any())
 				.min(1)
 				.max(8)
-				.required()
+				.required(),
+			optionsLink: Joi.string().allow(""),
+			hintLink: Joi.string().allow(""),
+			soluctionLink: Joi.string().allow(""),
+			statementLink: Joi.string().allow(""),
+			"options-0": Joi.array()
+				.items(Joi.any())
+				.allow(""),
+			"options-1": Joi.array()
+				.items(Joi.any())
+				.allow(""),
+			"options-2": Joi.array()
+				.items(Joi.any())
+				.allow(""),
+			"options-3": Joi.array()
+				.items(Joi.any())
+				.allow(""),
+			"options-4": Joi.array()
+				.items(Joi.any())
+				.allow(""),
+			"options-5": Joi.array()
+				.items(Joi.any())
+				.allow(""),
+			"options-6": Joi.array()
+				.items(Joi.any())
+				.allow(""),
+			"options-7": Joi.array().items(Joi.any().allow(""))
 		});
 		const { error, value } = joiSchema.validate(req.body);
 
@@ -582,75 +618,267 @@ exports.updateQuestion = async (req, res) => {
 			};
 
 			let body;
-			const userFiles = req.files["user_file"];
-			const userFilesDropboxRes = [];
-			const hints = req.files["hint"];
-			const solutions = req.files["solution"];
+			const statementFile = req.files["statementImage"];
+			const hintFile = req.files["hintFile"];
+			const solutionFile = req.files["solutionFile"];
+			const option0 = req.files["options-0"];
+			const option1 = req.files["options-1"];
+			const option2 = req.files["options-2"];
+			const option3 = req.files["options-3"];
+			const option4 = req.files["options-4"];
+			const option5 = req.files["options-5"];
+			const option6 = req.files["options-6"];
+			const option7 = req.files["options-7"];
 
-			await uploadMultipleImages(userFiles)
-				.then((uploadedImages) => {
-					let uu = uploadedImages == undefined;
+			if (option0) {
+				let optionsLink = req.body.optionsLink;
+				await uploadMultipleImages(option0, optionsLink)
+					.then((uploadedImages) => {
+						let uu = uploadedImages == undefined;
 
-					if (!uu) {
-						body = uploadedImages;
-						body.forEach((e, index) => {
+						if (!uu) {
+							body = uploadedImages;
+							body.forEach((e, index) => {
+								optionsBody[0].image = e.path_display;
+								optionsBody[0].fileName = e.name;
+							});
+						} else {
+							optionsBody[0].image = "";
+							optionsBody[0].fileName = "";
+						}
+					})
+					.catch((error) => {
+						console.error(error);
+					});
+			}
+
+			if (option1) {
+				let optionsLink = req.body.optionsLink;
+				await uploadMultipleImages(option1, optionsLink)
+					.then((uploadedImages) => {
+						let uu = uploadedImages == undefined;
+
+						if (!uu) {
+							// console.log(uploadedImages);
+							body = uploadedImages;
+							body.forEach((e, index) => {
+								optionsBody[1].image = e.path_display;
+								optionsBody[1].fileName = e.name;
+							});
+						} else {
+							optionsBody[1].image = "";
+							optionsBody[1].fileName = "";
+						}
+					})
+					.catch((error) => {
+						console.error(error);
+					});
+			}
+
+			if (option2) {
+				let optionsLink = req.body.optionsLink;
+				await uploadMultipleImages(option2, optionsLink)
+					.then((uploadedImages) => {
+						let uu = uploadedImages == undefined;
+
+						if (!uu) {
+							body = uploadedImages;
+							body.forEach((e, index) => {
+								optionsBody[2].image = e.path_display;
+								optionsBody[2].fileName = e.name;
+							});
+						} else {
+							optionsBody[2].image = "";
+							optionsBody[2].fileName = "";
+						}
+					})
+					.catch((error) => {
+						console.error(error);
+					});
+			}
+			if (option3) {
+				let optionsLink = req.body.optionsLink;
+				await uploadMultipleImages(option3, optionsLink)
+					.then((uploadedImages) => {
+						let uu = uploadedImages == undefined;
+
+						if (!uu) {
+							body = uploadedImages;
+							body.forEach((e, index) => {
+								optionsBody[3].image = e.path_display;
+								optionsBody[3].fileName = e.name;
+							});
+						} else {
+							optionsBody[3].image = "";
+							optionsBody[3].fileName = "";
+						}
+					})
+					.catch((error) => {
+						console.error(error);
+					});
+			}
+			if (option4) {
+				let optionsLink = req.body.optionsLink;
+				await uploadMultipleImages(option4, optionsLink)
+					.then((uploadedImages) => {
+						let uu = uploadedImages == undefined;
+
+						if (!uu) {
+							body = uploadedImages;
+							body.forEach((e, index) => {
+								optionsBody[4].image = e.path_display;
+								optionsBody[4].fileName = e.name;
+							});
+						} else {
+							optionsBody[4].image = "";
+							optionsBody[4].fileName = "";
+						}
+					})
+					.catch((error) => {
+						console.error(error);
+					});
+			}
+			if (option5) {
+				let optionsLink = req.body.optionsLink;
+				await uploadMultipleImages(option5, optionsLink)
+					.then((uploadedImages) => {
+						let uu = uploadedImages == undefined;
+
+						if (!uu) {
+							body = uploadedImages;
+							body.forEach((e, index) => {
+								optionsBody[5].image = e.path_display;
+								optionsBody[5].fileName = e.name;
+							});
+						} else {
+							optionsBody[5].image = "";
+							optionsBody[5].fileName = "";
+						}
+					})
+					.catch((error) => {
+						console.error(error);
+					});
+			}
+			if (option6) {
+				let optionsLink = req.body.optionsLink;
+				await uploadMultipleImages(option6, optionsLink)
+					.then((uploadedImages) => {
+						let uu = uploadedImages == undefined;
+
+						if (!uu) {
+							body = uploadedImages;
+							body.forEach((e, index) => {
+								optionsBody[6].image = e.path_display;
+								optionsBody[6].fileName = e.name;
+							});
+						} else {
+							optionsBody[6].image = "";
+							optionsBody[6].fileName = "";
+						}
+					})
+					.catch((error) => {
+						console.error(error);
+					});
+			}
+			if (option7) {
+				let optionsLink = req.body.optionsLink;
+				await uploadMultipleImages(option7, optionsLink)
+					.then((uploadedImages) => {
+						let uu = uploadedImages == undefined;
+
+						if (!uu) {
+							body = uploadedImages;
+							body.forEach((e, index) => {
+								optionsBody[7].image = e.path_display;
+								optionsBody[7].fileName = e.name;
+							});
+						} else {
+							optionsBody[7].image = "";
+							optionsBody[7].fileName = "";
+						}
+					})
+					.catch((error) => {
+						console.error(error);
+					});
+			}
+
+			// const statementImage = req.files['statementImage'];
+
+			if (statementFile) {
+				let statementLink = req.body.statementLink;
+				console.log(statementLink);
+				await uploadMultipleImages(statementFile, statementLink)
+					.then((uploadedImages) => {
+						let uu = uploadedImages == undefined;
+
+						if (!uu) {
+							body = uploadedImages;
+							body.forEach((e, index) => {
+								questionAttributes.statementImageSource = "dropbox";
+								questionAttributes.statementImage = e.path_display;
+								questionAttributes.statementFileName = e.name;
+							});
+						} else {
 							questionAttributes.statementImageSource = "dropbox";
-							questionAttributes.statementImage = e.path_display;
-							questionAttributes.statementFileName = e.name;
-						});
-					} else {
-						questionAttributes.statementImageSource = "dropbox";
-						questionAttributes.statementImage = "";
-						questionAttributes.statementFileName = "";
-					}
-				})
-				.catch((error) => {
-					console.error(error);
-				});
+							questionAttributes.statementImage = "";
+							questionAttributes.statementFileName = "";
+						}
+					})
+					.catch((error) => {
+						console.error(error);
+					});
+			}
 
-			await uploadMultipleImages(hints)
-				.then((uploadedImages) => {
-					let uu = uploadedImages == undefined;
+			if (hintFile) {
+				let hintLink = req.body.hintLink;
+				console.log(hintLink);
+				await uploadMultipleImages(hintFile, hintLink)
+					.then((uploadedImages) => {
+						let uu = uploadedImages == undefined;
 
-					if (!uu) {
-						body = uploadedImages;
+						if (!uu) {
+							body = uploadedImages;
 
-						body.forEach((e, index) => {
-							questionAttributes.hint = "hint file name";
+							body.forEach((e, index) => {
+								questionAttributes.hintFileSource = "dropbox";
+								questionAttributes.hintFile = e.path_display;
+								questionAttributes.hintFileName = e.name;
+							});
+						} else {
 							questionAttributes.hintFileSource = "dropbox";
-							questionAttributes.hintFile = e.path_display;
-							questionAttributes.hintFileName = e.name;
-						});
-					} else {
-						questionAttributes.hint = "";
-						questionAttributes.hintFileSource = "dropbox";
-						questionAttributes.hintFile = "";
-						questionAttributes.hintFileName = "";
-					}
-				})
-				.catch((error) => {
-					console.error(error);
-				});
+							questionAttributes.hintFile = "";
+							questionAttributes.hintFileName = "";
+						}
+					})
+					.catch((error) => {
+						console.error(error);
+					});
+			}
 
-			await uploadMultipleImages(solutions)
-				.then((uploadedImages) => {
-					let uu = uploadedImages == undefined;
-					if (!uu) {
-						body = uploadedImages;
-						body.forEach((e, index) => {
+			if (solutionFile) {
+				let soluctionLink = req.body.soluctionLink;
+				console.log(soluctionLink);
+				await uploadMultipleImages(solutionFile, soluctionLink)
+					.then((uploadedImages) => {
+						// console.log(uploadedImages, 444);
+						let uu = uploadedImages == undefined;
+						if (!uu) {
+							body = uploadedImages;
+							body.forEach((e, index) => {
+								questionAttributes.solutionFileSource = "dropbox";
+								questionAttributes.solutionFile = e.path_display;
+								questionAttributes.solutionFileName = e.name;
+							});
+						} else {
 							questionAttributes.solutionFileSource = "dropbox";
-							questionAttributes.solutionFile = e.path_display;
-							questionAttributes.solutionFileName = e.name;
-						});
-					} else {
-						questionAttributes.solutionFileSource = "dropbox";
-						questionAttributes.solutionFile = "";
-						questionAttributes.solutionFileName = "";
-					}
-				})
-				.catch((error) => {
-					console.error(error);
-				});
+							questionAttributes.solutionFile = "";
+							questionAttributes.solutionFileName = "";
+						}
+					})
+					.catch((error) => {
+						console.error(error);
+					});
+			}
 
 			// console.log(questionAttributes);
 
