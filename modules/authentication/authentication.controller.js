@@ -39,7 +39,7 @@ exports.login = async (req, res) => {
 			const user = await Users.findOne({
 				where: {
 					email: req.body.email.trim(),
-					password: crypto.encrypt(req.body.password),
+					password: req.body.password,
 					isActive: "Y",
 					roleId: roleIdList
 				},

@@ -2,6 +2,7 @@ const fs = require("fs");
 const secrets = require("../config/secrets");
 const nodeMailer = require("./nodeMailer");
 const jwt = require("./jwt");
+const crypto = require("../utils/crypto");
 
 const baseURL = secrets.frontend_URL;
 const studentBaseURL = secrets.student_frontend_URL;
@@ -62,15 +63,16 @@ Email.addUser = async (user) => {
 		var text = data;
 
 		text = text.replace("[USER_NAME]", user.firstName + " " + user.lastName);
-		text = text.replace("[PASSWORD]", user.password);
+		text = text.replace("[PASSWORD]", crypto.decrypt(user.password));
 		text = text.replace("[SIGNIN_BUTTON]", process.env.frontend_URL);
 
 		var mailOptions = {
-			from: "Assessment Tool <info@entuition.pk>",
+			from: "Assessment Tool <ahmad@oxibit.com>",
 			to: user.email,
 			subject: "Welcome To Assesment Tool",
 			html: text
 		};
+		console.log(mailOptions);
 
 		return nodeMailer(mailOptions);
 	} catch (error) {
