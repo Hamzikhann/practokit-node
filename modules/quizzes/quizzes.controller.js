@@ -425,7 +425,7 @@ exports.findAllForStudent = async (req, res) => {
 	try {
 		const userId = crypto.decrypt(req.userId);
 		console.log(userId);
-		console.log("hi");
+		// console.log("hi");
 		const [selfCreated, teacherCreated] = await Promise.all([
 			Quizzes.findAll({
 				where: { isActive: "Y", createdBy: userId },

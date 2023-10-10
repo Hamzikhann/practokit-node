@@ -22,7 +22,7 @@ exports.create = async (req, res) => {
 			lastName: Joi.string().required(),
 			email: Joi.string().required(),
 			role: Joi.string().required(),
-			password: Joi.string().required(),
+			// password: Joi.string().required(),
 			courses: Joi.array().items(Joi.string().optional())
 		});
 		console.log(req.body);
@@ -50,7 +50,7 @@ exports.create = async (req, res) => {
 						return 0.5 - Math.random();
 					})
 					.join("");
-				var password = req.body.password;
+				var password = "";
 				for (var i = 0; i < 20; i++) {
 					password += shuffled[Math.floor(Math.random() * shuffled.length)];
 				}
@@ -61,7 +61,7 @@ exports.create = async (req, res) => {
 					email: req.body.email,
 					createdBy: crypto.decrypt(req.userId),
 					roleId: crypto.decrypt(req.body.role),
-					password: req.body.password
+					password: password
 				};
 
 				let transaction = await sequelize.transaction();

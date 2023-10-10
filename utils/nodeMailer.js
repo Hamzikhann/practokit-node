@@ -9,7 +9,7 @@ async function nodeMailer(mailOptions) {
 		port: 465,
 		auth: {
 			user: "apikey",
-			pass: "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"
+			pass: process.env.SENDGRID_API_KEY
 		}
 	});
 

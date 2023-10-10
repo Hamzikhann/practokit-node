@@ -5,7 +5,7 @@ const { file } = require("googleapis/build/src/apis/file");
 const { error } = require("console");
 const moment = require("moment");
 
-const dbx = new Dropbox({ accessToken: process.env.ACCESS_TOKEN, fetch: fetch });
+const dbx = new Dropbox({ accessToken: process.env.DROPBOX_TOKEN, fetch: fetch });
 
 const uploadMultipleImages = async (files, foldername) => {
 	const uploadedImages = [];
