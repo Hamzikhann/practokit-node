@@ -63,7 +63,7 @@ Email.addUser = async (user) => {
 		var text = data;
 
 		text = text.replace("[USER_NAME]", user.firstName + " " + user.lastName);
-		text = text.replace("[PASSWORD]", crypto.decrypt(user.password));
+		text = text.replace("[PASSWORD]", user.password);
 		text = text.replace("[SIGNIN_BUTTON]", process.env.frontend_URL);
 
 		var mailOptions = {
