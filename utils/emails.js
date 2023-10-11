@@ -11,6 +11,8 @@ const db = require("../models");
 const Quizzes = db.quizzes;
 const Courses = db.courses;
 
+const senderEmail = "ahmad@oxibit.com";
+
 /**
  * Email component
  * @constructor
@@ -67,7 +69,7 @@ Email.addUser = async (user) => {
 		text = text.replace("[SIGNIN_BUTTON]", process.env.frontend_URL);
 
 		var mailOptions = {
-			from: "Assessment Tool <ahmad@oxibit.com>",
+			from: `Assessment Tool <${senderEmail}>`,
 			to: user.email,
 			subject: "Welcome To Assesment Tool",
 			html: text
@@ -98,7 +100,7 @@ Email.forgotPassword = async (user) => {
 		text = text.replace("[TEXT_LINK]", link);
 
 		var mailOptions = {
-			from: "Assessment Tool <info@entuition.pk>",
+			from: `Assessment Tool <${senderEmail}>`,
 			to: user.email,
 			subject: "Reset Password",
 			html: text
@@ -140,7 +142,7 @@ Email.assignQuiz = async (emailsList, assessmentId) => {
 		});
 
 		var mailOptions = {
-			from: "Assessment Tool <info@entuition.pk>",
+			from: `Assessment Tool <${senderEmail}>`,
 			to: "ahmad@oxibit.com",
 			bcc: emailBcc,
 			subject: "New Assessment",

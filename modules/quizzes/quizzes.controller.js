@@ -254,7 +254,7 @@ exports.assignQuizToStudent = async (req, res) => {
 					emailsList = emailsList.map((e) => {
 						return e.email;
 					});
-					const result = emails.assignQuiz(emailsList, quizId);
+					// const result = emails.assignQuiz(emailsList, quizId);
 					console.log(emailsList);
 					await transaction.commit();
 					res.status(200).send(emailsList);
@@ -282,7 +282,7 @@ exports.findAllForAdmin = (req, res) => {
 	// title: { [Op.ne]: null }
 	try {
 		Quizzes.findAll({
-			where: { isActive: "Y" },
+			where: { isActive: "Y", title: { [Op.ne]: null } },
 			include: [
 				{
 					model: Courses,
@@ -665,6 +665,7 @@ exports.findQuizByIdForStudent = async (req, res) => {
 					userId: userId
 				}
 			});
+			console.log(canAccess);
 			if (!canAccess) {
 				canAccess = await Quizzes.findOne({
 					where: {
@@ -673,6 +674,7 @@ exports.findQuizByIdForStudent = async (req, res) => {
 						createdBy: userId
 					}
 				});
+				// console.log(canAccess);
 			}
 		} else {
 			canAccess = "Go On";
@@ -697,6 +699,7 @@ exports.findQuizByIdForStudent = async (req, res) => {
 						attributes: ["id", "title"]
 					},
 					{
+						// , userId: crypto.decrypt(userId)
 						model: QuizSubmissions,
 						required: false,
 						include: [
@@ -717,6 +720,7 @@ exports.findQuizByIdForStudent = async (req, res) => {
 				attributes: ["id", "questionsPool", "title", "questionTagsIdList"]
 			})
 				.then(async (quiz) => {
+					// console.log(quiz);
 					const questionsIds = JSON.parse(quiz.questionsPool);
 					const questionsTags = JSON.parse(quiz.questionTagsIdList);
 
@@ -799,14 +803,14 @@ exports.findQuizByIdForStudent = async (req, res) => {
 					});
 				})
 				.catch((err) => {
-					emails.errorEmail(req, err);
+					// emails.errorEmail(req, err);
 					res.status(500).send({
 						message: err.message || "Some error occurred while retrieving Quiz by Id."
 					});
 				});
 		}
 	} catch (err) {
-		emails.errorEmail(req, err);
+		// emails.errorEmail(req, err);
 
 		res.status(500).send({
 			message: err.message || "Some error occurred."

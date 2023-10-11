@@ -22,9 +22,9 @@ exports.getImage = async (req, res) => {
 		const imageUrl = req.body.file;
 
 		if (imageUrl) {
-			console.log(imageUrl);
+			// console.log(imageUrl);
 			let response = await downloadImage(imageUrl);
-			console.log(response);
+			// console.log(response);
 			res.contentType("image/png");
 			const base64Image = Buffer.from(response.result.fileBinary, "binary").toString("base64");
 			const dataUrl = `data:image/png;base64,${base64Image}`;
