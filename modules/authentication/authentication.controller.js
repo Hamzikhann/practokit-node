@@ -12,9 +12,9 @@ exports.login = async (req, res) => {
 	try {
 		const roleIdList = [];
 		roleIdList.push(1, 2, 3, 4, 6); // For Postman
-		// if (req.headers.origin.indexOf("assessment-tool-student.mathecad") != -1) {
+		// if (req.headers.origin.indexOf("practokit.oxibit") != -1) {
 		// 	roleIdList.push(4); // Student
-		// } else if (req.headers.origin.indexOf("assessment-tool.mathecad") != -1) {
+		// } else if (req.headers.origin.indexOf("practokit-admin.oxibit") != -1) {
 		// 	roleIdList.push(1, 2, 3); // Admin, Editor, Teacher
 		// } else if (req.headers.origin.indexOf("localhost") != -1) {
 		// 	// roleIdList.push(1, 2, 3) // Admin, Editor, Teacher

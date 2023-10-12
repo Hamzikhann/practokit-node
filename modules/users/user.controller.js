@@ -67,7 +67,7 @@ exports.create = async (req, res) => {
 				let transaction = await sequelize.transaction();
 				Users.create(userObj, { transaction })
 					.then(async (user) => {
-						if (user.roleId == 6) {
+						if (user.roleId == 3) {
 							var teaches = [];
 							req.body.courses.forEach((course) => {
 								teaches.push({
@@ -304,7 +304,7 @@ exports.update = (req, res) => {
 			)
 				.then(async (num) => {
 					var flag = false;
-					if (crypto.decrypt(req.body.role?.trim()) == 6) {
+					if (crypto.decrypt(req.body.role?.trim()) == 3) {
 						const courses = await Teaches.findAll({
 							where: { userId: userId, isActive: "Y" }
 						});
