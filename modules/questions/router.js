@@ -34,13 +34,30 @@ router.post(
 		}
 	}
 );
-router.put("/:questionId", (req, res) => {
-	if (req.role == "Admin" || req.role == "Editor") {
-		questionsController.updateQuestion(req, res);
-	} else {
-		res.status(403).send({ message: "Forbidden Access" });
+router.put(
+	"/:questionId",
+	upload.fields([
+		{ name: "statementImage", maxCount: 10 }, // Allow up to 10 files for 'user_file'
+		{ name: "hintFile", maxCount: 10 }, // Allow up to 10 files for 'hint'
+		{ name: "solutionFile", maxCount: 10 },
+		{ name: "options-0", maxCount: 10 },
+		{ name: "options-1", maxCount: 10 },
+		{ name: "options-2", maxCount: 10 },
+		{ name: "options-3", maxCount: 10 },
+		{ name: "options-4", maxCount: 10 },
+		{ name: "options-5", maxCount: 10 },
+		{ name: "options-6", maxCount: 10 },
+		{ name: "options-7", maxCount: 10 }
+		// { name: "options-", maxCount: 20 } // Allow up to 10 files for 'solution'
+	]),
+	(req, res) => {
+		if (req.role == "Admin" || req.role == "Editor") {
+			questionsController.updateQuestion(req, res);
+		} else {
+			res.status(403).send({ message: "Forbidden Access" });
+		}
 	}
-});
+);
 router.get("/", (req, res) => {
 	if (req.role == "Admin") {
 		questionsController.findAll(req, res);

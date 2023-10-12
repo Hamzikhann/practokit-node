@@ -570,6 +570,11 @@ exports.updateQuestion = async (req, res) => {
 				.allow(""),
 			"options-7": Joi.array().items(Joi.any().allow(""))
 		});
+		console.log(req.body);
+		let tagIds = JSON.parse(req.body.tagIds);
+		let optionsBody = JSON.parse(req.body.options);
+		req.body.options = optionsBody;
+		req.body.tagIds = tagIds;
 		const { error, value } = joiSchema.validate(req.body);
 
 		if (error) {

@@ -117,6 +117,14 @@ exports.findAllUsers = (req, res) => {
 				{
 					model: Teaches,
 					where: { isActive: "Y" },
+					include: [
+						{
+							model: Courses,
+							required: false,
+							where: { isActive: "Y" },
+							attributes: ["title"]
+						}
+					],
 					required: false,
 					attributes: ["courseId", "isActive"]
 				}
@@ -124,6 +132,8 @@ exports.findAllUsers = (req, res) => {
 			attributes: { exclude: ["createdAt", "updatedAt"] }
 		})
 			.then((data) => {
+				// console.log(data.teaches);
+
 				encryptHelper(data);
 				res.send(data);
 			})
@@ -280,6 +290,8 @@ exports.update = (req, res) => {
 			});
 		} else {
 			const userId = crypto.decrypt(req.params.userId);
+
+			console.log(userId, req.body);
 			// console.log(req.body, crypto.decrypt(req.body.role));
 			Users.update(
 				{

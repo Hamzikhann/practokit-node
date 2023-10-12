@@ -654,6 +654,7 @@ exports.findQuizByIdForStudent = async (req, res) => {
 	try {
 		const quizId = crypto.decrypt(req.params.quizId);
 		const userId = crypto.decrypt(req.userId);
+		console.log(quizId);
 
 		var canAccess = "";
 		console.log("hi");
@@ -723,7 +724,7 @@ exports.findQuizByIdForStudent = async (req, res) => {
 					// console.log(quiz);
 					const questionsIds = JSON.parse(quiz.questionsPool);
 					const questionsTags = JSON.parse(quiz.questionTagsIdList);
-
+					console.log(questionsIds, questionsTags);
 					const tags = await Tags.findAll({
 						where: { id: questionsTags, isActive: "Y" },
 						attributes: ["id", "title"]
@@ -789,6 +790,7 @@ exports.findQuizByIdForStudent = async (req, res) => {
 							}
 						]
 					});
+					console.log(questionsPool);
 
 					res.send({
 						id: crypto.encrypt(quiz.id),
