@@ -654,7 +654,7 @@ exports.findQuizByIdForStudent = async (req, res) => {
 	try {
 		const quizId = crypto.decrypt(req.params.quizId);
 		const userId = crypto.decrypt(req.userId);
-		console.log(quizId);
+		console.log(quizId, userId);
 
 		var canAccess = "";
 		console.log("hi");
@@ -1051,35 +1051,50 @@ exports.updateQuiz = async (req, res) => {
 			const quizId = crypto.decrypt(req.params.quizId);
 			const userId = crypto.decrypt(req.userId);
 
+			// Created By verify
+			let quiz = await Quizzes.findOne({
+				where: { createdBy: userId, id: quizId },
+				attributes: ["id"]
+			});
+			console.log(quiz);
+
+			console.log(quizId, userId);
+
 			const tagsIdList = req.body.tagsIdList.map((e) => +crypto.decrypt(e)).sort();
 			const questionsIds = req.body.questionsIds.map((e) => +crypto.decrypt(e)).sort();
+			// console.log(JSON.stringify(tagsIdList), JSON.stringify(questionsIds));
 
-			Quizzes.update(
-				{
-					title: req.body.title,
-					questionTagsIdList: JSON.stringify(tagsIdList),
-					questionsPool: JSON.stringify(questionsIds)
-				},
-				{
-					where: {
-						id: quizId,
-						createdBy: userId,
-						isActive: "Y"
+			if (quiz && quiz.id) {
+				Quizzes.update(
+					{
+						title: req.body.title,
+						questionTagsIdList: JSON.stringify(tagsIdList),
+						questionsPool: JSON.stringify(questionsIds)
+					},
+					{
+						where: {
+							id: quizId,
+							createdBy: userId,
+							isActive: "Y"
+						}
 					}
-				}
-			)
-				.then((quiz) => {
-					res.status(200).send({ quizId: crypto.encrypt(quizId), message: "Assessment Updated." });
-				})
-				.catch((err) => {
-					emails.errorEmail(req, err);
-					res.status(500).send({
-						message: err.message || "Some error occurred while updating Quiz."
+				)
+					.then((quiz) => {
+						console.log(quiz);
+						res.status(200).send({ quizId: crypto.encrypt(quizId), message: "Assessment Updated." });
+					})
+					.catch((err) => {
+						// emails.errorEmail(req, err);
+						res.status(500).send({
+							message: err.message || "Some error occurred while updating Quiz."
+						});
 					});
-				});
+			} else {
+				res.status(403).send({ message: "Assessment can not be Updated by other User." });
+			}
 		}
 	} catch (err) {
-		emails.errorEmail(req, err);
+		// emails.errorEmail(req, err);
 		res.status(500).send({
 			message: err.message || "Some error occurred."
 		});
