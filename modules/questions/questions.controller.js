@@ -90,28 +90,36 @@ exports.create = async (req, res) => {
 			hintLink: Joi.string().allow(""),
 			soluctionLink: Joi.string().allow(""),
 			statementLink: Joi.string().allow(""),
-			"options-0": Joi.array()
-				.items(Joi.any())
-				.allow(""),
-			"options-1": Joi.array()
-				.items(Joi.any())
-				.allow(""),
-			"options-2": Joi.array()
-				.items(Joi.any())
-				.allow(""),
-			"options-3": Joi.array()
-				.items(Joi.any())
-				.allow(""),
-			"options-4": Joi.array()
-				.items(Joi.any())
-				.allow(""),
-			"options-5": Joi.array()
-				.items(Joi.any())
-				.allow(""),
-			"options-6": Joi.array()
-				.items(Joi.any())
-				.allow(""),
-			"options-7": Joi.array().items(Joi.any().allow(""))
+			"options-0": Joi.any(),
+			"options-1": Joi.any(),
+			"options-2": Joi.any(),
+			"options-3": Joi.any(),
+			"options-4": Joi.any(),
+			"options-5": Joi.any(),
+			"options-6": Joi.any(),
+			"options-7": Joi.any()
+			// "options-0": Joi.array()
+			// 	.items(Joi.any())
+			// 	.allow(""),
+			// "options-1": Joi.array()
+			// 	.items(Joi.any())
+			// 	.allow(""),
+			// "options-2": Joi.array()
+			// 	.items(Joi.any())
+			// 	.allow(""),
+			// "options-3": Joi.array()
+			// 	.items(Joi.any())
+			// 	.allow(""),
+			// "options-4": Joi.array()
+			// 	.items(Joi.any())
+			// 	.allow(""),
+			// "options-5": Joi.array()
+			// 	.items(Joi.any())
+			// 	.allow(""),
+			// "options-6": Joi.array()
+			// 	.items(Joi.any())
+			// 	.allow(""),
+			// "options-7": Joi.array().items(Joi.any().allow(""))
 		});
 		console.log(req.body);
 		let tagIds = JSON.parse(req.body.tagIds);
@@ -508,10 +516,13 @@ exports.updateQuestion = async (req, res) => {
 			difficultyId: Joi.string().required(),
 			typeId: Joi.string().required(),
 			courseId: Joi.string().required(),
-			statementImage: Joi.array()
-				.items(Joi.any())
-				.allow("")
-				.optional(),
+			statementImage: Joi.alternatives().try(
+				Joi.string(), // Valid if it's a string
+				Joi.array()
+					.items(Joi.any())
+					.optional()
+					.allow("")
+			),
 			statementFileName: Joi.string()
 				.allow("")
 				.optional(),
@@ -519,10 +530,13 @@ exports.updateQuestion = async (req, res) => {
 			hint: Joi.string()
 				.optional()
 				.allow(""),
-			hintFile: Joi.array()
-				.items(Joi.any())
-				.allow("")
-				.optional(),
+			hintFile: Joi.alternatives().try(
+				Joi.string(), // Valid if it's a string
+				Joi.array()
+					.items(Joi.any())
+					.optional()
+					.allow("")
+			),
 			hintFileName: Joi.string()
 				.allow("")
 				.optional(),
@@ -547,30 +561,20 @@ exports.updateQuestion = async (req, res) => {
 			hintLink: Joi.string().allow(""),
 			soluctionLink: Joi.string().allow(""),
 			statementLink: Joi.string().allow(""),
-			"options-0": Joi.array()
-				.items(Joi.any())
-				.allow(""),
-			"options-1": Joi.array()
-				.items(Joi.any())
-				.allow(""),
-			"options-2": Joi.array()
-				.items(Joi.any())
-				.allow(""),
-			"options-3": Joi.array()
-				.items(Joi.any())
-				.allow(""),
-			"options-4": Joi.array()
-				.items(Joi.any())
-				.allow(""),
-			"options-5": Joi.array()
-				.items(Joi.any())
-				.allow(""),
-			"options-6": Joi.array()
-				.items(Joi.any())
-				.allow(""),
-			"options-7": Joi.array().items(Joi.any().allow(""))
+			// Joi.array()
+			// 	.items(Joi.any())
+			// 	.allow("", null),
+			"options-0": Joi.any(),
+			"options-1": Joi.any(),
+			"options-2": Joi.any(),
+			"options-3": Joi.any(),
+			"options-4": Joi.any(),
+			"options-5": Joi.any(),
+			"options-6": Joi.any(),
+			"options-7": Joi.any()
 		});
-		console.log(req.body);
+		// console.log(req.body);
+		console.log(typeof req.body.hintFile);
 		let tagIds = JSON.parse(req.body.tagIds);
 		let optionsBody = JSON.parse(req.body.options);
 		req.body.options = optionsBody;
@@ -585,7 +589,6 @@ exports.updateQuestion = async (req, res) => {
 			});
 		} else {
 			const questionId = crypto.decrypt(req.params.questionId);
-
 			const question = {
 				statement: req.body.statement,
 				duration: req.body.duration,
@@ -612,16 +615,16 @@ exports.updateQuestion = async (req, res) => {
 
 			const questionAttributes = {
 				questionId: questionId,
-				statementImageSource: undefined,
-				statementImage: undefined,
-				statementFileName: undefined,
-				hint: undefined,
-				hintFile: undefined,
-				hintFileSource: undefined,
-				hintFileName: undefined,
-				solutionFileSource: undefined,
-				solutionFile: undefined,
-				solutionFileName: undefined
+				statementImageSource: req.body.statementImageSource,
+				statementImage: typeof req.body.statementImage == "string" ? req.body.statementImage : null,
+				statementFileName: null,
+				hint: req.body.hint,
+				hintFileSource: req.body.hintFileSource,
+				hintFile: typeof req.body.hintFile == "string" ? req.body.hintFile : null,
+				hintFileName: req.body.hintFileName ? req.body.hintFileName : null,
+				solutionFileSource: req.body.solutionFileSource,
+				solutionFile: null,
+				solutionFileName: null
 			};
 
 			let body;
@@ -813,7 +816,6 @@ exports.updateQuestion = async (req, res) => {
 
 			if (statementFile) {
 				let statementLink = req.body.statementLink;
-				console.log(statementLink);
 				await uploadMultipleImages(statementFile, statementLink)
 					.then((uploadedImages) => {
 						let uu = uploadedImages == undefined;
@@ -1147,7 +1149,6 @@ exports.findAllForEditor = async (req, res) => {
 			attributes: ["id", "statement", "duration", "points", "createdBy"]
 		})
 			.then((data) => {
-				console.log(data);
 				encryptHelper(data);
 				res.send(data);
 			})

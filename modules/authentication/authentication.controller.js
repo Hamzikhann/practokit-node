@@ -11,7 +11,7 @@ const Op = db.Sequelize.Op;
 exports.login = async (req, res) => {
 	try {
 		const roleIdList = [];
-		roleIdList.push(1, 2, 3, 4, 6); // For Postman
+		roleIdList.push(1, 2, 3, 4); // For Postman
 		// if (req.headers.origin.indexOf("practokit.oxibit") != -1) {
 		// 	roleIdList.push(4); // Student
 		// } else if (req.headers.origin.indexOf("practokit-admin.oxibit") != -1) {
