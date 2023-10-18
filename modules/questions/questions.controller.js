@@ -617,14 +617,14 @@ exports.updateQuestion = async (req, res) => {
 				questionId: questionId,
 				statementImageSource: req.body.statementImageSource,
 				statementImage: typeof req.body.statementImage == "string" ? req.body.statementImage : null,
-				statementFileName: null,
+				statementFileName: req.body.statementFileName ? req.body.statementFileName : null,
 				hint: req.body.hint,
 				hintFileSource: req.body.hintFileSource,
 				hintFile: typeof req.body.hintFile == "string" ? req.body.hintFile : null,
 				hintFileName: req.body.hintFileName ? req.body.hintFileName : null,
 				solutionFileSource: req.body.solutionFileSource,
-				solutionFile: null,
-				solutionFileName: null
+				solutionFile: typeof req.body.solutionFile == "string" ? req.body.solutionFile : null,
+				solutionFileName: req.body.solutionFileName ? req.body.solutionFileName : null
 			};
 
 			let body;
