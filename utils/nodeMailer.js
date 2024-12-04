@@ -2,7 +2,7 @@ const nodemailer = require("nodemailer");
 const secrets = require("../config/secrets");
 
 async function nodeMailer(mailOptions) {
-	// return 1;
+	return 1;
 
 	const transporter = await nodemailer.createTransport({
 		host: "smtp.sendgrid.net",
